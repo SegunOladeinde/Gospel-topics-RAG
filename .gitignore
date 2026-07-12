@@ -11,3 +11,9 @@ wheels/
 
 # Secrets
 .env
+
+# Data (large scraped datasets / generated indexes)
+data/
+
+# Node dependencies
+node_modules/
