@@ -54,4 +54,4 @@ src/frontend/.next/
 src/frontend/out/
 
 # Data Isolation
-data/raw/
+data/
