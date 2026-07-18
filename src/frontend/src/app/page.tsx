@@ -26,7 +26,10 @@ interface Message {
   sources?: string[];
 }
 
-const API_URL = "http://localhost:8000/api/v1/query";
+// Same-origin Next.js API route, which proxies to the FastAPI backend
+// server-side and attaches the API key (see src/app/api/query/route.ts).
+// The browser never sees the backend URL or its API key.
+const API_URL = "/api/query";
 
 const SUGGESTED_QUESTIONS = [
   "What is the significance of the Urim and Thummim?",

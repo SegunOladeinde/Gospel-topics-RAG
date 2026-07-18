@@ -10,6 +10,7 @@ Both are loaded together into an EnsembleRetriever at query time (see
 CLAUDE.md), so they're built from the exact same chunks/metadata here.
 """
 
+import logging
 import os
 import pickle
 from pathlib import Path
@@ -19,6 +20,12 @@ from langchain_community.retrievers import BM25Retriever
 from langchain_community.vectorstores import FAISS
 from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+)
+logger = logging.getLogger(__name__)
 
 RAW_DIR = Path(__file__).resolve().parent.parent / "data" / "raw"
 INDEX_DIR = Path(__file__).resolve().parent.parent / "data" / "index"
@@ -41,30 +48,30 @@ def main() -> None:
     if not os.getenv("OPENAI_API_KEY"):
         raise RuntimeError("OPENAI_API_KEY not found. Check your .env file.")
 
-    print(f"Reading .txt files from {RAW_DIR} ...")
+    logger.info("Reading .txt files from %s ...", RAW_DIR)
     texts, metadatas = load_source_documents()
-    print(f"  {len(texts)} source documents found")
+    logger.info("  %d source documents found", len(texts))
 
     splitter = RecursiveCharacterTextSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP)
     chunks = splitter.create_documents(texts, metadatas=metadatas)
-    print(f"  split into {len(chunks)} chunks")
+    logger.info("  split into %d chunks", len(chunks))
 
     INDEX_DIR.mkdir(parents=True, exist_ok=True)
 
-    print("Embedding chunks and building FAISS index...")
+    logger.info("Embedding chunks and building FAISS index...")
     embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
     vectorstore = FAISS.from_documents(chunks, embeddings)
     vectorstore.save_local(str(INDEX_DIR))
-    print(f"  saved FAISS index to {INDEX_DIR}")
+    logger.info("  saved FAISS index to %s", INDEX_DIR)
 
-    print("Training BM25 index...")
+    logger.info("Training BM25 index...")
     bm25_retriever = BM25Retriever.from_documents(chunks)
     bm25_path = INDEX_DIR / "bm25.pkl"
     with open(bm25_path, "wb") as f:
         pickle.dump(bm25_retriever, f)
-    print(f"  saved BM25 index to {bm25_path}")
+    logger.info("  saved BM25 index to %s", bm25_path)
 
-    print("\nDone.")
+    logger.info("Done.")
 
 
 if __name__ == "__main__":

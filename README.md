@@ -7,7 +7,7 @@ Ask a question in plain language ("What does the Topical Guide say about faith?"
 
 ---
 
-## ✨ Highlights
+##  Highlights
 
 - **Grounded answers** — every response is generated from retrieved source chunks and cited back to the original entry, not the model's own memory.
 - **Hybrid retrieval** — combines FAISS semantic vector search with BM25 keyword search for both conceptual and exact-term matching.
@@ -16,7 +16,7 @@ Ask a question in plain language ("What does the Topical Guide say about faith?"
 
 ---
 
-## 🧱 Tech Stack
+##  Tech Stack
 
 | Layer | Technology |
 |---|---|
@@ -31,7 +31,7 @@ Ask a question in plain language ("What does the Topical Guide say about faith?"
 
 ---
 
-## 🏗️ Architecture
+##  Architecture
 
 The system is built as a four-stage pipeline, from raw scraped text to an in-browser conversation:
 
@@ -56,7 +56,7 @@ The system is built as a four-stage pipeline, from raw scraped text to an in-bro
 
 ---
 
-## 🚀 Local Setup
+## Local Setup
 
 ### Prerequisites
 
@@ -131,6 +131,6 @@ lds-rag-system/
 
 ---
 
-## 🙏 A Note on Doctrinal Accuracy
+## A Note on Doctrinal Accuracy
 
 This is an independent study tool and is not affiliated with or endorsed by The Church of Jesus Christ of Latter-day Saints. All responses are grounded in the scraped source datasets and include citations back to the original material — the system is designed to surface and summarize existing reference content, not to generate new doctrinal claims.

@@ -14,6 +14,16 @@ wheels/
 
 # Data (large scraped datasets / generated indexes)
 data/
+data/raw/
+data/index/
+
+# Vector indexes & other binary artifacts -- defense-in-depth beyond the
+# data/ blanket ignore above, in case a dataset/index file ever ends up
+# outside data/ (e.g. a stray root-level export).
+*.pkl
+*.faiss
+*.bin
+*.sqlite3
 
 # Node dependencies
 node_modules/

@@ -13,12 +13,19 @@ Respectful-crawling behavior:
   resume without re-fetching thousands of pages or hammering the server.
 """
 
+import logging
 import re
 import time
 from pathlib import Path
 
 import requests
 from bs4 import BeautifulSoup
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+)
+logger = logging.getLogger(__name__)
 
 BASE_URL = "https://www.churchofjesuschrist.org"
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
@@ -51,7 +58,13 @@ def fetch_html(url: str) -> str:
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as exc:
             if attempt == MAX_RETRIES:
                 raise
-            print(f"  connection issue ({exc.__class__.__name__}), retry {attempt}/{MAX_RETRIES} in {RETRY_DELAY_SECONDS}s")
+            logger.warning(
+                "  connection issue, retry %d/%d in %ds",
+                attempt,
+                MAX_RETRIES,
+                RETRY_DELAY_SECONDS,
+                exc_info=exc,
+            )
             time.sleep(RETRY_DELAY_SECONDS)
 
 
@@ -132,15 +145,15 @@ def save_text(category: str, url: str, title: str, body_text: str) -> Path:
 
 
 def main() -> None:
-    print("Building full entry list from index pages...")
+    logger.info("Building full entry list from index pages...")
     entries: list[tuple[str, str]] = []  # (category, url)
     for category, index_url, prefix in INDEXES:
         urls = get_entry_urls(index_url, prefix)
-        print(f"  {category}: {len(urls)} entries")
+        logger.info("  %s: %d entries", category, len(urls))
         entries.extend((category, url) for url in urls)
 
     total = len(entries)
-    print(f"Total entries to fetch: {total}\n")
+    logger.info("Total entries to fetch: %d", total)
 
     failures: list[str] = []
     skipped = 0
@@ -151,21 +164,26 @@ def main() -> None:
             skipped += 1
             continue
 
-        print(f"Fetching {i}/{total} [{category}]: {slug}")
+        logger.info("Fetching %d/%d [%s]: %s", i, total, category, slug)
         try:
             html = fetch_html(url)
             title, body_text = extract_doctrinal_text(html)
             save_text(category, url, title, body_text)
         except Exception as exc:
-            print(f"  FAILED: {exc}")
+            logger.error("  FAILED: %s", url, exc_info=exc)
             failures.append(url)
         time.sleep(REQUEST_DELAY_SECONDS)
 
-    print(f"\nDone. {total - skipped - len(failures)} fetched, {skipped} already present, {len(failures)} failed.")
+    logger.info(
+        "Done. %d fetched, %d already present, %d failed.",
+        total - skipped - len(failures),
+        skipped,
+        len(failures),
+    )
     if failures:
-        print("Failed URLs:")
+        logger.warning("Failed URLs:")
         for url in failures:
-            print(f"  {url}")
+            logger.warning("  %s", url)
 
 
 if __name__ == "__main__":

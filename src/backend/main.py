@@ -35,15 +35,51 @@ The ``--reload`` flag is handy during development (the server restarts
 automatically when you edit code), but you would drop it in production.
 """
 
+import logging
+import os
 import pickle
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import TypedDict
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
+
+# ---------------------------------------------------------------------------
+# Server-side logging
+# ---------------------------------------------------------------------------
+# Configured once, at import time, before anything else might log. INFO so
+# our own startup/shutdown messages are visible; ERROR-level entries (see the
+# exception handlers below) always include the full stack trace via
+# exc_info, regardless of this base level.
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+)
+logger = logging.getLogger(__name__)
+
+# Load .env as early as possible, before any module-level `os.getenv()` call
+# below (e.g. ALLOWED_ORIGINS) -- those run once at import time, which is
+# *before* lifespan() executes, so if .env weren't loaded until lifespan()
+# they'd always see the default/empty value instead of what's configured.
+load_dotenv()
+
+# Fail fast: OPENAI_API_KEY is required for both retrieval (OpenAIEmbeddings)
+# and answer generation (ChatOpenAI). Checking this at import time -- before
+# the indexes are loaded or the server starts accepting connections -- means
+# a misconfigured deployment crashes immediately with a clear reason instead
+# of booting "successfully" and then failing confusingly on the first request.
+if not os.getenv("OPENAI_API_KEY"):
+    logger.critical(
+        "OPENAI_API_KEY is not set. The application cannot start without it "
+        "-- add it to your .env file or the environment."
+    )
+    raise RuntimeError("Missing required environment variable: OPENAI_API_KEY")
 
 # Note: in langchain >= 1.0, EnsembleRetriever was moved out of the main
 # `langchain` package and into the separate `langchain_classic` package.
@@ -80,8 +116,11 @@ CHAT_MODEL = "gpt-4o-mini"
 # to the LLM. More chunks = more context, but also a bigger/slower prompt.
 CHUNKS_PER_RETRIEVER = 4
 
-# The origin our Next.js frontend runs on during local development.
-FRONTEND_ORIGIN = "http://localhost:3000"
+# Comma-separated list of origins allowed to call this API (see CORS setup
+# below), e.g. "https://app.example.com,https://staging.example.com" in
+# production. Defaults to the local Next.js dev server so `uv run uvicorn
+# ...` still works out of the box without any .env changes.
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
 
 SYSTEM_PROMPT = (
     "You are a helpful, detailed, and pastoral assistant. Provide deep "
@@ -92,21 +131,6 @@ SYSTEM_PROMPT = (
     "receive a personal witness of the truth. You are not affiliated with "
     "The Church of Jesus Christ of Latter-day Saints."
 )
-
-
-# ---------------------------------------------------------------------------
-# In-memory application state
-# ---------------------------------------------------------------------------
-# TypedDict just gives us type-checked, autocomplete-friendly access to the
-# dictionary we use to hold our "global" objects (the retriever and the chat
-# model). It is populated once in `lifespan()` below and then only ever
-# read from inside request handlers -- never re-loaded from disk per request.
-class AppState(TypedDict):
-    retriever: BaseRetriever
-    chat_model: ChatOpenAI
-
-
-app_state: AppState = {}  # type: ignore[typeddict-item]
 
 
 def load_retriever() -> BaseRetriever:
@@ -167,20 +191,20 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     recommended place to load expensive resources (like our indexes) so
     they are ready in memory before the first request ever arrives.
     """
-    # Load environment variables from the .env file (this is where
-    # OPENAI_API_KEY lives). This must happen before we construct anything
-    # that talks to OpenAI.
-    load_dotenv()
+    # .env is already loaded at module import time (see top of file), which
+    # covers OPENAI_API_KEY, APP_API_KEY, and ALLOWED_ORIGINS alike.
 
-    print("Starting up: loading FAISS + BM25 indexes into memory...")
-    app_state["retriever"] = load_retriever()
-    app_state["chat_model"] = ChatOpenAI(model=CHAT_MODEL, temperature=0)
-    print("Startup complete: indexes are loaded and ready for queries.")
+    logger.info("Starting up: loading FAISS + BM25 indexes into memory...")
+    # Attached directly to FastAPI's own per-app state object -- no separate
+    # global dict to keep in sync with the app's lifecycle. Populated once,
+    # here, and only ever read from inside request handlers afterward.
+    app.state.retriever = load_retriever()
+    app.state.chat_model = ChatOpenAI(model=CHAT_MODEL, temperature=0)
+    logger.info("Startup complete: indexes are loaded and ready for queries.")
 
     yield  # <-- the app runs here, handling requests, until it shuts down
 
-    print("Shutting down: releasing in-memory indexes.")
-    app_state.clear()
+    logger.info("Shutting down: releasing in-memory indexes.")
 
 
 # ---------------------------------------------------------------------------
@@ -194,16 +218,60 @@ app = FastAPI(
 )
 
 # CORS (Cross-Origin Resource Sharing) middleware is what allows a web page
-# served from http://localhost:3000 (our Next.js frontend) to make fetch()
-# requests to this API, which runs on a different port (8000). Without
-# this, the browser would block those requests for security reasons.
+# served from one of ALLOWED_ORIGINS (our Next.js frontend, wherever it's
+# deployed) to make fetch() requests to this API, which runs on a different
+# origin. Without this, the browser would block those requests for security
+# reasons.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[FRONTEND_ORIGIN],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ---------------------------------------------------------------------------
+# Rate limiting
+# ---------------------------------------------------------------------------
+# Keyed by client IP, so each address gets its own request budget on the
+# rate-limited routes below (see the /api/v1/query route).
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+
+# ---------------------------------------------------------------------------
+# API key authentication
+# ---------------------------------------------------------------------------
+def verify_api_key(x_api_key: str | None = Header(default=None)) -> None:
+    """FastAPI dependency that gates a route behind a shared API key.
+
+    The expected key lives in APP_API_KEY (set in .env, loaded via
+    load_dotenv() in lifespan()). If it isn't configured at all, we fail
+    closed (reject every request) rather than silently allowing anyone in.
+    """
+    expected_key = os.getenv("APP_API_KEY")
+    if not expected_key or x_api_key != expected_key:
+        raise HTTPException(status_code=401, detail="Invalid or missing API key.")
+
+
+# ---------------------------------------------------------------------------
+# Global exception handler
+# ---------------------------------------------------------------------------
+# Catches anything that isn't already handled by a more specific handler
+# (FastAPI's own HTTPException handler, slowapi's RateLimitExceeded handler,
+# or a local try/except). The real exception -- message and full stack
+# trace -- goes to the server log only. The client always gets a generic,
+# detail-free message, regardless of what actually went wrong internally.
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    logger.error(
+        "Unhandled exception on %s %s", request.method, request.url.path, exc_info=exc
+    )
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "An unexpected internal server error occurred."},
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -220,7 +288,13 @@ class Message(BaseModel):
         ...,
         description="Who sent this message: 'user' or 'assistant'.",
     )
-    content: str = Field(..., min_length=1, description="The message text.")
+    # max_length caps a single message at ~1500 characters -- plenty of room
+    # for a pasted doctrinal quote or FamilySearch reference, but small
+    # enough to block someone stuffing a huge blob into one turn to run up
+    # the OpenAI bill.
+    content: str = Field(
+        ..., min_length=1, max_length=1500, description="The message text."
+    )
 
 
 class QueryRequest(BaseModel):
@@ -231,9 +305,13 @@ class QueryRequest(BaseModel):
     question from the user -- it's the one we run retrieval against.
     """
 
+    # max_length caps how many turns of history a single request can carry.
+    # Combined with each message's own max_length, this bounds the total
+    # size (and therefore cost) of any one request to the LLM.
     messages: list[Message] = Field(
         ...,
         min_length=1,
+        max_length=20,
         description="Full conversation history, oldest first. Last entry is the new question.",
     )
 
@@ -297,13 +375,67 @@ def to_langchain_message(message: Message) -> HumanMessage | AIMessage:
     return HumanMessage(content=message.content)
 
 
+# Issue #3 already caps each message at 1500 chars and the whole request at
+# 20 messages, but replaying that much history on every turn -- on top of
+# the retrieved RAG context -- still risks blowing the token budget and,
+# in a long-running conversation, the model's context window. These two
+# limits bound what actually gets replayed to the LLM, independent of what
+# the client is allowed to send.
+MAX_HISTORY_MESSAGES = 6
+MAX_HISTORY_CHARS = 4000
+
+
+def trim_history(history: list[Message]) -> list[Message]:
+    """Bound the prior-turn history replayed to the LLM.
+
+    Two layers, both oldest-first: a sliding window on message *count*
+    (last MAX_HISTORY_MESSAGES messages), then a safety budget on total
+    *character* length, in case a handful of near-max-length messages still
+    add up to too much context after windowing.
+    """
+    original_count = len(history)
+    windowed = history[-MAX_HISTORY_MESSAGES:]
+
+    total_chars = sum(len(message.content) for message in windowed)
+    while total_chars > MAX_HISTORY_CHARS and windowed:
+        dropped = windowed.pop(0)
+        total_chars -= len(dropped.content)
+
+    logger.info(
+        "History trimmed: kept %d of %d message(s), %d char(s) total.",
+        len(windowed),
+        original_count,
+        total_chars,
+    )
+    return windowed
+
+
 # ---------------------------------------------------------------------------
 # API routes
 # ---------------------------------------------------------------------------
-@app.post("/api/v1/query", response_model=QueryResponse)
-async def query(request: QueryRequest) -> QueryResponse:
+@app.get("/health")
+async def health() -> dict[str, str]:
+    """Lightweight liveness check for load balancers/uptime monitors.
+
+    Deliberately unauthenticated and unrate-limited, and does not touch the
+    indexes or OpenAI -- it only proves the server process is up and
+    responsive, not that every downstream dependency is healthy.
+    """
+    return {"status": "ok"}
+
+
+@app.post(
+    "/api/v1/query",
+    response_model=QueryResponse,
+    dependencies=[Depends(verify_api_key)],
+)
+@limiter.limit("10/minute")
+async def query(request: Request, payload: QueryRequest) -> QueryResponse:
     """Answer a doctrinal question, grounded in the scraped LDS source texts,
     while remembering the rest of the conversation.
+
+    Requires a valid X-API-Key header (see verify_api_key) and is capped at
+    10 requests/minute per client IP (see the `limiter` set up above).
 
     Flow:
     1. Use the combined FAISS + BM25 retriever to fetch the most relevant
@@ -314,11 +446,11 @@ async def query(request: QueryRequest) -> QueryResponse:
        persona, with the full history in view.
     4. Return the answer along with which source documents were used.
     """
-    retriever = app_state["retriever"]
-    chat_model = app_state["chat_model"]
+    retriever = request.app.state.retriever
+    chat_model = request.app.state.chat_model
 
-    question = request.messages[-1].content
-    history = request.messages[:-1]
+    question = payload.messages[-1].content
+    history = payload.messages[:-1]
 
     # Step 1: retrieve relevant chunks. Any failure here (e.g. a transient
     # OpenAI embeddings error) is treated as a server-side problem, not a
@@ -327,9 +459,10 @@ async def query(request: QueryRequest) -> QueryResponse:
     try:
         documents = await retriever.ainvoke(question)
     except Exception as exc:  # noqa: BLE001 - we deliberately want to catch anything here
+        logger.error("Retrieval failed for question=%r", question, exc_info=exc)
         raise HTTPException(
             status_code=502,
-            detail=f"Failed to search the document indexes: {exc}",
+            detail="Failed to search the document indexes. Please try again shortly.",
         ) from exc
 
     if not documents:
@@ -347,6 +480,10 @@ async def query(request: QueryRequest) -> QueryResponse:
     # Step 2: build the prompt from the retrieved context and the newest
     # question, then prepend the earlier turns so the model has the full
     # conversation in view (this is what lets it "remember" prior turns).
+    # History is trimmed immediately before use, right here, so only the
+    # tightly-budgeted window (not the full client-supplied history) ever
+    # reaches the LLM.
+    trimmed_history = trim_history(history)
     context_text = format_context(documents)
     user_prompt = (
         f"Context:\n{context_text}\n\n"
@@ -355,7 +492,7 @@ async def query(request: QueryRequest) -> QueryResponse:
     )
     messages = [
         SystemMessage(content=SYSTEM_PROMPT),
-        *(to_langchain_message(message) for message in history),
+        *(to_langchain_message(message) for message in trimmed_history),
         HumanMessage(content=user_prompt),
     ]
 
@@ -363,9 +500,10 @@ async def query(request: QueryRequest) -> QueryResponse:
     try:
         response = await chat_model.ainvoke(messages)
     except Exception as exc:  # noqa: BLE001 - same reasoning as above
+        logger.error("Chat completion failed for question=%r", question, exc_info=exc)
         raise HTTPException(
             status_code=502,
-            detail=f"Failed to generate an answer from OpenAI: {exc}",
+            detail="Failed to generate an answer. Please try again shortly.",
         ) from exc
 
     answer_text = str(response.content)
