@@ -95,7 +95,7 @@ if not os.getenv("OPENAI_API_KEY"):
 
 # Note: in langchain >= 1.0, EnsembleRetriever was moved out of the main
 # `langchain` package and into the separate `langchain_classic` package.
-from langchain_classic.retrievers import EnsembleRetriever
+from langchain.retrievers import EnsembleRetriever
 from langchain_community.retrievers import BM25Retriever
 from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
