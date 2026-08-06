@@ -1,0 +1,19 @@
+[project]
+name = "lds-rag-system"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "streamlit",
+    "langchain",
+    "langchain-openai",
+    "langchain-community",
+    "faiss-cpu",
+    "rank_bm25",
+    "python-dotenv",
+    "requests",
+    "beautifulsoup4>=4.15.0",
+]
