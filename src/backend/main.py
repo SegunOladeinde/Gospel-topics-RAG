@@ -5,7 +5,7 @@ WHAT THIS FILE DOES, IN PLAIN ENGLISH
 1.  When the server starts, it loads two pre-built search indexes from disk
     into memory: a FAISS index (good at "meaning" / semantic search) and a
     BM25 index (good at exact keyword matching). Both were built ahead of
-    time by ``src/ingest.py`` from the scraped .txt files in ``data/raw/``.
+    time by ``scripts/ingest.py`` from the scraped .txt files in ``data/raw/``.
 2.  It exposes one endpoint, ``POST /api/v1/query``, that the Next.js
     frontend calls with a user's question.
 3.  For every question, it searches both indexes, merges the results, and
@@ -116,7 +116,7 @@ INDEX_DIR = PROJECT_ROOT / "data" / "index"
 BM25_INDEX_PATH = INDEX_DIR / "bm25.pkl"
 
 # Must match the embedding model used to build the FAISS index in
-# src/ingest.py. If these ever drift apart, similarity search silently
+# scripts/ingest.py. If these ever drift apart, similarity search silently
 # produces bad results (the query vector and the stored vectors would be in
 # different "spaces").
 EMBEDDING_MODEL = "text-embedding-3-small"
@@ -245,7 +245,7 @@ def _verify_bm25_hash(path: Path) -> None:
             f"  Expected: {expected}\n"
             f"  Actual:   {actual}\n"
             "The index may have been tampered with. "
-            "Re-run `uv run src/ingest.py` and update BM25_INDEX_SHA256 in .env."
+            "Re-run `uv run scripts/ingest.py` and update BM25_INDEX_SHA256 in .env."
         )
     logger.info("BM25 index integrity check passed.")
 
@@ -265,7 +265,7 @@ def load_retriever() -> BaseRetriever:
     if not INDEX_DIR.exists():
         raise RuntimeError(
             f"Index directory not found at {INDEX_DIR}. "
-            "Run `uv run src/ingest.py` first to build the indexes."
+            "Run `uv run scripts/ingest.py` first to build the indexes."
         )
 
     # The FAISS index only stores vectors + text; it needs an embeddings
@@ -277,7 +277,7 @@ def load_retriever() -> BaseRetriever:
         embeddings,
         # This flag is required by newer versions of LangChain before they
         # will unpickle a FAISS index. It's safe here because this index
-        # was built by our own trusted ingest.py, not downloaded from the
+        # was built by our own trusted scripts/ingest.py, not downloaded from the
         # internet.
         allow_dangerous_deserialization=True,
     )
@@ -285,7 +285,7 @@ def load_retriever() -> BaseRetriever:
         search_kwargs={"k": CHUNKS_PER_RETRIEVER}
     )
 
-    # The BM25 index was saved as a plain pickle file in src/ingest.py, so
+    # The BM25 index was saved as a plain pickle file in scripts/ingest.py, so
     # we load it back the same way.
     _verify_bm25_hash(BM25_INDEX_PATH)
     with open(BM25_INDEX_PATH, "rb") as bm25_file:
@@ -589,7 +589,7 @@ _SAFE = re.compile(r"[^\w\-]")
 def describe_source(document: Document) -> str:
     """Build a human-readable source label from a chunk's metadata.
 
-    src/ingest.py tags every chunk with metadata like
+    scripts/ingest.py tags every chunk with metadata like
     ``{"source": "topical_guide", "topic": "Faith"}`` (the folder name it
     came from, and the original filename without its extension). We combine
     those into a single readable string, e.g. "topical_guide/Faith".

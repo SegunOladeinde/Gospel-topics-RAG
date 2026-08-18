@@ -11,23 +11,29 @@ wheels/
 
 # Secrets
 .env
+.env.local
 
 # Data (large scraped datasets / generated indexes)
-data/
 data/raw/
-data/index/
 
-# Vector indexes & other binary artifacts -- defense-in-depth beyond the
-# data/ blanket ignore above, in case a dataset/index file ever ends up
-# outside data/ (e.g. a stray root-level export).
+# Keep placeholder files even though data is ignored
+!data/raw/.gitkeep
+!data/index/.gitkeep
+
+# Vector indexes & other binary artifacts -- defense-in-depth
 *.pkl
 *.faiss
 *.bin
 *.sqlite3
 
-# Node dependencies
-node_modules/
+# Exceptions: Track the built vector index files for deployment
+!data/index/
+!data/index/*.pkl
+!data/index/*.faiss
 
+# Node dependencies and Next.js builds
+node_modules/
+.next/
 
 # Testing
 .pytest_cache/
