@@ -9,9 +9,9 @@ The platform is built on a high-performance **dual-stack architecture**:
 - **Backend**: A robust, async-first **Python FastAPI** service. It utilizes LangChain for LLM orchestration, providing a type-safe, enterprise-grade generative engine.
 
 ## Key Features
-- 🧠 **AI Intent Router**: Dynamically classifies incoming user queries (`CHITCHAT`, `RAG_FOLLOWUP`, or `RAG_NEW_TOPIC`) via a 3-way branching classifier. This enables intelligent history-rewriting and avoids unnecessary database retrievals. 
-- 🔍 **FAISS/BM25 Ensemble Retriever**: Combines semantic meaning (FAISS embeddings) with exact keyword matching (BM25) to provide highly accurate, dual-pronged context retrieval against the vast text corpus.
-- 🌗 **Dual-Theme Glassmorphism UI**: Seamless Light and Dark mode integration utilizing `next-themes`, ensuring frosted glass interfaces and floating elements remain visually stunning across all device preferences.
+-  **AI Intent Router**: Dynamically classifies incoming user queries (`CHITCHAT`, `RAG_FOLLOWUP`, or `RAG_NEW_TOPIC`) via a 3-way branching classifier. This enables intelligent history-rewriting and avoids unnecessary database retrievals. 
+-  **FAISS/BM25 Ensemble Retriever**: Combines semantic meaning (FAISS embeddings) with exact keyword matching (BM25) to provide highly accurate, dual-pronged context retrieval against the vast text corpus.
+-  **Dual-Theme Glassmorphism UI**: Seamless Light and Dark mode integration utilizing `next-themes`, ensuring frosted glass interfaces and floating elements remain visually stunning across all device preferences.
 
 ## Security Measures
 The backend has been deeply refactored and audited to guarantee production-grade security:
