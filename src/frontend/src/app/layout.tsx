@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "./providers";
+import { AuthControls } from "./components/AuthControls";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -40,8 +41,21 @@ export default function RootLayout({
         className="bg-slate-50 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-violet-100 via-white to-blue-50 dark:bg-[#0a0a0f] dark:bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] dark:from-violet-900/20 dark:via-[#0a0a0f] dark:to-[#0a0a0f] text-slate-800 dark:text-neutral-100 antialiased min-h-full overflow-hidden"
         suppressHydrationWarning
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          {/*
+            AuthControls is placed first inside Providers so it has access to
+            ClerkProvider context (required for Show / useAuth hooks).
+
+            Its position:fixed + z-[100] in AuthControls.tsx makes it render
+            at the top-right of the viewport regardless of DOM nesting — CSS
+            fixed positioning escapes overflow/stacking contexts visually.
+            React context nesting and CSS stacking contexts are separate concerns.
+          */}
+          <AuthControls />
+          {children}
+        </Providers>
       </body>
     </html>
   );
 }
+
