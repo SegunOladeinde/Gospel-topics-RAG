@@ -17,7 +17,7 @@ const CARDS: BentoCard[] = [
         icon: BookOpen,
         question: "What is the significance of the Urim and Thummim?",
         description: "Prophetic instruments and the Restoration",
-        colSpan: "col-span-2",
+        colSpan: "col-span-1 md:col-span-2",
         iconColor: "text-[#7c6cfc]",
         iconBg: "bg-[#7c6cfc]/20",
         delay: "0ms",
@@ -44,7 +44,7 @@ const CARDS: BentoCard[] = [
         icon: Heart,
         question: "How does the Law of Chastity relate to temple covenants?",
         description: "Purity, covenant living, and eternal progression",
-        colSpan: "col-span-2",
+        colSpan: "col-span-1 md:col-span-2",
         iconColor: "text-rose-500",
         iconBg: "bg-rose-500/20",
         delay: "240ms",
@@ -58,18 +58,18 @@ interface Props {
 
 export function BentoWelcomeGrid({ onSelect, disabled }: Props) {
     return (
-        <div className="flex min-h-full flex-col items-center justify-center px-6 py-12">
-            <div className="mb-10 text-center">
+        <div className="flex min-h-full flex-col items-center justify-center px-4 py-8 md:px-6 md:py-12">
+            <div className="mb-8 text-center md:mb-10">
                 <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#7c6cfc]/20 bg-[#7c6cfc]/10 px-3.5 py-1.5 backdrop-blur-sm">
                     <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#7c6cfc]" />
                     <span className="text-xs font-medium text-[#7c6cfc]">LDS Doctrinal RAG</span>
                 </div>
-                <h1 className="text-2xl font-semibold tracking-tight text-slate-800 dark:text-neutral-100 sm:text-3xl">
+                <h1 className="text-xl font-semibold tracking-tight text-slate-800 dark:text-neutral-100 sm:text-2xl md:text-3xl">
                     What would you like to study?
                 </h1>
             </div>
 
-            <div className="grid w-full max-w-3xl grid-cols-3 gap-3">
+            <div className="grid w-full max-w-3xl grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
                 {CARDS.map(({ icon: Icon, question, description, colSpan, iconColor, iconBg, delay }) => (
                     <button
                         key={question}
@@ -99,3 +99,4 @@ export function BentoWelcomeGrid({ onSelect, disabled }: Props) {
         </div>
     );
 }
+

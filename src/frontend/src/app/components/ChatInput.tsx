@@ -17,10 +17,10 @@ export function ChatInput({ value, onChange, onSubmit, isLoading }: Props) {
     };
 
     return (
-        <div className="sticky bottom-0 mt-auto pt-6 pb-6 px-4">
+        <div className="sticky bottom-0 mt-auto pt-4 pb-4 px-4 md:pt-6 md:pb-6 md:px-6">
             <form
                 onSubmit={handleSubmit}
-                className="mx-auto flex w-full max-w-3xl items-center gap-3 rounded-2xl px-4 py-3 
+                className="mx-auto flex w-full max-w-full md:max-w-2xl lg:max-w-3xl items-center gap-3 rounded-2xl px-4 py-3
           bg-white/50 backdrop-blur-2xl border border-white/60 shadow-sm
           dark:bg-neutral-900/50 dark:backdrop-blur-2xl dark:border-white/10
           focus-within:border-[#7c6cfc]/60 dark:focus-within:border-[#7c6cfc]/50 transition-all duration-300"

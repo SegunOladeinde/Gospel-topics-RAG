@@ -48,7 +48,7 @@ export default function Home() {
   const firstUserMessage = messages.find((m) => m.role === "user")?.content;
 
   return (
-    <div className="flex h-screen w-full overflow-hidden">
+    <div className="flex h-dvh w-full overflow-hidden">
       {/* Mobile scrim */}
       {isMobile && isMobileSidebarOpen && (
         <div

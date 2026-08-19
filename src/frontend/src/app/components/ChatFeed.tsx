@@ -35,7 +35,7 @@ export function ChatFeed({ messages, isLoading, error }: Props) {
     }, [messages, isLoading]);
 
     return (
-        <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-8 pb-32">
+        <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-8 pb-40 md:px-6">
             {messages.map((msg, i) => (
                 <MessageBubble key={i} message={msg} />
             ))}

@@ -12,15 +12,15 @@ export function MessageBubble({ message }: Props) {
     return (
         <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
             <div
-                className={`relative max-w-[82%] rounded-2xl px-5 py-4 ${isUser
-                        ? // User bubble
-                        "rounded-br-sm bg-gradient-to-br from-[#8d7cff] to-[#6b58ff] text-white shadow-md shadow-[#7c6cfc]/20 ring-1 ring-inset ring-white/20"
-                        : // Assistant card
-                        "rounded-bl-sm border" +
-                        /* Light: Heavy glass */
-                        " border-white/80 bg-white/40 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] text-slate-800" +
-                        /* Dark: Smoked glass */
-                        " dark:border-white/[0.05] dark:bg-white/[0.02] dark:backdrop-blur-2xl dark:text-neutral-100"
+                className={`relative max-w-[92%] sm:max-w-[82%] rounded-2xl px-5 py-4 ${isUser
+                    ? // User bubble
+                    "rounded-br-sm bg-gradient-to-br from-[#8d7cff] to-[#6b58ff] text-white shadow-md shadow-[#7c6cfc]/20 ring-1 ring-inset ring-white/20"
+                    : // Assistant card
+                    "rounded-bl-sm border" +
+                    /* Light: Heavy glass */
+                    " border-white/80 bg-white/40 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] text-slate-800" +
+                    /* Dark: Smoked glass */
+                    " dark:border-white/[0.05] dark:bg-white/[0.02] dark:backdrop-blur-2xl dark:text-neutral-100"
                     }`}
             >
                 {isUser ? (
