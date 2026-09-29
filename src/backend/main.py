@@ -59,6 +59,10 @@ from slowapi.util import get_ipaddr
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response as StarletteResponse
 
+from backend.database import SessionLocal, UserQueryLog
+from datetime import datetime, timedelta, timezone
+from sqlalchemy import func
+
 # ---------------------------------------------------------------------------
 # Server-side logging
 # ---------------------------------------------------------------------------
@@ -331,6 +335,17 @@ def get_retriever(request: Request) -> BaseRetriever:
 
 def get_chat_model(request: Request) -> ChatOpenAI:
     return request.app.state.chat_model
+
+def get_db():
+    if not SessionLocal:
+        yield None
+        return
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
 
 
 # ---------------------------------------------------------------------------
@@ -676,8 +691,11 @@ async def health() -> dict[str, str]:
 async def query(
     request: Request,
     payload: QueryRequest,
+    x_user_id: str | None = Header(default="", alias="X-User-Id"),
+    x_forwarded_for: str | None = Header(default="", alias="X-Forwarded-For"),
     retriever: BaseRetriever = Depends(get_retriever),
     chat_model: ChatOpenAI = Depends(get_chat_model),
+    db = Depends(get_db),
 ) -> QueryResponse:
     """Answer a doctrinal question, grounded in the scraped LDS source texts,
     while remembering the rest of the conversation.
@@ -694,6 +712,35 @@ async def query(
        persona, with the full history in view.
     4. Return the answer along with which source documents were used.
     """
+    if db is not None:
+        client_ip = request.client.host if request.client else "unknown"
+        if not x_forwarded_for and x_forwarded_for != "unknown-ip":
+            pass # Use client IP
+        if x_forwarded_for and x_forwarded_for != "unknown-ip":
+            client_ip = x_forwarded_for.split(",")[0].strip()
+            
+        user_id = x_user_id.strip()
+        is_guest = not bool(user_id)
+        identifier = client_ip if is_guest else user_id
+
+        # Rate limits logic
+        if is_guest:
+            count = db.query(UserQueryLog).filter(
+                UserQueryLog.user_identifier == identifier,
+                UserQueryLog.is_guest == True
+            ).count()
+            if count >= 1:
+                raise HTTPException(status_code=429, detail="GUEST_LIMIT_REACHED")
+        else:
+            time_threshold = datetime.now(timezone.utc) - timedelta(hours=24)
+            count = db.query(UserQueryLog).filter(
+                UserQueryLog.user_identifier == identifier,
+                UserQueryLog.is_guest == False,
+                UserQueryLog.created_at >= time_threshold
+            ).count()
+            if count >= 7:
+                raise HTTPException(status_code=429, detail="USER_LIMIT_REACHED")
+
     question = payload.messages[-1].content
     history = payload.messages[:-1]
 
@@ -796,6 +843,18 @@ async def query(
             status_code=502,
             detail="Failed to generate an answer. Please try again shortly.",
         ) from exc
+        
+    if db is not None:
+        try:
+            log_entry = UserQueryLog(
+                user_identifier=identifier,
+                is_guest=is_guest
+            )
+            db.add(log_entry)
+            db.commit()
+        except Exception as exc:
+            db.rollback()
+            logger.error("Failed to insert UserQueryLog", exc_info=exc)
 
     return QueryResponse(
         answer=str(response.content),

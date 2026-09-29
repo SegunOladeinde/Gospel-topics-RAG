@@ -56,12 +56,15 @@ export function MessageBubble({ message }: Props) {
                 {!isUser && message.sources && message.sources.length > 0 && (
                     <div className="relative z-10 mt-4 flex flex-wrap gap-2 border-t pt-4 border-white/60 dark:border-white/[0.05]">
                         {message.sources.map((src, i) => (
-                            <span
+                            <a
                                 key={i}
-                                className="rounded-lg border border-[#7c6cfc]/30 bg-[#7c6cfc]/10 backdrop-blur-md px-3 py-1 text-xs font-medium text-[#7c6cfc] dark:text-[#a599ff] dark:border-[#7c6cfc]/40 dark:bg-[#7c6cfc]/20"
+                                href={src}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="rounded-lg border border-[#7c6cfc]/30 bg-[#7c6cfc]/10 backdrop-blur-md px-3 py-1 text-xs font-medium text-[#7c6cfc] dark:text-[#a599ff] dark:border-[#7c6cfc]/40 dark:bg-[#7c6cfc]/20 hover:opacity-80 transition-opacity"
                             >
                                 {src}
-                            </span>
+                            </a>
                         ))}
                     </div>
                 )}

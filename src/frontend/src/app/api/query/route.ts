@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { auth } from "@clerk/nextjs/server";
+
 // Server-only: this file runs on the Next.js server, never in the browser,
 // so BACKEND_URL and BACKEND_API_KEY are safe to read here. Neither must be
 // prefixed with NEXT_PUBLIC_, which would bundle it into client-side JS.
@@ -21,6 +23,9 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const { userId } = await auth();
+  const forwardedFor = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown-ip";
+
   let body: unknown;
   try {
     body = await request.json();
@@ -35,6 +40,8 @@ export async function POST(request: NextRequest) {
       headers: {
         "Content-Type": "application/json",
         "X-API-Key": BACKEND_API_KEY,
+        "X-User-Id": userId || "",
+        "X-Forwarded-For": forwardedFor,
       },
       body: JSON.stringify(body),
     });
