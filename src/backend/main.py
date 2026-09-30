@@ -59,7 +59,7 @@ from slowapi.util import get_ipaddr
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response as StarletteResponse
 
-from backend.database import SessionLocal, UserQueryLog
+from src.backend.database import SessionLocal, UserQueryLog
 from datetime import datetime, timedelta, timezone
 from sqlalchemy import func
 
@@ -712,6 +712,21 @@ async def query(
        persona, with the full history in view.
     4. Return the answer along with which source documents were used.
     """
+    def _log_query():
+        """Insert a UserQueryLog entry if a DB session is available."""
+        if db is None:
+            return
+        try:
+            log_entry = UserQueryLog(
+                user_identifier=identifier,
+                is_guest=is_guest,
+            )
+            db.add(log_entry)
+            db.commit()
+        except Exception as log_exc:
+            db.rollback()
+            logger.error("Failed to insert UserQueryLog", exc_info=log_exc)
+
     if db is not None:
         client_ip = request.client.host if request.client else "unknown"
         if not x_forwarded_for and x_forwarded_for != "unknown-ip":
@@ -778,6 +793,7 @@ async def query(
                 status_code=502,
                 detail="Failed to generate an answer. Please try again shortly.",
             ) from exc
+        _log_query()
         return QueryResponse(answer=str(response.content), sources=[])
 
     # =========================================================================
@@ -811,6 +827,7 @@ async def query(
 
     if not documents:
         # No relevant material found — do not let the model hallucinate.
+        _log_query()
         return QueryResponse(
             answer=(
                 "I couldn't find anything in the available LDS source "
@@ -843,19 +860,8 @@ async def query(
             status_code=502,
             detail="Failed to generate an answer. Please try again shortly.",
         ) from exc
-        
-    if db is not None:
-        try:
-            log_entry = UserQueryLog(
-                user_identifier=identifier,
-                is_guest=is_guest
-            )
-            db.add(log_entry)
-            db.commit()
-        except Exception as exc:
-            db.rollback()
-            logger.error("Failed to insert UserQueryLog", exc_info=exc)
 
+    _log_query()
     return QueryResponse(
         answer=str(response.content),
         sources=collect_unique_sources(documents),

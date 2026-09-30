@@ -70,4 +70,11 @@ def _patch_lifespan_dependencies():
             return_value=_make_stub_chat_model(),
         ),
     ):
+        # Disable slowapi's IP-based rate limiter during tests.
+        # TestClient always resolves to "testclient" as the IP, causing the
+        # 10/minute cap to accumulate across all tests in a session. Our
+        # database-backed rate limiting is tested independently.
+        from src.backend.main import limiter
+        limiter.enabled = False
         yield
+        limiter.enabled = True
