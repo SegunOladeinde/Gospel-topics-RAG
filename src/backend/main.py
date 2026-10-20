@@ -61,6 +61,7 @@ from starlette.responses import Response as StarletteResponse
 
 from src.backend.database import UserQueryLog, init_db
 from datetime import datetime, timedelta, timezone
+from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
@@ -142,7 +143,22 @@ CHUNKS_PER_RETRIEVER = 4
 # below), e.g. "https://app.example.com,https://staging.example.com" in
 # production. Defaults to the local Next.js dev server so `uv run uvicorn
 # ...` still works out of the box without any .env changes.
-ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+DEFAULT_ALLOWED_ORIGINS = "http://localhost:3000"
+
+
+def parse_allowed_origins(raw: str | None) -> list[str]:
+    """Split ALLOWED_ORIGINS into exact origins CORSMiddleware can match.
+
+    Browsers send ``Origin`` as scheme://host[:port] with no path and no
+    trailing slash, and the middleware compares strings exactly. So spaces
+    and trailing slashes from a hand-typed value would silently block the
+    frontend. Strip both, drop empty entries and duplicates.
+    """
+    origins = (part.strip().rstrip("/") for part in (raw or DEFAULT_ALLOWED_ORIGINS).split(","))
+    return list(dict.fromkeys(origin for origin in origins if origin))
+
+
+ALLOWED_ORIGINS = parse_allowed_origins(os.getenv("ALLOWED_ORIGINS"))
 
 SYSTEM_PROMPT = (
     "You are a warm, knowledgeable gospel-study companion. "
@@ -220,7 +236,8 @@ class ContentSizeLimitMiddleware(BaseHTTPMiddleware):
 def _verify_bm25_hash(path: Path) -> None:
     """SHA-256 integrity check before unpickling the BM25 index.
 
-    If ``BM25_INDEX_SHA256`` is set in .env, compute the file's digest and
+    If the ``BM25_INDEX_SHA256`` environment variable is set (in .env locally,
+    or in the Render dashboard), compute the file's digest and
     compare with ``hmac.compare_digest`` (constant-time, no timing oracle).
     A mismatch aborts startup immediately.  If the variable is unset, a
     warning is logged and loading proceeds.
@@ -234,9 +251,9 @@ def _verify_bm25_hash(path: Path) -> None:
     expected = os.getenv("BM25_INDEX_SHA256", "").strip().lower()
     if not expected:
         logger.warning(
-            "BM25_INDEX_SHA256 not set in .env — skipping integrity check. "
-            "Set it to the SHA-256 hex digest of data/index/bm25.pkl for "
-            "tamper detection in production."
+            "BM25_INDEX_SHA256 environment variable is not set -- skipping the "
+            "integrity check. Set it to the SHA-256 hex digest of "
+            "data/index/bm25.pkl for tamper detection in production."
         )
         return
     h = hashlib.sha256()
@@ -246,11 +263,17 @@ def _verify_bm25_hash(path: Path) -> None:
     actual = h.hexdigest()
     if not hmac.compare_digest(actual, expected):
         raise RuntimeError(
-            f"BM25 index integrity check FAILED.\n"
-            f"  Expected: {expected}\n"
-            f"  Actual:   {actual}\n"
-            "The index may have been tampered with. "
-            "Re-run `uv run scripts/ingest.py` and update BM25_INDEX_SHA256 in .env."
+            "BM25 index integrity check FAILED: data/index/bm25.pkl does not "
+            "match BM25_INDEX_SHA256.\n"
+            f"  Expected (BM25_INDEX_SHA256): {expected[:12]}...\n"
+            f"  Actual (file on disk):        {actual[:12]}...\n"
+            "If you rebuilt the index on purpose, set the BM25_INDEX_SHA256 "
+            "environment variable (Render dashboard -> Environment, or .env "
+            "locally) to the new full digest, printed by:\n"
+            "  uv run python -c \"import hashlib; print(hashlib.sha256("
+            "open('data/index/bm25.pkl','rb').read()).hexdigest())\"\n"
+            "If you didn't rebuild it, the file may have been tampered with: "
+            "don't start the app until it's restored from git."
         )
     logger.info("BM25 index integrity check passed.")
 
@@ -305,6 +328,45 @@ def load_retriever() -> BaseRetriever:
     )
 
 
+REQUIRED_ENV_VARS = ("OPENAI_API_KEY", "APP_API_KEY")
+OPTIONAL_ENV_VARS = (
+    "DATABASE_URL",
+    "ALLOWED_ORIGINS",
+    "BM25_INDEX_SHA256",
+    "RATE_LIMIT_FAIL_CLOSED",
+)
+
+
+def log_startup_config() -> None:
+    """Log the build commit and which env vars are set -- names only, never values."""
+    def is_set(name: str) -> bool:
+        return bool(os.getenv(name, "").strip())
+
+    present = [name for name in REQUIRED_ENV_VARS + OPTIONAL_ENV_VARS if is_set(name)]
+    missing_optional = [name for name in OPTIONAL_ENV_VARS if not is_set(name)]
+    logger.info("Starting commit %s", current_commit())
+    logger.info("CORS allowed origins: %s", ", ".join(ALLOWED_ORIGINS))
+    logger.info("Env vars set: %s", ", ".join(present) or "(none)")
+    if missing_optional:
+        logger.info("Optional env vars not set: %s", ", ".join(missing_optional))
+    for name in REQUIRED_ENV_VARS:
+        if not is_set(name):
+            # OPENAI_API_KEY is already enforced at import; a missing
+            # APP_API_KEY means every /api/v1/query request gets a 401.
+            logger.warning("Required env var %s is not set.", name)
+
+
+def index_chunk_counts(retriever: BaseRetriever) -> dict[str, int] | None:
+    """Chunk counts of the loaded FAISS and BM25 indexes, for the startup log."""
+    if not isinstance(retriever, EnsembleRetriever):
+        return None
+    faiss_retriever, bm25_retriever = retriever.retrievers
+    return {
+        "faiss": faiss_retriever.vectorstore.index.ntotal,
+        "bm25": len(bm25_retriever.docs),
+    }
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Run startup and shutdown code for the FastAPI app.
@@ -317,11 +379,17 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # .env is already loaded at module import time (see top of file), which
     # covers OPENAI_API_KEY, APP_API_KEY, and ALLOWED_ORIGINS alike.
 
+    log_startup_config()
     logger.info("Starting up: loading FAISS + BM25 indexes into memory...")
     # Attached directly to FastAPI's own per-app state object -- no separate
     # global dict to keep in sync with the app's lifecycle. Populated once,
     # here, and only ever read from inside request handlers afterward.
     app.state.retriever = await asyncio.to_thread(load_retriever)  # Issue #4: never block the event loop
+    counts = index_chunk_counts(app.state.retriever)
+    if counts:
+        logger.info("Indexes loaded: FAISS %d chunks, BM25 %d chunks.", counts["faiss"], counts["bm25"])
+        if counts["faiss"] != counts["bm25"]:
+            logger.warning("FAISS and BM25 chunk counts differ -- the indexes may be out of sync.")
     app.state.chat_model = ChatOpenAI(model=CHAT_MODEL, temperature=0)
     # Creates user_query_logs if missing. None when DATABASE_URL is unset or
     # invalid, which disables rate limiting.
@@ -698,15 +766,76 @@ def trim_history(history: list[Message]) -> list[Message]:
 # ---------------------------------------------------------------------------
 # API routes
 # ---------------------------------------------------------------------------
-@app.get("/health")
-async def health() -> dict[str, str]:
-    """Lightweight liveness check for load balancers/uptime monitors.
+@app.get("/")
+async def root() -> dict[str, str]:
+    """Tiny landing response so a bare visit to the API isn't a 404."""
+    return {"service": "gospel-topics-rag", "docs": "/docs", "health": "/health"}
 
-    Deliberately unauthenticated and unrate-limited, and does not touch the
-    indexes or OpenAI -- it only proves the server process is up and
-    responsive, not that every downstream dependency is healthy.
+
+# Upper bound on the database ping inside /health, so a slow or unreachable
+# database can't make the health check itself hang.
+HEALTH_DB_TIMEOUT_SECONDS = 2.0
+
+
+def current_commit() -> str:
+    """Short git commit of the running build (Render sets RENDER_GIT_COMMIT)."""
+    return (os.getenv("RENDER_GIT_COMMIT") or "unknown")[:7]
+
+
+def ping_db(session_factory) -> str:
+    """Run ``SELECT 1``; return "ok" or "error" (details go to the log only)."""
+    try:
+        with session_factory() as db:
+            db.execute(text("SELECT 1"))
+        return "ok"
+    except SQLAlchemyError:
+        logger.warning("Health check: database ping failed.", exc_info=True)
+        return "error"
+
+
+@app.get("/health")
+async def health(request: Request) -> JSONResponse:
+    """Health check for Render and uptime monitors.
+
+    Unauthenticated and not rate-limited. Never calls OpenAI and never
+    returns secrets. The only external call is a time-boxed ``SELECT 1``
+    when a database is configured.
+
+    Answers 200 whenever the indexes are loaded, even if the database is
+    down: rate limiting fails open, so the app can still answer questions
+    and Render shouldn't restart it. A database problem shows up as
+    ``status: "degraded"`` / ``db: "error"``.
     """
-    return {"status": "ok"}
+    state = request.app.state
+    indexes_loaded = getattr(state, "retriever", None) is not None
+
+    session_factory = getattr(state, "db_session_factory", None)
+    if session_factory is None:
+        db_status = "disabled"
+    else:
+        try:
+            db_status = await asyncio.wait_for(
+                asyncio.to_thread(ping_db, session_factory), HEALTH_DB_TIMEOUT_SECONDS
+            )
+        except TimeoutError:
+            logger.warning("Health check: database ping timed out.")
+            db_status = "error"
+
+    if not indexes_loaded:
+        status = "starting"
+    elif db_status == "error":
+        status = "degraded"
+    else:
+        status = "ok"
+    return JSONResponse(
+        status_code=200 if indexes_loaded else 503,
+        content={
+            "status": status,
+            "commit": current_commit(),
+            "indexes_loaded": indexes_loaded,
+            "db": db_status,
+        },
+    )
 
 
 @app.post(

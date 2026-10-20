@@ -78,12 +78,12 @@ def test_engine_kwargs_direct_connection_keeps_prepared_statements():
     kwargs = engine_kwargs("postgresql+psycopg://u:p@db.example.supabase.co:5432/postgres")
     assert kwargs["pool_pre_ping"] is True
     assert kwargs["pool_size"] > 0
-    assert "connect_args" not in kwargs
+    assert kwargs["connect_args"] == {"connect_timeout": 5}
 
 
 def test_engine_kwargs_transaction_pooler_disables_prepared_statements():
     kwargs = engine_kwargs("postgresql+psycopg://u:p@pooler.supabase.com:6543/postgres")
-    assert kwargs["connect_args"] == {"prepare_threshold": None}
+    assert kwargs["connect_args"] == {"connect_timeout": 5, "prepare_threshold": None}
 
 
 def test_engine_kwargs_sqlite_gets_no_pool_options():

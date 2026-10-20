@@ -1,0 +1,36 @@
+# Render Blueprint for the FastAPI backend (https://render.com/docs/blueprint-spec).
+#
+# Mirrors the service already running at https://gospel-topics-rag.onrender.com.
+# Python version: Render reads .python-version (3.12) from the repo root, so
+# PYTHON_VERSION isn't set here.
+#
+# Before syncing this Blueprint to the existing service, add `plan:` with the
+# instance type you use today (e.g. `plan: free` or `plan: starter`). If it's
+# omitted, Render may apply its default plan.
+services:
+  - type: web
+    name: gospel-topics-rag
+    runtime: python
+    branch: main
+    autoDeployTrigger: commit
+    # --no-dev leaves out pytest / pytest-cov / coverage (the `dev` group in
+    # pyproject.toml), which are only needed for CI.
+    buildCommand: uv sync --frozen --no-dev && uv cache prune --ci
+    # `uv run` re-syncs the default groups (including dev) before running, so
+    # without --no-dev here it would reinstall pytest etc. on every boot.
+    startCommand: uv run --no-dev uvicorn src.backend.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      # Values are set in the Render dashboard; sync: false keeps them out of git.
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: APP_API_KEY
+        sync: false
+      - key: DATABASE_URL # Supabase session pooler, port 5432
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: BM25_INDEX_SHA256
+        sync: false
+      - key: RATE_LIMIT_FAIL_CLOSED
+        sync: false
