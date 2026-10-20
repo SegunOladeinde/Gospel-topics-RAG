@@ -1,13 +1,16 @@
 "use client";
 import { useTheme } from "next-themes";
 import { Sun, Moon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
+
+// false during SSR and hydration, true afterwards, so the theme-dependent
+// button only renders once next-themes knows the real theme.
+const subscribe = () => () => {};
 
 export function ThemeToggle({ iconOnly = false }: { iconOnly?: boolean }) {
     const { theme, setTheme } = useTheme();
-    const [mounted, setMounted] = useState(false);
+    const mounted = useSyncExternalStore(subscribe, () => true, () => false);
 
-    useEffect(() => setMounted(true), []);
     if (!mounted) return null;
 
     const isDark = theme === "dark";
