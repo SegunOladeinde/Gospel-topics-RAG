@@ -36,6 +36,26 @@ BM25_INDEX_SHA256="your-sha256-hash"
 
 # Optional: CORS allowed origins (defaults to http://localhost:3000)
 ALLOWED_ORIGINS="http://localhost:3000,https://app.yourdomain.com"
+
+# Optional: Postgres (e.g. Supabase) connection string for per-user rate
+# limiting. postgres:// and postgresql:// URLs are accepted. If unset, the
+# app still starts and answers questions, with rate limiting disabled.
+# With the Supabase transaction pooler (port 6543), prepared statements are
+# turned off automatically.
+DATABASE_URL="postgresql://postgres:password@db.yourproject.supabase.co:5432/postgres"
+
+# Optional: what to do if the rate-limit database is unreachable.
+# false (default) = answer anyway (fail-open); true = return 503 (fail-closed).
+RATE_LIMIT_FAIL_CLOSED="false"
+```
+
+### Database setup (rate limiting)
+On startup the backend creates the `user_query_logs` table if it doesn't exist. To create it yourself instead, or to add the indexes to a table that already exists, run [`sql/001_create_user_query_logs.sql`](sql/001_create_user_query_logs.sql) once in the Supabase SQL editor. The script is safe to re-run, and it also turns on row-level security so Supabase's public API keys can't read the table.
+
+To run the Postgres integration test against a real database:
+
+```bash
+TEST_DATABASE_URL="postgresql://postgres:postgres@localhost:5432/postgres" uv run pytest -m postgres
 ```
 
 ## Local Development
