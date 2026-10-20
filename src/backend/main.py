@@ -61,6 +61,7 @@ from starlette.responses import Response as StarletteResponse
 
 from src.backend.database import UserQueryLog, init_db
 from datetime import datetime, timedelta, timezone
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 # ---------------------------------------------------------------------------
@@ -350,6 +351,27 @@ def get_db(request: Request) -> Iterator[Session | None]:
         return
     with session_factory() as db:
         yield db
+
+
+RATE_LIMIT_UNAVAILABLE_DETAIL = (
+    "We can't check your usage limit right now, so we can't answer just yet. "
+    "Please try again in a few minutes."
+)
+
+
+def rate_limit_fail_closed() -> bool:
+    """True if RATE_LIMIT_FAIL_CLOSED asks us to refuse requests (503) when
+    the rate-limit database is unavailable. Read per request; default false."""
+    return os.getenv("RATE_LIMIT_FAIL_CLOSED", "false").strip().lower() in {"1", "true", "yes"}
+
+
+def rollback_quietly(db: Session) -> None:
+    """Roll back after a failed DB call. If the connection is already gone,
+    the rollback can fail too; that error is logged, not raised."""
+    try:
+        db.rollback()
+    except SQLAlchemyError:
+        logger.warning("Session rollback failed.", exc_info=True)
 
 
 
@@ -729,7 +751,7 @@ async def query(
             db.add(log_entry)
             db.commit()
         except Exception as log_exc:
-            db.rollback()
+            rollback_quietly(db)
             logger.error("Failed to insert UserQueryLog", exc_info=log_exc)
 
     if db is not None:
@@ -744,22 +766,31 @@ async def query(
         identifier = client_ip if is_guest else user_id
 
         # Rate limits logic
-        if is_guest:
-            count = db.query(UserQueryLog).filter(
-                UserQueryLog.user_identifier == identifier,
-                UserQueryLog.is_guest == True
-            ).count()
-            if count >= 1:
-                raise HTTPException(status_code=429, detail="GUEST_LIMIT_REACHED")
-        else:
-            time_threshold = datetime.now(timezone.utc) - timedelta(hours=24)
-            count = db.query(UserQueryLog).filter(
-                UserQueryLog.user_identifier == identifier,
-                UserQueryLog.is_guest == False,
-                UserQueryLog.created_at >= time_threshold
-            ).count()
-            if count >= 7:
-                raise HTTPException(status_code=429, detail="USER_LIMIT_REACHED")
+        try:
+            if is_guest:
+                count = db.query(UserQueryLog).filter(
+                    UserQueryLog.user_identifier == identifier,
+                    UserQueryLog.is_guest == True
+                ).count()
+                if count >= 1:
+                    raise HTTPException(status_code=429, detail="GUEST_LIMIT_REACHED")
+            else:
+                time_threshold = datetime.now(timezone.utc) - timedelta(hours=24)
+                count = db.query(UserQueryLog).filter(
+                    UserQueryLog.user_identifier == identifier,
+                    UserQueryLog.is_guest == False,
+                    UserQueryLog.created_at >= time_threshold
+                ).count()
+                if count >= 7:
+                    raise HTTPException(status_code=429, detail="USER_LIMIT_REACHED")
+        except SQLAlchemyError:
+            # A database outage shouldn't take the whole Q&A service down
+            # with it, so by default the question is answered unmetered
+            # (fail-open). RATE_LIMIT_FAIL_CLOSED=true refuses it instead.
+            logger.exception("Rate-limit check failed for %s", "guest" if is_guest else "user")
+            rollback_quietly(db)
+            if rate_limit_fail_closed():
+                raise HTTPException(status_code=503, detail=RATE_LIMIT_UNAVAILABLE_DETAIL)
 
     question = payload.messages[-1].content
     history = payload.messages[:-1]
