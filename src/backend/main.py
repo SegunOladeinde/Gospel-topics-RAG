@@ -248,11 +248,17 @@ def _verify_bm25_hash(path: Path) -> None:
     actual = h.hexdigest()
     if not hmac.compare_digest(actual, expected):
         raise RuntimeError(
-            f"BM25 index integrity check FAILED.\n"
-            f"  Expected: {expected}\n"
-            f"  Actual:   {actual}\n"
-            "The index may have been tampered with. "
-            "Re-run `uv run scripts/ingest.py` and update BM25_INDEX_SHA256 in .env."
+            "BM25 index integrity check FAILED: data/index/bm25.pkl does not "
+            "match BM25_INDEX_SHA256.\n"
+            f"  Expected (BM25_INDEX_SHA256): {expected[:12]}...\n"
+            f"  Actual (file on disk):        {actual[:12]}...\n"
+            "If you rebuilt the index on purpose, set the BM25_INDEX_SHA256 "
+            "environment variable (Render dashboard -> Environment, or .env "
+            "locally) to the new full digest, printed by:\n"
+            "  uv run python -c \"import hashlib; print(hashlib.sha256("
+            "open('data/index/bm25.pkl','rb').read()).hexdigest())\"\n"
+            "If you didn't rebuild it, the file may have been tampered with: "
+            "don't start the app until it's restored from git."
         )
     logger.info("BM25 index integrity check passed.")
 

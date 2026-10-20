@@ -1,6 +1,9 @@
 """Startup logging and BM25 integrity-check messages."""
 
+import hashlib
 import logging
+
+import pytest
 
 from src.backend.main import _verify_bm25_hash, log_startup_config
 
@@ -34,3 +37,27 @@ def test_bm25_warning_mentions_environment_variable_not_dotenv(monkeypatch, capl
         _verify_bm25_hash(tmp_path / "bm25.pkl")
     assert "BM25_INDEX_SHA256 environment variable is not set" in caplog.text
     assert ".env" not in caplog.text
+
+
+def test_bm25_hash_match_passes(monkeypatch, tmp_path):
+    index = tmp_path / "bm25.pkl"
+    index.write_bytes(b"index bytes")
+    monkeypatch.setenv("BM25_INDEX_SHA256", hashlib.sha256(b"index bytes").hexdigest().upper())
+    _verify_bm25_hash(index)  # case-insensitive match, no exception
+
+
+def test_bm25_hash_mismatch_shows_prefixes_and_how_to_fix(monkeypatch, tmp_path):
+    index = tmp_path / "bm25.pkl"
+    index.write_bytes(b"rebuilt index")
+    expected = "a" * 64
+    actual = hashlib.sha256(b"rebuilt index").hexdigest()
+    monkeypatch.setenv("BM25_INDEX_SHA256", expected)
+
+    with pytest.raises(RuntimeError) as excinfo:
+        _verify_bm25_hash(index)
+
+    message = str(excinfo.value)
+    assert f"Expected (BM25_INDEX_SHA256): {expected[:12]}..." in message
+    assert f"Actual (file on disk):        {actual[:12]}..." in message
+    assert actual not in message  # prefix only
+    assert "Render dashboard" in message and "hashlib.sha256" in message
