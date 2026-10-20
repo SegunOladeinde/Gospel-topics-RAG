@@ -221,7 +221,8 @@ class ContentSizeLimitMiddleware(BaseHTTPMiddleware):
 def _verify_bm25_hash(path: Path) -> None:
     """SHA-256 integrity check before unpickling the BM25 index.
 
-    If ``BM25_INDEX_SHA256`` is set in .env, compute the file's digest and
+    If the ``BM25_INDEX_SHA256`` environment variable is set (in .env locally,
+    or in the Render dashboard), compute the file's digest and
     compare with ``hmac.compare_digest`` (constant-time, no timing oracle).
     A mismatch aborts startup immediately.  If the variable is unset, a
     warning is logged and loading proceeds.
@@ -235,9 +236,9 @@ def _verify_bm25_hash(path: Path) -> None:
     expected = os.getenv("BM25_INDEX_SHA256", "").strip().lower()
     if not expected:
         logger.warning(
-            "BM25_INDEX_SHA256 not set in .env — skipping integrity check. "
-            "Set it to the SHA-256 hex digest of data/index/bm25.pkl for "
-            "tamper detection in production."
+            "BM25_INDEX_SHA256 environment variable is not set -- skipping the "
+            "integrity check. Set it to the SHA-256 hex digest of "
+            "data/index/bm25.pkl for tamper detection in production."
         )
         return
     h = hashlib.sha256()
@@ -306,6 +307,44 @@ def load_retriever() -> BaseRetriever:
     )
 
 
+REQUIRED_ENV_VARS = ("OPENAI_API_KEY", "APP_API_KEY")
+OPTIONAL_ENV_VARS = (
+    "DATABASE_URL",
+    "ALLOWED_ORIGINS",
+    "BM25_INDEX_SHA256",
+    "RATE_LIMIT_FAIL_CLOSED",
+)
+
+
+def log_startup_config() -> None:
+    """Log the build commit and which env vars are set -- names only, never values."""
+    def is_set(name: str) -> bool:
+        return bool(os.getenv(name, "").strip())
+
+    present = [name for name in REQUIRED_ENV_VARS + OPTIONAL_ENV_VARS if is_set(name)]
+    missing_optional = [name for name in OPTIONAL_ENV_VARS if not is_set(name)]
+    logger.info("Starting commit %s", current_commit())
+    logger.info("Env vars set: %s", ", ".join(present) or "(none)")
+    if missing_optional:
+        logger.info("Optional env vars not set: %s", ", ".join(missing_optional))
+    for name in REQUIRED_ENV_VARS:
+        if not is_set(name):
+            # OPENAI_API_KEY is already enforced at import; a missing
+            # APP_API_KEY means every /api/v1/query request gets a 401.
+            logger.warning("Required env var %s is not set.", name)
+
+
+def index_chunk_counts(retriever: BaseRetriever) -> dict[str, int] | None:
+    """Chunk counts of the loaded FAISS and BM25 indexes, for the startup log."""
+    if not isinstance(retriever, EnsembleRetriever):
+        return None
+    faiss_retriever, bm25_retriever = retriever.retrievers
+    return {
+        "faiss": faiss_retriever.vectorstore.index.ntotal,
+        "bm25": len(bm25_retriever.docs),
+    }
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Run startup and shutdown code for the FastAPI app.
@@ -318,11 +357,17 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # .env is already loaded at module import time (see top of file), which
     # covers OPENAI_API_KEY, APP_API_KEY, and ALLOWED_ORIGINS alike.
 
+    log_startup_config()
     logger.info("Starting up: loading FAISS + BM25 indexes into memory...")
     # Attached directly to FastAPI's own per-app state object -- no separate
     # global dict to keep in sync with the app's lifecycle. Populated once,
     # here, and only ever read from inside request handlers afterward.
     app.state.retriever = await asyncio.to_thread(load_retriever)  # Issue #4: never block the event loop
+    counts = index_chunk_counts(app.state.retriever)
+    if counts:
+        logger.info("Indexes loaded: FAISS %d chunks, BM25 %d chunks.", counts["faiss"], counts["bm25"])
+        if counts["faiss"] != counts["bm25"]:
+            logger.warning("FAISS and BM25 chunk counts differ -- the indexes may be out of sync.")
     app.state.chat_model = ChatOpenAI(model=CHAT_MODEL, temperature=0)
     # Creates user_query_logs if missing. None when DATABASE_URL is unset or
     # invalid, which disables rate limiting.
