@@ -1,11 +1,15 @@
+import logging
 import os
+from functools import lru_cache
+
 from sqlalchemy import create_engine, Column, String, Boolean, DateTime
 from sqlalchemy.engine import make_url
 from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy.sql import func
-from dotenv import load_dotenv
 
-load_dotenv()
+# DATABASE_URL is read lazily in get_session_factory(), after main.py has
+# called load_dotenv(), so this module no longer loads .env itself.
+logger = logging.getLogger(__name__)
 
 # Supabase's transaction-mode pooler (Supavisor) listens on this port.
 SUPABASE_TRANSACTION_POOLER_PORT = 6543
@@ -47,17 +51,27 @@ def engine_kwargs(url: str) -> dict:
     return kwargs
 
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+@lru_cache(maxsize=1)
+def get_session_factory() -> sessionmaker | None:
+    """Build the engine + session factory on first call, then reuse it.
 
-if DATABASE_URL:
-    DATABASE_URL = normalize_database_url(DATABASE_URL)
-    engine = create_engine(DATABASE_URL, **engine_kwargs(DATABASE_URL))
-else:
-    engine = None
-if engine:
-    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-else:
-    SessionLocal = None
+    Called from the FastAPI lifespan rather than at import time, so a missing
+    or broken DATABASE_URL can't stop the module (and the whole app) from
+    loading. Returns None when DATABASE_URL isn't set, which turns
+    database-backed rate limiting off. create_engine() doesn't open a
+    connection, so this never touches the network.
+    """
+    url = os.getenv("DATABASE_URL", "").strip()
+    if not url:
+        logger.warning(
+            "DATABASE_URL is not set -- database-backed rate limiting is "
+            "DISABLED. Questions will still be answered."
+        )
+        return None
+    url = normalize_database_url(url)
+    engine = create_engine(url, **engine_kwargs(url))
+    return sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 
 Base = declarative_base()
 

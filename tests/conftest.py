@@ -21,9 +21,16 @@ they do today.  This conftest patch operates one level higher — at *import /
 instantiation* time — which is what CI was missing.
 """
 
+import os
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+
+# Keep the suite off any real database: an empty DATABASE_URL counts as
+# "already set", so main.py's load_dotenv() won't fill it in from a local
+# .env, and get_session_factory() treats it as unset. Postgres is only used
+# by the opt-in tests marked `postgres` (see tests/test_database.py).
+os.environ["DATABASE_URL"] = ""
 
 
 # ---------------------------------------------------------------------------

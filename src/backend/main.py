@@ -44,7 +44,7 @@ import os
 import pickle
 import re
 from collections import deque
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Iterator
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Literal
@@ -59,9 +59,9 @@ from slowapi.util import get_ipaddr
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response as StarletteResponse
 
-from src.backend.database import SessionLocal, UserQueryLog
+from src.backend.database import UserQueryLog, get_session_factory
 from datetime import datetime, timedelta, timezone
-from sqlalchemy import func
+from sqlalchemy.orm import Session
 
 # ---------------------------------------------------------------------------
 # Server-side logging
@@ -322,6 +322,8 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # here, and only ever read from inside request handlers afterward.
     app.state.retriever = await asyncio.to_thread(load_retriever)  # Issue #4: never block the event loop
     app.state.chat_model = ChatOpenAI(model=CHAT_MODEL, temperature=0)
+    # None when DATABASE_URL is unset, which disables rate limiting.
+    app.state.db_session_factory = get_session_factory()
     logger.info("Startup complete: indexes are loaded and ready for queries.")
 
     yield  # <-- the app runs here, handling requests, until it shuts down
@@ -336,15 +338,17 @@ def get_retriever(request: Request) -> BaseRetriever:
 def get_chat_model(request: Request) -> ChatOpenAI:
     return request.app.state.chat_model
 
-def get_db():
-    if not SessionLocal:
+def get_db(request: Request) -> Iterator[Session | None]:
+    """Yield a DB session for one request (None if no database is configured).
+
+    The ``with`` block closes the session even if the request raises.
+    """
+    session_factory = getattr(request.app.state, "db_session_factory", None)
+    if session_factory is None:
         yield None
         return
-    db = SessionLocal()
-    try:
+    with session_factory() as db:
         yield db
-    finally:
-        db.close()
 
 
 
