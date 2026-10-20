@@ -77,3 +77,64 @@ cd src/frontend
 npm run dev
 ```
 *The user interface will be available at `http://localhost:3000`.*
+
+## Deployment
+
+The backend runs on **Render** (`https://gospel-topics-rag.onrender.com`) and the frontend on **Vercel** (`https://gospel-topics-rag.vercel.app`). The browser only talks to Vercel. The Next.js route `src/frontend/src/app/api/query/route.ts` forwards each question to Render server-side and attaches the API key there, so the key never reaches the browser.
+
+### Backend on Render
+The service is described in [`render.yaml`](render.yaml) (a Render Blueprint):
+
+| Setting | Value |
+|---|---|
+| Build command | `uv sync --frozen --no-dev && uv cache prune --ci` |
+| Start command | `uv run --no-dev uvicorn src.backend.main:app --host 0.0.0.0 --port $PORT` |
+| Python | taken from `.python-version` (3.12) |
+| Health check path | `/health` |
+| Auto-deploy | on every commit to `main` |
+
+`--no-dev` is needed in **both** commands: `uv run` re-syncs the default dependency groups before it runs, so without it the start command would reinstall pytest and coverage on every boot.
+
+Environment variables (Render dashboard → Environment; never commit values):
+
+| Variable | Required | Value |
+|---|---|---|
+| `OPENAI_API_KEY` | yes | OpenAI key used for embeddings and chat |
+| `APP_API_KEY` | yes | Shared secret; must equal `BACKEND_API_KEY` on Vercel |
+| `DATABASE_URL` | for rate limiting | Supabase **session pooler** URL (port 5432, user `postgres.<project-ref>`). `postgres://` is fine. If unset, rate limiting is off |
+| `ALLOWED_ORIGINS` | recommended | `https://gospel-topics-rag.vercel.app` (comma-separated for more; spaces and trailing slashes are ignored) |
+| `BM25_INDEX_SHA256` | recommended | SHA-256 of `data/index/bm25.pkl`; startup refuses to load a file that doesn't match |
+| `RATE_LIMIT_FAIL_CLOSED` | no | `true` returns 503 when the rate-limit database is down; default `false` answers anyway |
+
+To get the value for `BM25_INDEX_SHA256` (update it whenever you rebuild the index):
+
+```bash
+uv run python -c "import hashlib; print(hashlib.sha256(open('data/index/bm25.pkl','rb').read()).hexdigest())"
+```
+
+Use the session pooler rather than the transaction pooler (6543): Render runs one long-lived process, which is what session mode is for. The direct `db.<ref>.supabase.co` host needs IPv6 or Supabase's IPv4 add-on.
+
+Memory: with the FAISS + BM25 indexes loaded (10,160 chunks each), the process uses about 290 MB after startup and about 335 MB after answering queries, so a 512 MB instance is enough with `WEB_CONCURRENCY=1`. Each extra uvicorn worker loads its own copy of the indexes, so don't raise `WEB_CONCURRENCY` on a 512 MB instance.
+
+### Frontend on Vercel
+- Root directory: `src/frontend` (framework preset: Next.js)
+- Environment variables (Project → Settings → Environment Variables → Production):
+
+| Variable | Value |
+|---|---|
+| `BACKEND_URL` | `https://gospel-topics-rag.onrender.com/api/v1/query`, the **full endpoint path**, not just the host |
+| `BACKEND_API_KEY` | same value as `APP_API_KEY` on Render |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk publishable key (`pk_live_…` for production) |
+| `CLERK_SECRET_KEY` | Clerk secret key (`sk_live_…` for production) |
+
+The proxy waits up to 55 seconds for the backend. A sleeping Render instance can take about that long to boot and load the indexes. If the backend times out, is unreachable, or returns Render's 502/503/504 page, the user sees "Waking up the server, please try again in a moment."
+
+### Checking a deployment
+```bash
+curl https://gospel-topics-rag.onrender.com/health
+# {"status":"ok","commit":"<short sha>","indexes_loaded":true,"db":"ok"}
+```
+- `commit` should match the latest commit on `main` (`git log -1 --format=%h`). If it doesn't, the new build hasn't gone live yet; check Render → Events.
+- `db` is `ok`, `disabled` (no `DATABASE_URL`), or `error` (database unreachable). `error` makes `status` read `degraded` but still returns HTTP 200, because questions are still answered and Render shouldn't restart the service.
+- `/health` returns 503 only while the indexes are still loading.
+- The Render startup log lists the commit, which env vars are set (names only), the CORS origins and the index chunk counts.
