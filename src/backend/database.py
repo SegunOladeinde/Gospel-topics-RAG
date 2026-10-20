@@ -2,8 +2,9 @@ import logging
 import os
 from functools import lru_cache
 
-from sqlalchemy import create_engine, Column, String, Boolean, DateTime
+from sqlalchemy import create_engine, Column, String, Boolean, DateTime, Index
 from sqlalchemy.engine import make_url
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy.sql import func
 
@@ -77,8 +78,45 @@ Base = declarative_base()
 
 class UserQueryLog(Base):
     __tablename__ = "user_query_logs"
+    # Covers both rate-limit queries in main.py: guests filter on
+    # (user_identifier, is_guest), signed-in users add created_at >= cutoff.
+    # Keep in sync with sql/001_create_user_query_logs.sql.
+    __table_args__ = (
+        Index("ix_user_query_logs_rate_limit", "user_identifier", "is_guest", "created_at"),
+    )
 
     id = Column(String, primary_key=True, default=lambda: os.urandom(16).hex())
     user_identifier = Column(String, index=True, nullable=False)
     is_guest = Column(Boolean, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+def init_db() -> sessionmaker | None:
+    """Set up the database at startup: build the engine, create missing tables.
+
+    Idempotent -- create_all() only creates tables that don't exist yet.
+    Never raises, so a bad DATABASE_URL or an unreachable database can't
+    stop the app from booting:
+    - invalid URL -> logged, returns None (rate limiting disabled)
+    - database unreachable -> logged, the session factory is still returned
+      so each request retries and the RATE_LIMIT_FAIL_CLOSED policy applies
+    """
+    try:
+        session_factory = get_session_factory()
+    except Exception:  # noqa: BLE001 - e.g. unparseable URL or unknown driver
+        logger.exception(
+            "Could not create a database engine from DATABASE_URL -- "
+            "database-backed rate limiting is DISABLED."
+        )
+        return None
+    if session_factory is None:
+        return None
+    try:
+        Base.metadata.create_all(bind=session_factory.kw["bind"])
+        logger.info("Database ready: user_query_logs table exists.")
+    except SQLAlchemyError:
+        logger.exception(
+            "Could not create database tables at startup; rate-limit checks "
+            "will retry on each request."
+        )
+    return session_factory

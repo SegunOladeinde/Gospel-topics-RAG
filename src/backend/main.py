@@ -59,7 +59,7 @@ from slowapi.util import get_ipaddr
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response as StarletteResponse
 
-from src.backend.database import UserQueryLog, get_session_factory
+from src.backend.database import UserQueryLog, init_db
 from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 
@@ -322,8 +322,9 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # here, and only ever read from inside request handlers afterward.
     app.state.retriever = await asyncio.to_thread(load_retriever)  # Issue #4: never block the event loop
     app.state.chat_model = ChatOpenAI(model=CHAT_MODEL, temperature=0)
-    # None when DATABASE_URL is unset, which disables rate limiting.
-    app.state.db_session_factory = get_session_factory()
+    # Creates user_query_logs if missing. None when DATABASE_URL is unset or
+    # invalid, which disables rate limiting.
+    app.state.db_session_factory = await asyncio.to_thread(init_db)
     logger.info("Startup complete: indexes are loaded and ready for queries.")
 
     yield  # <-- the app runs here, handling requests, until it shuts down
