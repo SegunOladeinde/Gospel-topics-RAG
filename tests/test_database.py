@@ -5,7 +5,7 @@ The SQLite-backed rate-limit tests live in test_rate_limiting.py. The
 Postgres test at the bottom only runs when TEST_DATABASE_URL is set, e.g.
 
     TEST_DATABASE_URL=postgresql://postgres:postgres@localhost:5432/postgres \
-        uv run pytest -m postgres
+        uv run pytest -m postgres -v --no-cov
 """
 
 import logging

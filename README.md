@@ -55,8 +55,9 @@ On startup the backend creates the `user_query_logs` table if it doesn't exist. 
 To run the Postgres integration test against a real database:
 
 ```bash
-TEST_DATABASE_URL="postgresql://postgres:postgres@localhost:5432/postgres" uv run pytest -m postgres
+TEST_DATABASE_URL="postgresql://postgres:postgres@localhost:5432/postgres" uv run pytest -m postgres -v --no-cov
 ```
+*`--no-cov` is needed because the 70% coverage gate in `pyproject.toml` fails when only one test is selected.*
 
 ## Local Development
 
