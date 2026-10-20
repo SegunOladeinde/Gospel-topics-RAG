@@ -143,7 +143,22 @@ CHUNKS_PER_RETRIEVER = 4
 # below), e.g. "https://app.example.com,https://staging.example.com" in
 # production. Defaults to the local Next.js dev server so `uv run uvicorn
 # ...` still works out of the box without any .env changes.
-ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+DEFAULT_ALLOWED_ORIGINS = "http://localhost:3000"
+
+
+def parse_allowed_origins(raw: str | None) -> list[str]:
+    """Split ALLOWED_ORIGINS into exact origins CORSMiddleware can match.
+
+    Browsers send ``Origin`` as scheme://host[:port] with no path and no
+    trailing slash, and the middleware compares strings exactly. So spaces
+    and trailing slashes from a hand-typed value would silently block the
+    frontend. Strip both, drop empty entries and duplicates.
+    """
+    origins = (part.strip().rstrip("/") for part in (raw or DEFAULT_ALLOWED_ORIGINS).split(","))
+    return list(dict.fromkeys(origin for origin in origins if origin))
+
+
+ALLOWED_ORIGINS = parse_allowed_origins(os.getenv("ALLOWED_ORIGINS"))
 
 SYSTEM_PROMPT = (
     "You are a warm, knowledgeable gospel-study companion. "
@@ -330,6 +345,7 @@ def log_startup_config() -> None:
     present = [name for name in REQUIRED_ENV_VARS + OPTIONAL_ENV_VARS if is_set(name)]
     missing_optional = [name for name in OPTIONAL_ENV_VARS if not is_set(name)]
     logger.info("Starting commit %s", current_commit())
+    logger.info("CORS allowed origins: %s", ", ".join(ALLOWED_ORIGINS))
     logger.info("Env vars set: %s", ", ".join(present) or "(none)")
     if missing_optional:
         logger.info("Optional env vars not set: %s", ", ".join(missing_optional))
