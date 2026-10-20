@@ -41,6 +41,9 @@ def engine_kwargs(url: str) -> dict:
         "pool_size": 5,
         "max_overflow": 5,
         "pool_recycle": 1800,
+        # Give up on an unreachable database after 5s instead of the OS TCP
+        # timeout, so /health and the rate-limit check can't hang on it.
+        "connect_args": {"connect_timeout": 5},
     }
     if make_url(url).port == SUPABASE_TRANSACTION_POOLER_PORT:
         # The transaction pooler hands each transaction to whichever server
@@ -48,7 +51,7 @@ def engine_kwargs(url: str) -> dict:
         # doesn't exist on the next and fails with "prepared statement ...
         # does not exist". prepare_threshold=None turns server-side prepared
         # statements off entirely.
-        kwargs["connect_args"] = {"prepare_threshold": None}
+        kwargs["connect_args"]["prepare_threshold"] = None
     return kwargs
 
 

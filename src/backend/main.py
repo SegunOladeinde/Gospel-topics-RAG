@@ -61,6 +61,7 @@ from starlette.responses import Response as StarletteResponse
 
 from src.backend.database import UserQueryLog, init_db
 from datetime import datetime, timedelta, timezone
+from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
@@ -698,15 +699,76 @@ def trim_history(history: list[Message]) -> list[Message]:
 # ---------------------------------------------------------------------------
 # API routes
 # ---------------------------------------------------------------------------
-@app.get("/health")
-async def health() -> dict[str, str]:
-    """Lightweight liveness check for load balancers/uptime monitors.
+@app.get("/")
+async def root() -> dict[str, str]:
+    """Tiny landing response so a bare visit to the API isn't a 404."""
+    return {"service": "gospel-topics-rag", "docs": "/docs", "health": "/health"}
 
-    Deliberately unauthenticated and unrate-limited, and does not touch the
-    indexes or OpenAI -- it only proves the server process is up and
-    responsive, not that every downstream dependency is healthy.
+
+# Upper bound on the database ping inside /health, so a slow or unreachable
+# database can't make the health check itself hang.
+HEALTH_DB_TIMEOUT_SECONDS = 2.0
+
+
+def current_commit() -> str:
+    """Short git commit of the running build (Render sets RENDER_GIT_COMMIT)."""
+    return (os.getenv("RENDER_GIT_COMMIT") or "unknown")[:7]
+
+
+def ping_db(session_factory) -> str:
+    """Run ``SELECT 1``; return "ok" or "error" (details go to the log only)."""
+    try:
+        with session_factory() as db:
+            db.execute(text("SELECT 1"))
+        return "ok"
+    except SQLAlchemyError:
+        logger.warning("Health check: database ping failed.", exc_info=True)
+        return "error"
+
+
+@app.get("/health")
+async def health(request: Request) -> JSONResponse:
+    """Health check for Render and uptime monitors.
+
+    Unauthenticated and not rate-limited. Never calls OpenAI and never
+    returns secrets. The only external call is a time-boxed ``SELECT 1``
+    when a database is configured.
+
+    Answers 200 whenever the indexes are loaded, even if the database is
+    down: rate limiting fails open, so the app can still answer questions
+    and Render shouldn't restart it. A database problem shows up as
+    ``status: "degraded"`` / ``db: "error"``.
     """
-    return {"status": "ok"}
+    state = request.app.state
+    indexes_loaded = getattr(state, "retriever", None) is not None
+
+    session_factory = getattr(state, "db_session_factory", None)
+    if session_factory is None:
+        db_status = "disabled"
+    else:
+        try:
+            db_status = await asyncio.wait_for(
+                asyncio.to_thread(ping_db, session_factory), HEALTH_DB_TIMEOUT_SECONDS
+            )
+        except TimeoutError:
+            logger.warning("Health check: database ping timed out.")
+            db_status = "error"
+
+    if not indexes_loaded:
+        status = "starting"
+    elif db_status == "error":
+        status = "degraded"
+    else:
+        status = "ok"
+    return JSONResponse(
+        status_code=200 if indexes_loaded else 503,
+        content={
+            "status": status,
+            "commit": current_commit(),
+            "indexes_loaded": indexes_loaded,
+            "db": db_status,
+        },
+    )
 
 
 @app.post(
