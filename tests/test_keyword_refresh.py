@@ -302,3 +302,13 @@ def test_pgvector_backends_do_not_import_faiss():
             "print('faiss' in sys.modules, 'rank_bm25' in sys.modules)")
     out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, check=True).stdout
     assert out.strip().splitlines()[-1] == "False False"
+
+
+def test_malloc_arena_cap_is_safe_everywhere(monkeypatch):
+    import sys as _sys
+
+    monkeypatch.delenv("MALLOC_ARENA_MAX", raising=False)
+    applied = backend.limit_malloc_arenas()
+    assert applied is _sys.platform.startswith("linux")  # glibc on Linux (CI, Render)
+    monkeypatch.setenv("MALLOC_ARENA_MAX", "4")
+    assert backend.limit_malloc_arenas() is False  # the env var wins

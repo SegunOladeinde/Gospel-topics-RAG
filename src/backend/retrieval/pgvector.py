@@ -98,7 +98,7 @@ class SqlTransport:
 
     _PASSAGE_TEXT = text("SELECT id, content FROM rag_chunks ORDER BY id")
 
-    def iter_passages(self, batch: int = 2000) -> Iterator[tuple[int, str]]:
+    def iter_passages(self, batch: int = 500) -> Iterator[tuple[int, str]]:
         """(chunk id, text) in id order, streamed batch by batch (server-side
         cursor), so the passages are never all in memory at once."""
         with self.session_factory() as db:
