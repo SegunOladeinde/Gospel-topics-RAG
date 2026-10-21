@@ -73,7 +73,13 @@ TEST_DATABASE_URL="postgresql://postgres:postgres@localhost:5432/postgres" uv ru
 *`--no-cov` is needed because the 70% coverage gate in `pyproject.toml` fails when only one test is selected.*
 
 ### Checking retrieval quality
-`uv run python scripts/diagnose_retrieval.py` prints, for ten sample questions (or the ones you pass), the keyword (BM25) hits with the words they matched, the FAISS hits with their relevance, and the final sources. Keyword search ignores stopwords and only returns chunks that actually match a content word (see `src/backend/keyword_retriever.py`).
+`uv run python scripts/diagnose_retrieval.py` prints, for ten sample questions (or the ones you pass), the keyword (BM25) hits with the words they matched, the FAISS hits with their relevance, and the final sources. Keyword search ignores stopwords and only returns chunks that actually match a content word (see `src/backend/retrieval/keyword.py`).
+
+### Retrieval code
+Everything that finds passages lives in `src/backend/retrieval/`, behind one small `Retriever` interface (`ainvoke(query)` and `chunk_counts()`, in `base.py`). Today `HybridRetriever` fuses FAISS semantic search (`vector.py`) and BM25 keyword search (`keyword.py`) with reciprocal rank fusion (`hybrid.py`), loaded from `data/index/` by `local_index.py`. Index files are read with a restricted unpickler (`index_files.py`) that only builds the few classes they contain, so LangChain's community package isn't needed and a tampered file can't run code. A Supabase pgvector + full-text implementation only needs to provide the same two methods and be loaded in `main.load_retriever()`.
+
+### Evaluating changes
+`uv run python scripts/eval_baseline.py eval/<name>.json` runs the 15 questions in `tests/eval/questions.json` through the real pipeline (real indexes and OpenAI calls, a few cents) and records each one's intent, sources, answer length and step timings (routing, retrieval, time to first token). Compare a run against `eval/after_1x.json` after changing models, prompts or retrieval.
 
 ## Local Development
 
