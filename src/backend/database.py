@@ -2,7 +2,9 @@ import logging
 import os
 from functools import lru_cache
 
-from sqlalchemy import create_engine, Column, String, Boolean, DateTime, Index, false, inspect, text
+from sqlalchemy import (
+    JSON, Boolean, Column, DateTime, ForeignKey, Index, String, Text, create_engine, false, inspect, text,
+)
 from sqlalchemy.engine import make_url
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import declarative_base, sessionmaker
@@ -97,6 +99,57 @@ class UserQueryLog(Base):
     is_admin = Column(Boolean, nullable=False, default=False, server_default=false())
 
 
+def _new_id() -> str:
+    return os.urandom(16).hex()
+
+
+class ChatConversation(Base):
+    """One saved chat for a signed-in user. Guests' chats aren't stored.
+
+    Keep in sync with sql/003_create_chat_history.sql.
+    """
+
+    __tablename__ = "chat_conversations"
+    __table_args__ = (Index("ix_chat_conversations_user_updated", "user_id", "updated_at"),)
+
+    id = Column(String, primary_key=True, default=_new_id)
+    user_id = Column(String, nullable=False)  # Clerk user id
+    title = Column(String, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class ChatMessage(Base):
+    """One user question or assistant answer in a ChatConversation."""
+
+    __tablename__ = "chat_messages"
+    __table_args__ = (Index("ix_chat_messages_conversation_created", "conversation_id", "created_at"),)
+
+    id = Column(String, primary_key=True, default=_new_id)
+    conversation_id = Column(
+        String, ForeignKey("chat_conversations.id", ondelete="CASCADE"), nullable=False
+    )
+    role = Column(String, nullable=False)  # "user" or "assistant"
+    content = Column(Text, nullable=False)
+    sources = Column(JSON, nullable=False, default=list)  # source ids, e.g. "topical_guide/faith"
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+# Tables in Supabase's public schema are reachable through its REST API with
+# the public anon key unless row-level security is on. With RLS on and no
+# policies, only the backend (connecting as the table owner) can use them.
+RLS_TABLES = ("user_query_logs", "chat_conversations", "chat_messages")
+
+
+def enable_row_level_security(engine) -> None:
+    """Turn RLS on for every table the app owns. Postgres only; idempotent."""
+    if engine.dialect.name != "postgresql":
+        return
+    with engine.begin() as connection:
+        for table in RLS_TABLES:
+            connection.execute(text(f"ALTER TABLE public.{table} ENABLE ROW LEVEL SECURITY"))
+
+
 def add_missing_columns(engine) -> None:
     """Add columns introduced after user_query_logs was first created.
 
@@ -137,7 +190,8 @@ def init_db() -> sessionmaker | None:
     try:
         Base.metadata.create_all(bind=session_factory.kw["bind"])
         add_missing_columns(session_factory.kw["bind"])
-        logger.info("Database ready: user_query_logs table exists.")
+        enable_row_level_security(session_factory.kw["bind"])
+        logger.info("Database ready: user_query_logs and chat history tables exist.")
     except SQLAlchemyError:
         logger.exception(
             "Could not create database tables at startup; rate-limit checks "
