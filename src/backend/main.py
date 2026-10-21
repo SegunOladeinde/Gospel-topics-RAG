@@ -110,8 +110,6 @@ if not os.getenv("OPENAI_API_KEY"):
     )
     raise RuntimeError("Missing required environment variable: OPENAI_API_KEY")
 
-# Note: in langchain >= 1.0, EnsembleRetriever was moved out of the main
-# `langchain` package and into the separate `langchain_classic` package.
 from langchain.retrievers import EnsembleRetriever
 from langchain_community.retrievers import BM25Retriever
 from langchain_community.vectorstores import FAISS
@@ -238,10 +236,19 @@ class ContentSizeLimitMiddleware(BaseHTTPMiddleware):
 
     async def dispatch(self, request: Request, call_next):  # type: ignore[override]
         content_length = request.headers.get("content-length")
-        if content_length and int(content_length) > self._MAX_BYTES:
-            return StarletteResponse(
-                "Request body too large (max 1 MB).", status_code=413
-            )
+        if content_length is not None:
+            # A malformed header ("abc", "-1", "1e9") is the client's mistake:
+            # answer 400 rather than letting int() raise into a 500.
+            try:
+                size = int(content_length)
+            except ValueError:
+                size = -1
+            if size < 0:
+                return StarletteResponse("Invalid Content-Length header.", status_code=400)
+            if size > self._MAX_BYTES:
+                return StarletteResponse(
+                    "Request body too large (max 1 MB).", status_code=413
+                )
         return await call_next(request)
 
 
