@@ -67,6 +67,7 @@ from src.backend.history import (
     list_conversations,
     save_turn,
 )
+from src.backend.keyword_retriever import KeywordBM25Retriever
 from src.backend.source_links import SourceLink, source_link
 from src.backend.usage import Usage, get_usage
 from dataclasses import dataclass
@@ -330,8 +331,10 @@ def load_retriever() -> BaseRetriever:
     # we load it back the same way.
     _verify_bm25_hash(BM25_INDEX_PATH)
     with open(BM25_INDEX_PATH, "rb") as bm25_file:
-        bm25_retriever: BM25Retriever = pickle.load(bm25_file)
-    bm25_retriever.k = CHUNKS_PER_RETRIEVER
+        bm25_index: BM25Retriever = pickle.load(bm25_file)
+    # Query it on content words only, and only keep real matches; see
+    # src/backend/keyword_retriever.py for why.
+    bm25_retriever = KeywordBM25Retriever(bm25=bm25_index, k=CHUNKS_PER_RETRIEVER)
 
     # `weights` controls how much each retriever's ranking counts towards
     # the final merged ranking. 0.5/0.5 means "trust them equally".
