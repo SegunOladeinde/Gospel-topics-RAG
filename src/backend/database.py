@@ -1,5 +1,6 @@
 import logging
 import os
+from pathlib import Path
 from functools import lru_cache
 
 from sqlalchemy import (
@@ -131,7 +132,7 @@ class ChatMessage(Base):
     )
     role = Column(String, nullable=False)  # "user" or "assistant"
     content = Column(Text, nullable=False)
-    sources = Column(JSON, nullable=False, default=list)  # source ids, e.g. "topical_guide/faith"
+    sources = Column(JSON, nullable=False, default=list)  # source ids, or {id, label, url} links
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
@@ -148,6 +149,27 @@ def enable_row_level_security(engine) -> None:
     with engine.begin() as connection:
         for table in RLS_TABLES:
             connection.execute(text(f"ALTER TABLE public.{table} ENABLE ROW LEVEL SECURITY"))
+
+
+RAG_SCHEMA_SQL = Path(__file__).resolve().parents[2] / "sql" / "004_rag_store.sql"
+
+
+def apply_rag_schema(engine) -> bool:
+    """Create the pgvector passage store (sql/004_rag_store.sql). Postgres only.
+
+    The file is written to be re-run safely. Returns False (and logs) if it
+    can't be applied, e.g. pgvector isn't available: the FAISS backend doesn't
+    need it, so that mustn't stop the app.
+    """
+    if engine.dialect.name != "postgresql":
+        return False
+    try:
+        with engine.begin() as connection:
+            connection.exec_driver_sql(RAG_SCHEMA_SQL.read_text(encoding="utf-8"))
+        return True
+    except SQLAlchemyError:
+        logger.warning("Could not apply %s; RETRIEVER_BACKEND=pgvector won't work.", RAG_SCHEMA_SQL.name, exc_info=True)
+        return False
 
 
 def add_missing_columns(engine) -> None:
@@ -191,6 +213,7 @@ def init_db() -> sessionmaker | None:
         Base.metadata.create_all(bind=session_factory.kw["bind"])
         add_missing_columns(session_factory.kw["bind"])
         enable_row_level_security(session_factory.kw["bind"])
+        apply_rag_schema(session_factory.kw["bind"])
         logger.info("Database ready: user_query_logs and chat history tables exist.")
     except SQLAlchemyError:
         logger.exception(
