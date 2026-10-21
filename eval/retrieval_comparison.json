@@ -455,6 +455,44 @@
    ]
   },
   {
+   "variant": "pg_ft:0.5,0.4",
+   "worse": [
+    "doctrine-baptism",
+    "doctrine-after-death",
+    "followup-faith",
+    "followup-tithing",
+    "followup-sacrament-scriptures",
+    "long-priesthood-authority",
+    "tithing-use",
+    "sacrament-prayers",
+    "bom-alma"
+   ],
+   "relevant": 94,
+   "off_topic": 23,
+   "must_fix_ok": [
+    "doctrine-moroni"
+   ]
+  },
+  {
+   "variant": "pg_ft:0.7,0.4",
+   "worse": [
+    "doctrine-baptism",
+    "doctrine-after-death",
+    "followup-faith",
+    "followup-tithing",
+    "followup-sacrament-scriptures",
+    "long-priesthood-authority",
+    "tithing-use",
+    "sacrament-prayers",
+    "bom-alma"
+   ],
+   "relevant": 94,
+   "off_topic": 23,
+   "must_fix_ok": [
+    "doctrine-moroni"
+   ]
+  },
+  {
    "variant": "pg_ft:0.5,0.3",
    "worse": [
     "doctrine-baptism",
@@ -467,8 +505,8 @@
     "sacrament-weekly",
     "bom-king-benjamin"
    ],
-   "relevant": 99,
-   "off_topic": 27,
+   "relevant": 98,
+   "off_topic": 26,
    "must_fix_ok": [
     "doctrine-moroni"
    ]
@@ -486,8 +524,8 @@
     "sacrament-weekly",
     "bom-king-benjamin"
    ],
-   "relevant": 99,
-   "off_topic": 27,
+   "relevant": 98,
+   "off_topic": 26,
    "must_fix_ok": [
     "doctrine-moroni"
    ]
@@ -505,8 +543,8 @@
     "sacrament-weekly",
     "bom-king-benjamin"
    ],
-   "relevant": 99,
-   "off_topic": 29,
+   "relevant": 98,
+   "off_topic": 28,
    "must_fix_ok": [
     "doctrine-moroni"
    ]
@@ -524,8 +562,8 @@
     "sacrament-weekly",
     "bom-king-benjamin"
    ],
-   "relevant": 99,
-   "off_topic": 29,
+   "relevant": 98,
+   "off_topic": 28,
    "must_fix_ok": [
     "doctrine-moroni"
    ]
@@ -543,8 +581,8 @@
     "sacrament-weekly",
     "bom-king-benjamin"
    ],
-   "relevant": 99,
-   "off_topic": 29,
+   "relevant": 98,
+   "off_topic": 28,
    "must_fix_ok": [
     "doctrine-moroni"
    ]
@@ -563,7 +601,7 @@
     "sacrament-prayers",
     "bom-alma"
    ],
-   "relevant": 92,
+   "relevant": 91,
    "off_topic": 22,
    "must_fix_ok": []
   },
@@ -581,44 +619,8 @@
     "sacrament-prayers",
     "bom-alma"
    ],
-   "relevant": 92,
+   "relevant": 91,
    "off_topic": 22,
-   "must_fix_ok": []
-  },
-  {
-   "variant": "pg_ft:0.5,0.4",
-   "worse": [
-    "doctrine-baptism",
-    "doctrine-moroni",
-    "doctrine-after-death",
-    "followup-faith",
-    "followup-tithing",
-    "followup-sacrament-scriptures",
-    "long-priesthood-authority",
-    "tithing-use",
-    "sacrament-prayers",
-    "bom-alma"
-   ],
-   "relevant": 94,
-   "off_topic": 24,
-   "must_fix_ok": []
-  },
-  {
-   "variant": "pg_ft:0.7,0.4",
-   "worse": [
-    "doctrine-baptism",
-    "doctrine-moroni",
-    "doctrine-after-death",
-    "followup-faith",
-    "followup-tithing",
-    "followup-sacrament-scriptures",
-    "long-priesthood-authority",
-    "tithing-use",
-    "sacrament-prayers",
-    "bom-alma"
-   ],
-   "relevant": 94,
-   "off_topic": 24,
    "must_fix_ok": []
   },
   {
@@ -636,8 +638,8 @@
     "bom-alma",
     "bom-king-benjamin"
    ],
-   "relevant": 97,
-   "off_topic": 27,
+   "relevant": 96,
+   "off_topic": 26,
    "must_fix_ok": [
     "doctrine-moroni"
    ]
@@ -657,8 +659,8 @@
     "bom-alma",
     "bom-king-benjamin"
    ],
-   "relevant": 97,
-   "off_topic": 27,
+   "relevant": 96,
+   "off_topic": 26,
    "must_fix_ok": [
     "doctrine-moroni"
    ]
@@ -1091,8 +1093,7 @@
     "topics_and_questions/charity-study-guide",
     "topics_and_questions/book-of-mormon-and-dna-studies",
     "topics_and_questions/hope-study-guide",
-    "topics_and_questions/scriptures",
-    "topical_guide/governments"
+    "topics_and_questions/scriptures"
    ],
    "pg_ft:0.5,-": [
     "topics_and_questions/joseph-smiths-character",
@@ -1101,8 +1102,7 @@
     "topics_and_questions/charity-study-guide",
     "topics_and_questions/book-of-mormon-and-dna-studies",
     "topics_and_questions/hope-study-guide",
-    "topics_and_questions/scriptures",
-    "topical_guide/governments"
+    "topics_and_questions/scriptures"
    ],
    "pg_bm25:0.5,-": [
     "topics_and_questions/joseph-smiths-character",
@@ -1129,8 +1129,7 @@
     "topics_and_questions/charity-study-guide",
     "topics_and_questions/book-of-mormon-and-dna-studies",
     "topics_and_questions/hope-study-guide",
-    "topics_and_questions/scriptures",
-    "topical_guide/governments"
+    "topics_and_questions/scriptures"
    ],
    "pg_bm25:0.5,0.3": [
     "topics_and_questions/joseph-smiths-character",
@@ -1157,8 +1156,7 @@
     "topics_and_questions/charity-study-guide",
     "topics_and_questions/book-of-mormon-and-dna-studies",
     "topics_and_questions/hope-study-guide",
-    "topics_and_questions/scriptures",
-    "topical_guide/governments"
+    "topics_and_questions/scriptures"
    ],
    "pg_bm25:0.5,0.35": [
     "topics_and_questions/joseph-smiths-character",
@@ -1182,7 +1180,7 @@
     "topics_and_questions/joseph-smiths-character",
     "topics_and_questions/spiritual-gifts",
     "topics_and_questions/abraham-book-of",
-    "topical_guide/governments",
+    "topics_and_questions/charity-study-guide",
     "topics_and_questions/book-of-mormon-and-dna-studies",
     "topics_and_questions/scriptures"
    ],
@@ -1233,8 +1231,7 @@
     "topics_and_questions/scriptures",
     "topics_and_questions/spiritual-gifts",
     "topics_and_questions/charity-study-guide",
-    "topics_and_questions/hope-study-guide",
-    "topical_guide/governments"
+    "topics_and_questions/hope-study-guide"
    ],
    "pg_bm25:0.7,-": [
     "topics_and_questions/joseph-smiths-character",
@@ -1261,8 +1258,7 @@
     "topics_and_questions/scriptures",
     "topics_and_questions/spiritual-gifts",
     "topics_and_questions/charity-study-guide",
-    "topics_and_questions/hope-study-guide",
-    "topical_guide/governments"
+    "topics_and_questions/hope-study-guide"
    ],
    "pg_bm25:0.7,0.3": [
     "topics_and_questions/joseph-smiths-character",
@@ -1289,8 +1285,7 @@
     "topics_and_questions/scriptures",
     "topics_and_questions/spiritual-gifts",
     "topics_and_questions/charity-study-guide",
-    "topics_and_questions/hope-study-guide",
-    "topical_guide/governments"
+    "topics_and_questions/hope-study-guide"
    ],
    "pg_bm25:0.7,0.35": [
     "topics_and_questions/joseph-smiths-character",
@@ -1316,7 +1311,7 @@
     "topics_and_questions/book-of-mormon-and-dna-studies",
     "topics_and_questions/scriptures",
     "topics_and_questions/spiritual-gifts",
-    "topical_guide/governments"
+    "topics_and_questions/charity-study-guide"
    ],
    "pg_bm25:0.7,0.4": [
     "topics_and_questions/joseph-smiths-character",
@@ -2619,16 +2614,14 @@
    "pgvector": [
     "topical_guide/tithing",
     "topics_and_questions/tithing",
-    "bible_dictionary/tithe",
-    "topics_and_questions/tithing-study-guide",
-    "topics_and_questions/church-financial-administration"
+    "topics_and_questions/church-financial-administration",
+    "topics_and_questions/tithing-study-guide"
    ],
    "pg_ft:0.5,-": [
     "topical_guide/tithing",
     "topics_and_questions/tithing",
-    "bible_dictionary/tithe",
-    "topics_and_questions/tithing-study-guide",
-    "topics_and_questions/church-financial-administration"
+    "topics_and_questions/church-financial-administration",
+    "topics_and_questions/tithing-study-guide"
    ],
    "pg_bm25:0.5,-": [
     "topics_and_questions/tithing",
@@ -2645,9 +2638,8 @@
    "pg_ft:0.5,0.3": [
     "topical_guide/tithing",
     "topics_and_questions/tithing",
-    "bible_dictionary/tithe",
-    "topics_and_questions/tithing-study-guide",
-    "topics_and_questions/church-financial-administration"
+    "topics_and_questions/church-financial-administration",
+    "topics_and_questions/tithing-study-guide"
    ],
    "pg_bm25:0.5,0.3": [
     "topics_and_questions/tithing",
@@ -2664,9 +2656,8 @@
    "pg_ft:0.5,0.35": [
     "topical_guide/tithing",
     "topics_and_questions/tithing",
-    "bible_dictionary/tithe",
-    "topics_and_questions/tithing-study-guide",
-    "topics_and_questions/church-financial-administration"
+    "topics_and_questions/church-financial-administration",
+    "topics_and_questions/tithing-study-guide"
    ],
    "pg_bm25:0.5,0.35": [
     "topics_and_questions/tithing",
@@ -2683,9 +2674,8 @@
    "pg_ft:0.5,0.4": [
     "topical_guide/tithing",
     "topics_and_questions/tithing",
-    "bible_dictionary/tithe",
-    "topics_and_questions/tithing-study-guide",
-    "topics_and_questions/church-financial-administration"
+    "topics_and_questions/church-financial-administration",
+    "topics_and_questions/tithing-study-guide"
    ],
    "pg_bm25:0.5,0.4": [
     "topics_and_questions/tithing",
@@ -2702,9 +2692,8 @@
    "pg_ft:0.5,0.45": [
     "topical_guide/tithing",
     "topics_and_questions/tithing",
-    "bible_dictionary/tithe",
-    "topics_and_questions/tithing-study-guide",
-    "topics_and_questions/church-financial-administration"
+    "topics_and_questions/church-financial-administration",
+    "topics_and_questions/tithing-study-guide"
    ],
    "pg_bm25:0.5,0.45": [
     "topics_and_questions/tithing",
@@ -2722,7 +2711,6 @@
     "topical_guide/tithing",
     "topics_and_questions/tithing",
     "topics_and_questions/tithing-study-guide",
-    "bible_dictionary/tithe",
     "topics_and_questions/church-financial-administration"
    ],
    "pg_bm25:0.7,-": [
@@ -2741,7 +2729,6 @@
     "topical_guide/tithing",
     "topics_and_questions/tithing",
     "topics_and_questions/tithing-study-guide",
-    "bible_dictionary/tithe",
     "topics_and_questions/church-financial-administration"
    ],
    "pg_bm25:0.7,0.3": [
@@ -2760,7 +2747,6 @@
     "topical_guide/tithing",
     "topics_and_questions/tithing",
     "topics_and_questions/tithing-study-guide",
-    "bible_dictionary/tithe",
     "topics_and_questions/church-financial-administration"
    ],
    "pg_bm25:0.7,0.35": [
@@ -2779,7 +2765,6 @@
     "topical_guide/tithing",
     "topics_and_questions/tithing",
     "topics_and_questions/tithing-study-guide",
-    "bible_dictionary/tithe",
     "topics_and_questions/church-financial-administration"
    ],
    "pg_bm25:0.7,0.4": [
@@ -2798,7 +2783,6 @@
     "topical_guide/tithing",
     "topics_and_questions/tithing",
     "topics_and_questions/tithing-study-guide",
-    "bible_dictionary/tithe",
     "topics_and_questions/church-financial-administration"
    ],
    "pg_bm25:0.7,0.45": [

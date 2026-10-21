@@ -104,7 +104,7 @@ def test_filter_drops_collection_names_and_generic_verbs():
 
 def test_load_retriever_gives_pgvector_bm25_the_filter(real_startup, monkeypatch):
     monkeypatch.setenv("RETRIEVER_BACKEND", "pgvector_bm25")
-    monkeypatch.setattr(SqlTransport, "load_passages", lambda self: PASSAGES)
+    monkeypatch.setattr(SqlTransport, "iter_passages", lambda self: ((r["chunk_id"], r["content"]) for r in PASSAGES))
     monkeypatch.setattr(SqlTransport, "signature", lambda self: (4, 4, None))
     retriever = backend.load_retriever(MagicMock())
     assert isinstance(retriever, PgvectorBm25Retriever)
@@ -127,7 +127,7 @@ def test_rebuild_swaps_in_new_passages_and_signature():
     assert retriever.keyword is not old_index
     assert retriever.chunk_counts() == {"vector": 3, "keyword": 3}
     assert not retriever.is_stale()
-    assert [d.metadata["topic"] for d in retriever.keyword.search("faith")] == ["faith"]
+    assert retriever.keyword.search_ids("faith") == [4]
 
 
 def test_replaced_passages_and_document_edits_count_as_changes():
@@ -254,3 +254,51 @@ def test_reindex_starts_a_background_rebuild(client, monkeypatch):
         if health["keyword_index"]["refreshed_at"]:
             break
     assert health["chunks"] == 4
+
+
+# --- memory: chunk ids only in memory, text from the database ---------------
+
+@pytest.mark.anyio
+async def test_keyword_hit_text_comes_from_match_and_deleted_passages_are_skipped():
+    store = Store(PASSAGES)
+    retriever = PgvectorBm25Retriever(store, FakeEmbeddings(), k=4)
+    store.passages = [p for p in PASSAGES if p["chunk_id"] != 4]  # deleted after the build
+    _, keyword, _ = await retriever.search("grace faith")
+    assert [d.metadata["topic"] for d in keyword] == ["grace"]
+    assert keyword[0].page_content == PASSAGES[0]["content"]
+
+
+def test_rest_transport_streams_passage_text_page_by_page(monkeypatch):
+    import httpx
+
+    from src.backend.retrieval import RestTransport
+
+    seen = []
+
+    def handler(request):
+        seen.append(request.headers["Range"])
+        start = int(request.headers["Range"].split("-")[0])
+        rows = [{"id": i, "content": f"text {i}"} for i in range(start, min(start + 2, 5))]
+        return httpx.Response(200, json=rows)
+
+    real_client = httpx.Client
+    monkeypatch.setattr(httpx, "Client", lambda **kw: real_client(transport=httpx.MockTransport(handler), **kw))
+    transport = RestTransport("https://example.supabase.co", "k")
+    assert list(transport.iter_passages(page=2)) == [(i, f"text {i}") for i in range(5)]
+    assert seen == ["0-1", "2-3", "4-5"]
+
+
+def test_release_memory_is_safe_everywhere():
+    from src.backend.retrieval.pgvector import release_memory
+
+    release_memory()  # malloc_trim on Linux, just gc elsewhere
+
+
+def test_pgvector_backends_do_not_import_faiss():
+    import subprocess
+    import sys
+
+    code = ("import os, sys; os.environ['RETRIEVER_BACKEND'] = 'pgvector_bm25'; import src.backend.main; "
+            "print('faiss' in sys.modules, 'rank_bm25' in sys.modules)")
+    out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, check=True).stdout
+    assert out.strip().splitlines()[-1] == "False False"
