@@ -37,6 +37,8 @@ def reciprocal_rank_fusion(
 class HybridRetriever:
     """Runs semantic and keyword search together and fuses the rankings."""
 
+    name = "faiss"
+
     def __init__(self, vector: _Search, keyword: _Search, weights: tuple[float, float] = (0.5, 0.5), c: int = 60):
         self.vector = vector
         self.keyword = keyword

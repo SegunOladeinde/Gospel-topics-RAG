@@ -76,3 +76,25 @@ def source_link(source_id: str) -> SourceLink:
         label=f"{collection_name}: {title}",
         url=url_template.format(slug=slug),
     )
+
+
+_CHURCH_SITE = re.compile(r"https://www\.churchofjesuschrist\.org/[^\s\"'<>]*")
+
+
+def source_link_for(source_id: str, title: str | None = None, url: str | None = None) -> SourceLink:
+    """Like source_link(), but using the page's real title and URL when known.
+
+    The pgvector store keeps each page's title ("Aaron, Descendants of") and
+    canonical URL (after redirects), so links read and resolve correctly;
+    the FAISS index only has ids, which fall back to source_link().
+    """
+    fallback = source_link(source_id)
+    collection, _, slug = source_id.partition("/")
+    if not title or collection not in COLLECTIONS:
+        return fallback
+    label_title = title.strip()
+    if slug.endswith(_STUDY_GUIDE_SUFFIX) and "study guide" not in label_title.lower():
+        label_title = f"{label_title} (Study Guide)"
+    # Only ever link to the Church's site.
+    link = url if url and _CHURCH_SITE.fullmatch(url) else fallback.url
+    return SourceLink(id=source_id, label=f"{COLLECTIONS[collection][0]}: {label_title}", url=link)

@@ -6,6 +6,7 @@ guessing an id. The user id itself is trusted because it arrives from the
 Next.js server alongside the API key (see verify_api_key in main.py).
 """
 
+from collections.abc import Sequence
 from datetime import datetime, timezone
 
 from pydantic import BaseModel
@@ -35,6 +36,21 @@ class ConversationDetail(ConversationSummary):
     messages: list[StoredMessage]
 
 
+def _stored_source(source: str | SourceLink) -> str | dict:
+    """What goes in chat_messages.sources: the id, or the full link when known
+    (so a reopened chat shows the same titles and URLs as when it was asked)."""
+    return source.model_dump() if isinstance(source, SourceLink) else source
+
+
+def _source_id(entry: str | dict) -> str:
+    return entry["id"] if isinstance(entry, dict) else entry
+
+
+def _link(entry: str | dict) -> SourceLink:
+    # Chats saved before links were stored only have ids.
+    return SourceLink(**entry) if isinstance(entry, dict) else source_link(entry)
+
+
 def make_title(question: str) -> str:
     """First line of the first question, collapsed and cut to TITLE_MAX_CHARS."""
     title = " ".join(question.split())
@@ -57,7 +73,7 @@ def save_turn(
     conversation_id: str | None,
     question: str,
     answer: str,
-    sources: list[str],
+    sources: Sequence[str | SourceLink],
 ) -> str:
     """Append one question + answer, creating the conversation if needed.
 
@@ -80,7 +96,8 @@ def save_turn(
         [
             ChatMessage(conversation_id=conversation.id, role="user", content=question, sources=[], created_at=now),
             ChatMessage(
-                conversation_id=conversation.id, role="assistant", content=answer, sources=sources, created_at=now
+                conversation_id=conversation.id, role="assistant", content=answer,
+                sources=[_stored_source(source) for source in sources], created_at=now,
             ),
         ]
     )
@@ -117,8 +134,8 @@ def get_conversation(db: Session, user_id: str, conversation_id: str) -> Convers
             StoredMessage(
                 role=message.role,
                 content=message.content,
-                sources=list(message.sources or []),
-                source_links=[source_link(source) for source in message.sources or []],
+                sources=[_source_id(entry) for entry in message.sources or []],
+                source_links=[_link(entry) for entry in message.sources or []],
             )
             for message in messages
         ],
