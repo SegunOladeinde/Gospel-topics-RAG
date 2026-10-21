@@ -208,3 +208,127 @@ def test_rest_transport_counts_chunks_from_content_range(monkeypatch):
 
     monkeypatch.setattr(httpx, "get", fake_get)
     assert RestTransport("https://example.supabase.co", "k").count_chunks() == 9956
+
+
+# ---------------------------------------------------------------------------
+# pgvector_bm25: semantic search in Postgres + BM25 in memory
+# ---------------------------------------------------------------------------
+
+from src.backend.retrieval import PgvectorBm25Retriever  # noqa: E402
+from src.backend.retrieval.pgvector import fuse_with_cutoff  # noqa: E402
+
+PASSAGES = [
+    {"chunk_id": 1, "content": "Tithing is one tenth of our increase.", "collection": "topical_guide",
+     "slug": "tithing", "title": "Tithing", "url": "https://www.churchofjesuschrist.org/tg/tithing"},
+    {"chunk_id": 2, "content": "The Ten Commandments were given to Moses.", "collection": "bible_dictionary",
+     "slug": "ten-commandments", "title": "Ten Commandments", "url": "https://www.churchofjesuschrist.org/bd/ten"},
+    {"chunk_id": 3, "content": "Fast offerings help the poor.", "collection": "topics_and_questions",
+     "slug": "fasting", "title": "Fasting", "url": "https://www.churchofjesuschrist.org/gt/fasting"},
+]
+
+
+def doc_for(chunk_id):
+    row = next(p for p in PASSAGES if p["chunk_id"] == chunk_id)
+    return Document(page_content=row["content"], metadata={"source": row["collection"], "topic": row["slug"],
+                                                           "chunk_id": chunk_id})
+
+
+class Bm25Transport:
+    """match(): chunk 1 is the semantic hit; similarities as given."""
+
+    def __init__(self, similarity):
+        self.similarity, self.asked = similarity, []
+
+    async def match(self, embedding, k, candidate_ids):
+        self.asked.append(list(candidate_ids))
+        rows = [{**PASSAGES[0], "similarity": self.similarity[1], "semantic_rank": 1}]
+        rows += [{**next(p for p in PASSAGES if p["chunk_id"] == i), "similarity": self.similarity[i], "semantic_rank": None}
+                 for i in candidate_ids if i != 1]
+        return rows
+
+    def load_passages(self):
+        return PASSAGES
+
+    def count_chunks(self):
+        return len(PASSAGES)
+
+
+def test_cutoff_drops_keyword_only_hits_that_are_off_topic():
+    semantic = [doc_for(1)]
+    keyword = [doc_for(1), doc_for(2), doc_for(3)]
+    fused = fuse_with_cutoff(semantic, keyword, {1: 0.6, 2: 0.12, 3: 0.41}, (0.5, 0.5), 0.30)
+    assert [d.metadata["chunk_id"] for d in fused] == [1, 3]  # 2 shares only the word "ten"
+
+
+def test_no_cutoff_keeps_every_keyword_hit():
+    fused = fuse_with_cutoff([doc_for(1)], [doc_for(2)], {1: 0.6, 2: 0.1}, (0.5, 0.5), None)
+    assert {d.metadata["chunk_id"] for d in fused} == {1, 2}
+
+
+def test_keyword_hit_also_found_semantically_is_kept_whatever_its_similarity():
+    fused = fuse_with_cutoff([doc_for(2)], [doc_for(2)], {2: 0.05}, (0.5, 0.5), 0.30)
+    assert [d.metadata["chunk_id"] for d in fused] == [2]
+
+
+@pytest.mark.anyio
+async def test_pgvector_bm25_retriever_end_to_end():
+    transport = Bm25Transport({1: 0.62, 2: 0.10, 3: 0.20})
+    retriever = PgvectorBm25Retriever(transport, FakeEmbeddings(), k=4, min_similarity=0.30)
+    assert retriever.name == "pgvector_bm25"
+    assert retriever.chunk_counts() == {"vector": 3, "keyword": 3}
+
+    docs = await retriever.ainvoke("Why is tithing a tenth and not ten commandments?")
+    # BM25 found the tithing and Ten Commandments passages; the database was
+    # asked for their similarity in the same call as the semantic search.
+    assert set(transport.asked[0]) >= {1, 2}
+    assert [d.metadata["topic"] for d in docs] == ["tithing"]
+    assert docs[0].metadata["title"] == "Tithing" and docs[0].metadata["url"].endswith("/tg/tithing")
+
+
+def test_load_retriever_builds_pgvector_bm25(monkeypatch):
+    monkeypatch.setenv("RETRIEVER_BACKEND", "pgvector_bm25")
+    monkeypatch.setattr(SqlTransport, "load_passages", lambda self: PASSAGES)
+    retriever = load_retriever(MagicMock())
+    assert isinstance(retriever, PgvectorBm25Retriever)
+    assert retriever.min_similarity == backend.PGVECTOR_BM25_MIN_SIMILARITY == 0.30
+    assert retriever.chunk_counts()["keyword"] == 3
+
+
+@pytest.mark.anyio
+async def test_rest_transport_match_and_load_passages(monkeypatch):
+    def handler(request: httpx.Request):
+        if request.url.path.endswith("/rpc/match_chunks"):
+            body = json.loads(request.content)
+            assert body["candidate_ids"] == [7, 9] and body["match_count"] == 4
+            return httpx.Response(200, json=[{"chunk_id": 7, "similarity": 0.5}])
+        return httpx.Response(404)
+
+    client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+    transport = RestTransport("https://example.supabase.co", "k", client=client)
+    assert await transport.match([0.1], 4, [7, 9]) == [{"chunk_id": 7, "similarity": 0.5}]
+
+    pages = [
+        [{"id": i, "content": f"c{i}", "rag_documents": {"collection": "topical_guide", "slug": f"s{i}",
+                                                         "title": f"T{i}", "url": None}} for i in range(2)],
+        [],
+    ]
+
+    class SyncClient:
+        def __init__(self, *a, **kw):
+            self.calls = 0
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc):
+            return False
+
+        def get(self, url, params, headers):
+            rows = pages[min(self.calls, 1)]
+            self.calls += 1
+            return httpx.Response(200, json=rows, request=httpx.Request("GET", url))
+
+    monkeypatch.setattr(httpx, "Client", SyncClient)
+    loaded = RestTransport("https://example.supabase.co", "k", client=client).load_passages(page=2)
+    assert [p["chunk_id"] for p in loaded] == [0, 1]
+    assert loaded[0]["slug"] == "s0" and loaded[0]["collection"] == "topical_guide"

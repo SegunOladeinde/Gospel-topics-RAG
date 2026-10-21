@@ -178,3 +178,32 @@ def test_real_startup_with_the_pgvector_backend(monkeypatch, real_startup, datab
     assert health["db"] == "ok"
     assert health["retriever"] == {"backend": "pgvector", "chunks": total}
     assert total >= 3
+
+
+@pytest.mark.anyio
+async def test_match_chunks_returns_semantic_hits_and_candidate_similarities(database, collection):
+    ingest(collection, SqlRagStore(database))
+    transport = SqlTransport(database)
+    passages = [p for p in transport.load_passages() if p["collection"] == collection.name]
+    baptism = next(p for p in passages if p["slug"] == "baptism")
+    rows = await transport.match(fake_vector("tithing"), 4, [baptism["chunk_id"]])
+    by_id = {r["chunk_id"]: r for r in rows}
+    semantic = sorted((r for r in rows if r["semantic_rank"]), key=lambda r: r["semantic_rank"])
+    assert semantic[0]["slug"] == "tithing"
+    assert by_id[baptism["chunk_id"]]["similarity"] < semantic[0]["similarity"]
+
+
+def test_real_startup_with_the_pgvector_bm25_backend(monkeypatch, real_startup, database, collection):
+    ingest(collection, SqlRagStore(database))
+    monkeypatch.setenv("RETRIEVER_BACKEND", "pgvector_bm25")
+    monkeypatch.setenv("APP_API_KEY", "test-key")
+    get_session_factory.cache_clear()
+
+    with TestClient(app) as client:
+        health = client.get("/health").json()
+        keyword_hits = app.state.retriever.keyword.search("immersion ordinance")
+    with database() as db:
+        total = db.execute(text("SELECT count(*) FROM rag_chunks")).scalar()
+
+    assert health["retriever"] == {"backend": "pgvector_bm25", "chunks": total}
+    assert any(d.metadata["topic"] == "baptism" for d in keyword_hits)

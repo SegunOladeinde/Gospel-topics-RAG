@@ -69,7 +69,14 @@ from src.backend.history import (
     list_conversations,
     save_turn,
 )
-from src.backend.retrieval import PgvectorRetriever, RestTransport, Retriever, SqlTransport, load_local_retriever
+from src.backend.retrieval import (
+    PgvectorBm25Retriever,
+    PgvectorRetriever,
+    RestTransport,
+    Retriever,
+    SqlTransport,
+    load_local_retriever,
+)
 from src.backend.source_links import SourceLink, source_link, source_link_for
 from src.backend.usage import Usage, get_usage
 from dataclasses import dataclass, field
@@ -300,7 +307,13 @@ def _verify_bm25_hash(path: Path) -> None:
     logger.info("BM25 index integrity check passed.")
 
 
-RETRIEVER_BACKENDS = ("faiss", "pgvector")
+RETRIEVER_BACKENDS = ("faiss", "pgvector", "pgvector_bm25")
+
+# pgvector_bm25: keyword-only hits less similar than this to the question are
+# dropped. Chosen on the 30-question eval (scripts/eval_retrieval.py): 0.30
+# removed an off-topic source without losing a relevant one; 0.35 and up
+# started dropping relevant pages.
+PGVECTOR_BM25_MIN_SIMILARITY = 0.30
 
 
 def retriever_backend() -> str:
@@ -320,21 +333,30 @@ def load_retriever(session_factory=None) -> Retriever:
     SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY when there's no DATABASE_URL.
     Nothing is loaded into memory, and newly ingested collections are
     searchable without a redeploy.
+    pgvector_bm25: semantic search in Supabase plus BM25 built in memory from
+    the stored passages at startup (about 30 MB). Matched FAISS on every
+    eval question; Postgres full-text ranking didn't.
 
     The embeddings client is created once here and reused for every question
     (it keeps its HTTP connection pool).
     """
     embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL, timeout=10.0)
-    if retriever_backend() == "pgvector":
+    backend = retriever_backend()
+    if backend in ("pgvector", "pgvector_bm25"):
         if session_factory is not None:
             transport = SqlTransport(session_factory)
         elif os.getenv("SUPABASE_URL") and os.getenv("SUPABASE_SERVICE_ROLE_KEY"):
             transport = RestTransport(os.environ["SUPABASE_URL"], os.environ["SUPABASE_SERVICE_ROLE_KEY"])
         else:
             raise RuntimeError(
-                "RETRIEVER_BACKEND=pgvector needs DATABASE_URL (or SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY)."
+                f"RETRIEVER_BACKEND={backend} needs DATABASE_URL (or SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY)."
             )
-        retriever = PgvectorRetriever(transport, embeddings, k=CHUNKS_PER_RETRIEVER)
+        if backend == "pgvector_bm25":
+            retriever = PgvectorBm25Retriever(
+                transport, embeddings, k=CHUNKS_PER_RETRIEVER, min_similarity=PGVECTOR_BM25_MIN_SIMILARITY
+            )
+        else:
+            retriever = PgvectorRetriever(transport, embeddings, k=CHUNKS_PER_RETRIEVER)
         if not retriever.chunk_counts()["vector"]:
             logger.error("The pgvector store is empty: run scripts/ingest.py. Every question will find nothing.")
         return retriever

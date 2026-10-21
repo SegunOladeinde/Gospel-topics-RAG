@@ -20,7 +20,10 @@ from langchain_core.documents import Document
 from langchain_core.embeddings import Embeddings
 from sqlalchemy import text
 
-from src.backend.retrieval.keyword import full_text_query
+from rank_bm25 import BM25Okapi
+
+from src.backend.retrieval.hybrid import reciprocal_rank_fusion
+from src.backend.retrieval.keyword import KeywordSearch, full_text_query
 
 
 def _vector_literal(vector: list[float]) -> str:
@@ -29,7 +32,9 @@ def _vector_literal(vector: list[float]) -> str:
 
 class Transport(Protocol):
     async def search(self, embedding: list[float], query_text: str, k: int) -> list[dict]: ...
+    async def match(self, embedding: list[float], k: int, candidate_ids: list[int]) -> list[dict]: ...
     def count_chunks(self) -> int: ...
+    def load_passages(self) -> list[dict]: ...
 
 
 class SqlTransport:
@@ -53,9 +58,32 @@ class SqlTransport:
     async def search(self, embedding, query_text, k) -> list[dict]:
         return await asyncio.to_thread(self._search, embedding, query_text, k)
 
+    _MATCH = text(
+        "SELECT chunk_id, content, collection, slug, title, url, similarity, semantic_rank "
+        "FROM match_chunks(CAST(:embedding AS extensions.halfvec), :k, CAST(:ids AS BIGINT[]))"
+    )
+    _PASSAGES = text(
+        "SELECT c.id AS chunk_id, c.content, d.collection, d.slug, d.title, d.url "
+        "FROM rag_chunks c JOIN rag_documents d ON d.id = c.document_id ORDER BY c.id"
+    )
+
+    def _match(self, embedding, k, candidate_ids) -> list[dict]:
+        with self.session_factory() as db:
+            rows = db.execute(
+                self._MATCH, {"embedding": _vector_literal(embedding), "k": k, "ids": list(candidate_ids)}
+            ).mappings().all()
+        return [dict(row) for row in rows]
+
+    async def match(self, embedding, k, candidate_ids) -> list[dict]:
+        return await asyncio.to_thread(self._match, embedding, k, candidate_ids)
+
     def count_chunks(self) -> int:
         with self.session_factory() as db:
             return db.execute(text("SELECT count(*) FROM rag_chunks")).scalar_one()
+
+    def load_passages(self) -> list[dict]:
+        with self.session_factory() as db:
+            return [dict(row) for row in db.execute(self._PASSAGES).mappings().all()]
 
 
 class RestTransport:
@@ -75,6 +103,15 @@ class RestTransport:
         response.raise_for_status()
         return response.json()
 
+    async def match(self, embedding, k, candidate_ids) -> list[dict]:
+        response = await self.client.post(
+            f"{self.base}/rpc/match_chunks",
+            json={"query_embedding": _vector_literal(embedding), "match_count": k,
+                  "candidate_ids": list(candidate_ids)},
+        )
+        response.raise_for_status()
+        return response.json()
+
     def count_chunks(self) -> int:
         response = httpx.get(
             f"{self.base}/rag_chunks",
@@ -84,6 +121,24 @@ class RestTransport:
         )
         response.raise_for_status()
         return int(response.headers["content-range"].rsplit("/", 1)[1])
+
+    def load_passages(self, page: int = 1000) -> list[dict]:
+        passages, start = [], 0
+        with httpx.Client(headers=self.headers, timeout=60) as client:
+            while True:
+                response = client.get(
+                    f"{self.base}/rag_chunks",
+                    params={"select": "id,content,rag_documents(collection,slug,title,url)", "order": "id"},
+                    headers={"Range": f"{start}-{start + page - 1}"},
+                )
+                response.raise_for_status()
+                rows = response.json()
+                passages.extend(
+                    {"chunk_id": r["id"], "content": r["content"], **r["rag_documents"]} for r in rows
+                )
+                if len(rows) < page:
+                    return passages
+                start += page
 
 
 class PgvectorRetriever:
@@ -115,4 +170,102 @@ class PgvectorRetriever:
 
     def chunk_counts(self) -> dict[str, int]:
         # One table serves both searches.
+        return {"vector": self._chunk_total, "keyword": self._chunk_total}
+
+
+def _document(row: dict) -> Document:
+    return Document(
+        page_content=row["content"],
+        metadata={
+            "source": row["collection"],
+            "topic": row["slug"],
+            "title": row["title"],
+            "url": row["url"],
+            "chunk_id": row["chunk_id"],
+        },
+    )
+
+
+def fuse_with_cutoff(
+    semantic: list[Document],
+    keyword: list[Document],
+    similarity: dict[int, float],
+    weights: tuple[float, float],
+    min_similarity: float | None,
+    c: int = 60,
+) -> list[Document]:
+    """Weighted reciprocal rank fusion, after dropping keyword-only hits whose
+    embedding similarity to the question is below min_similarity.
+
+    A keyword hit that the semantic search also found is always kept: both
+    agree it's relevant. One found by keywords alone has to be at least
+    somewhat about the question, which removes pages that merely share a
+    word ("Topical Guide: Ten" for "why ten percent").
+    """
+    semantic_ids = {doc.metadata["chunk_id"] for doc in semantic}
+    if min_similarity is not None:
+        keyword = [
+            doc for doc in keyword
+            if doc.metadata["chunk_id"] in semantic_ids
+            or similarity.get(doc.metadata["chunk_id"], 0.0) >= min_similarity
+        ]
+    return reciprocal_rank_fusion([semantic, keyword], list(weights), c)
+
+
+class PgvectorBm25Retriever:
+    """Semantic search in Supabase (pgvector) + BM25 keyword search in memory.
+
+    BM25 is built at startup from the passage text in rag_chunks (the same
+    scorer and query rules as the FAISS backend's keyword search, about 30 MB
+    of RAM), because Postgres full-text ranking chose noticeably worse
+    keyword matches: on the 30-question eval it was worse than FAISS on 9
+    questions, this backend on none (eval/retrieval_comparison.json). The
+    store holds exactly the FAISS passages (scripts/ingest.py), so without
+    the cutoff the two backends return the same sources. Each question makes one database call (match_chunks):
+    the semantic top-k plus the similarity of the BM25 hits, used to drop
+    keyword-only hits that aren't about the question.
+
+    Passages ingested after startup are found by semantic search right away
+    and by keyword search after the next restart.
+    """
+
+    name = "pgvector_bm25"
+
+    def __init__(
+        self,
+        transport: Transport,
+        embeddings: Embeddings,
+        k: int = 4,
+        weights: tuple[float, float] = (0.5, 0.5),
+        min_similarity: float | None = None,
+        passages: list[dict] | None = None,
+    ):
+        self.transport = transport
+        self.embeddings = embeddings
+        self.k = k
+        self.weights = weights
+        self.min_similarity = min_similarity
+        rows = transport.load_passages() if passages is None else passages
+        docs = [_document(row) for row in rows]
+        vectorizer = BM25Okapi([doc.page_content.split() for doc in docs]) if docs else None
+        self.keyword = KeywordSearch(vectorizer, docs, k=k) if docs else None
+        self._chunk_total = len(docs)
+
+    async def search(self, query: str) -> tuple[list[Document], list[Document], dict[int, float]]:
+        """The semantic hits, keyword hits and similarities before fusion (for evals)."""
+        embedding, keyword_docs = await asyncio.gather(
+            self.embeddings.aembed_query(query),
+            self.keyword.ainvoke(query) if self.keyword else asyncio.sleep(0, result=[]),
+        )
+        rows = await self.transport.match(embedding, self.k, [d.metadata["chunk_id"] for d in keyword_docs])
+        semantic = [_document(r) for r in sorted(
+            (r for r in rows if r.get("semantic_rank")), key=lambda r: r["semantic_rank"])]
+        similarity = {r["chunk_id"]: r["similarity"] for r in rows}
+        return semantic, keyword_docs, similarity
+
+    async def ainvoke(self, query: str) -> list[Document]:
+        semantic, keyword_docs, similarity = await self.search(query)
+        return fuse_with_cutoff(semantic, keyword_docs, similarity, self.weights, self.min_similarity)
+
+    def chunk_counts(self) -> dict[str, int]:
         return {"vector": self._chunk_total, "keyword": self._chunk_total}

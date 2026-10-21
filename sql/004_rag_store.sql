@@ -153,3 +153,64 @@ BEGIN
     END IF;
 END
 $$;
+
+-- Semantic top-k plus the similarity of extra candidate passages, in one call.
+-- Used by the pgvector_bm25 backend (src/backend/retrieval/pgvector.py): BM25
+-- runs in the app's memory, then this returns the vector hits and how similar
+-- each BM25 hit is to the question, so keyword-only hits that aren't about
+-- the question at all can be dropped. similarity = 1 - cosine distance.
+CREATE OR REPLACE FUNCTION public.match_chunks(
+    query_embedding extensions.halfvec(1536),
+    match_count     INTEGER  DEFAULT 4,
+    candidate_ids   BIGINT[] DEFAULT '{}',
+    collections     TEXT[]   DEFAULT NULL
+)
+RETURNS TABLE (
+    chunk_id      BIGINT,
+    content       TEXT,
+    collection    TEXT,
+    slug          TEXT,
+    title         TEXT,
+    url           TEXT,
+    similarity    FLOAT,
+    semantic_rank INTEGER
+)
+LANGUAGE sql STABLE
+SET search_path = public, extensions
+AS $$
+    WITH semantic AS (
+        SELECT c.id, row_number() OVER (ORDER BY c.embedding <=> query_embedding)::int AS rank
+        FROM rag_chunks c
+        WHERE collections IS NULL OR c.collection = ANY (collections)
+        ORDER BY c.embedding <=> query_embedding
+        LIMIT match_count
+    ),
+    wanted AS (
+        SELECT id, rank FROM semantic
+        UNION
+        SELECT unnest(coalesce(candidate_ids, '{}')), NULL::int
+    )
+    SELECT c.id, c.content, d.collection, d.slug, d.title, d.url,
+           1 - (c.embedding <=> query_embedding) AS similarity,
+           min(w.rank) AS semantic_rank
+    FROM wanted w
+    JOIN rag_chunks c ON c.id = w.id
+    JOIN rag_documents d ON d.id = c.document_id
+    GROUP BY c.id, c.content, d.collection, d.slug, d.title, d.url, c.embedding
+    ORDER BY min(w.rank) NULLS LAST, similarity DESC
+$$;
+
+REVOKE ALL ON FUNCTION public.match_chunks(extensions.halfvec, INTEGER, BIGINT[], TEXT[]) FROM PUBLIC;
+DO $$
+DECLARE r TEXT;
+BEGIN
+    FOREACH r IN ARRAY ARRAY['anon', 'authenticated'] LOOP
+        IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = r) THEN
+            EXECUTE format('REVOKE ALL ON FUNCTION public.match_chunks(extensions.halfvec, INTEGER, BIGINT[], TEXT[]) FROM %I', r);
+        END IF;
+    END LOOP;
+    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'service_role') THEN
+        GRANT EXECUTE ON FUNCTION public.match_chunks(extensions.halfvec, INTEGER, BIGINT[], TEXT[]) TO service_role;
+    END IF;
+END
+$$;
