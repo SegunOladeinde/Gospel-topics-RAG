@@ -1,4 +1,9 @@
-"""Phase 3: chunk the scraped doctrinal text and build the retrieval indexes.
+"""Build the local FAISS + BM25 index files (RETRIEVER_BACKEND=faiss).
+
+The pgvector store is filled by scripts/ingest.py instead; this script and
+data/index/ go away once the pgvector backend has run stably (see README).
+
+Chunks the scraped doctrinal text and builds the retrieval indexes.
 
 Reads every .txt file under data/raw/ (recursively), splits each into
 overlapping chunks, embeds them with OpenAI, and writes two indexes to
