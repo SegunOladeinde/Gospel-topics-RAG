@@ -4,10 +4,14 @@ A run compares the documents on disk with what the store already holds
 (by sha256), then only re-chunks and re-embeds new or changed documents and
 deletes the documents (and their passages) that disappeared from disk.
 
-Writes are ordered so an interrupted run can't leave a document looking
-up to date: a changed document's sha256 is cleared first, its passages are
-replaced, and only then is the new sha256 recorded. The next run redoes
-anything left half-written.
+Pages are read, chunked, embedded and written one batch at a time, so a
+run's memory doesn't grow with the number of pages.
+
+An interrupted run can't leave a document looking up to date. Over a direct
+Postgres connection each batch is one transaction (documents, passages and
+sha256 together), so a crash rolls the batch back. Over REST a changed
+document's sha256 is cleared first, its passages are replaced, and only then
+is the new sha256 recorded. Either way the next run redoes what's missing.
 """
 
 import logging
@@ -47,6 +51,9 @@ class RagStore(Protocol):
                          chunk_counts: dict[DocKey, int]) -> dict[DocKey, int]: ...
     def replace_chunks(self, document_ids: Sequence[int], rows: Sequence[dict]) -> None: ...
     def delete_documents(self, document_ids: Sequence[int]) -> None: ...
+    # Optional: write_batch(documents, sha256, chunk_counts, rows_for) upserts the
+    # documents, then replaces their passages with rows_for(ids), all in one
+    # transaction (SqlRagStore).
 
 
 @dataclass
@@ -133,11 +140,29 @@ class RunReport:
     tokens_to_embed: int
     estimated_usd: float
     written: bool = False
+    seconds: float = 0.0
+
+    @property
+    def pages_per_minute(self) -> float:
+        return (self.new + self.changed) / self.seconds * 60 if self.seconds else 0.0
+
+
+def format_progress(done: int, total: int, passages: int, elapsed: float) -> str:
+    """e.g. "300/5073 pages (612 passages) | 540 pages/min | ETA 8m50s"."""
+    rate = done / elapsed * 60 if elapsed > 0 else 0.0
+    remaining = (total - done) / rate * 60 if rate else 0.0
+    minutes, seconds = divmod(int(remaining), 60)
+    return f"{done}/{total} pages ({passages:,} passages) | {rate:.0f} pages/min | ETA {minutes}m{seconds:02d}s"
+
+
+def _batches(items: Sequence, size: int):
+    for start in range(0, len(items), size):
+        yield items[start : start + size]
 
 
 def run_ingestion(
     config: IngestConfig,
-    documents: Sequence[SourceDocument],
+    documents: Sequence,
     store: RagStore,
     embed: Callable[[list[str]], list[list[float]]] | None,
     dry_run: bool,
@@ -145,27 +170,39 @@ def run_ingestion(
     write_batch_docs: int = 100,
     already_embedded: Callable[[str], bool] | None = None,
     max_documents: int | None = None,
+    force: bool = False,
+    clock: Callable[[], float] = time.monotonic,
 ) -> RunReport:
+    """documents: SourceDocuments, or DocumentRefs (documents.scan_documents),
+    which are only read in full one batch at a time, so memory stays flat
+    however many pages there are. force: re-ingest unchanged pages too."""
     configs = {c.name: c for c in config.collections}
     stored = store.existing_documents([c.name for c in config.collections])
     plan = plan_run(documents, stored)
+    if force:
+        plan.changed, plan.unchanged = plan.changed + plan.unchanged, []
     # Optionally cap one run (removals are always done in full); the next run
     # carries on with the rest, since finished documents count as unchanged.
     if max_documents is not None:
-        limited = plan.to_ingest[:max_documents]
-        plan.new = [d for d in plan.new if d in limited]
-        plan.changed = [d for d in plan.changed if d in limited]
-    chunks = chunk_documents(plan.to_ingest, configs)
+        limited = {d.key for d in plan.to_ingest[:max_documents]}
+        plan.new = [d for d in plan.new if d.key in limited]
+        plan.changed = [d for d in plan.changed if d.key in limited]
+
+    # Count passages and tokens one batch at a time (nothing is kept).
     # Passages whose embedding is already known (reused) cost nothing.
-    to_pay = [c.content for c in chunks if not (already_embedded and already_embedded(c.content))]
-    tokens = count_tokens(to_pay, config.tokenizer) if to_pay else 0
+    chunk_total = tokens = 0
+    for batch in _batches(plan.to_ingest, write_batch_docs):
+        chunks = chunk_documents([doc.load() for doc in batch], configs)
+        chunk_total += len(chunks)
+        to_pay = [c.content for c in chunks if not (already_embedded and already_embedded(c.content))]
+        tokens += count_tokens(to_pay, config.tokenizer) if to_pay else 0
     report = RunReport(
         documents_on_disk=len(documents),
         new=len(plan.new),
         changed=len(plan.changed),
         unchanged=len(plan.unchanged),
         removed=len(plan.removed),
-        chunks_to_embed=len(chunks),
+        chunks_to_embed=chunk_total,
         tokens_to_embed=tokens,
         estimated_usd=tokens / 1_000_000 * config.usd_per_million_tokens,
     )
@@ -174,42 +211,54 @@ def run_ingestion(
     if embed is None:
         raise ValueError("an embed function is needed for a real run")
 
+    started = clock()
     if plan.removed:
         store.delete_documents([doc.id for doc in plan.removed.values()])
 
-    by_doc: dict[DocKey, list[Chunk]] = {}
-    for chunk in chunks:
-        by_doc.setdefault(chunk.document.key, []).append(chunk)
-
+    # A store that can write a whole batch in one transaction (SqlRagStore)
+    # makes a crash roll the batch back; otherwise the sha256 ordering below
+    # makes the next run redo it.
+    write_batch = getattr(store, "write_batch", None)
     to_ingest = plan.to_ingest
-    if resolve_url:
-        to_ingest = [
-            doc.with_url(resolve_url(doc)) if configs[doc.collection].resolve_redirects else doc
-            for doc in to_ingest
-        ]
-
-    for start in range(0, len(to_ingest), write_batch_docs):
-        batch = to_ingest[start : start + write_batch_docs]
-        batch_chunks = [c for doc in batch for c in by_doc.get(doc.key, [])]
+    done = passages = 0
+    for refs in _batches(to_ingest, write_batch_docs):
+        batch = [ref.load() for ref in refs]
+        if resolve_url:
+            batch = [
+                doc.with_url(resolve_url(doc)) if configs[doc.collection].resolve_redirects else doc
+                for doc in batch
+            ]
+        batch_chunks = chunk_documents(batch, configs)
         vectors = embed_with_retries([c.content for c in batch_chunks], embed)
-        counts = {doc.key: len(by_doc.get(doc.key, [])) for doc in batch}
-        # 1. Mark the batch as in progress (sha256 '') so a crash re-ingests it.
-        ids = store.upsert_documents(batch, {doc.key: "" for doc in batch}, counts)
-        # 2. Replace their passages.
-        rows = [
-            {
-                "document_id": ids[chunk.document.key],
-                "collection": chunk.document.collection,
-                "chunk_index": chunk.index,
-                "content": chunk.content,
-                "embedding": vector,
-            }
-            for chunk, vector in zip(batch_chunks, vectors, strict=True)
-        ]
-        store.replace_chunks(list(ids.values()), rows)
-        # 3. Only now record the new sha256.
-        store.upsert_documents(batch, {doc.key: doc.sha256 for doc in batch}, counts)
-        logger.info("Ingested %d/%d documents", min(start + write_batch_docs, len(to_ingest)), len(to_ingest))
+        counts = {doc.key: 0 for doc in batch}
+        for chunk in batch_chunks:
+            counts[chunk.document.key] += 1
+
+        def rows_for(ids: dict[DocKey, int]) -> list[dict]:
+            return [
+                {
+                    "document_id": ids[chunk.document.key],
+                    "collection": chunk.document.collection,
+                    "chunk_index": chunk.index,
+                    "content": chunk.content,
+                    "embedding": vector,
+                }
+                for chunk, vector in zip(batch_chunks, vectors, strict=True)
+            ]
+
+        if write_batch:
+            write_batch(batch, {doc.key: doc.sha256 for doc in batch}, counts, rows_for)
+        else:
+            # 1. Mark the batch as in progress (sha256 '') so a crash re-ingests it.
+            ids = store.upsert_documents(batch, {doc.key: "" for doc in batch}, counts)
+            # 2. Replace their passages.
+            store.replace_chunks(list(ids.values()), rows_for(ids))
+            # 3. Only now record the new sha256.
+            store.upsert_documents(batch, {doc.key: doc.sha256 for doc in batch}, counts)
+        done += len(batch)
+        passages += len(batch_chunks)
+        logger.info("Ingested %s", format_progress(done, len(to_ingest), passages, clock() - started))
 
     report.written = True
+    report.seconds = clock() - started
     return report
