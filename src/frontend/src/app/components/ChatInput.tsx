@@ -1,5 +1,5 @@
 "use client";
-import { Send } from "lucide-react";
+import { Send, Square } from "lucide-react";
 import { useLayoutEffect, useRef, type FormEvent, type KeyboardEvent } from "react";
 import { MAX_QUESTION_CHARS, counterText, isSendKey } from "@/lib/chatInput";
 
@@ -15,9 +15,12 @@ interface Props {
     isLoading: boolean;
     // Remaining-questions text under the box; null shows nothing.
     usageText?: string | null;
+    // While an answer is on its way, Send becomes Stop.
+    onStop?: () => void;
+    canStop?: boolean;
 }
 
-export function ChatInput({ value, onChange, onSubmit, isLoading, usageText }: Props) {
+export function ChatInput({ value, onChange, onSubmit, isLoading, usageText, onStop, canStop = false }: Props) {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const counter = counterText(value.length);
 
@@ -69,7 +72,8 @@ export function ChatInput({ value, onChange, onSubmit, isLoading, usageText }: P
                     ref={textareaRef}
                     rows={1}
                     value={value}
-                    onChange={(e) => onChange(e.target.value)}
+                    // maxLength stops typing/pasting; the slice also covers autofill and scripts.
+                    onChange={(e) => onChange(e.target.value.slice(0, MAX_QUESTION_CHARS))}
                     onKeyDown={handleKeyDown}
                     placeholder="Ask a doctrinal question..."
                     disabled={isLoading}
@@ -81,14 +85,28 @@ export function ChatInput({ value, onChange, onSubmit, isLoading, usageText }: P
             text-slate-900 placeholder:text-slate-500
             dark:text-neutral-100 dark:placeholder:text-neutral-500"
                 />
-                <button
-                    type="submit"
-                    disabled={isLoading || !value.trim()}
-                    aria-label="Send message"
-                    className="relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#7c6cfc] text-white transition-all duration-200 hover:bg-[#9b8dff] hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
-                >
-                    <Send size={15} className="-ml-0.5" />
-                </button>
+                {canStop && onStop ? (
+                    <button
+                        type="button"
+                        onClick={onStop}
+                        aria-label="Stop generating"
+                        title="Stop"
+                        className="relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-all duration-200
+                          bg-slate-800 text-white hover:bg-slate-700 active:scale-95
+                          dark:bg-neutral-200 dark:text-neutral-900 dark:hover:bg-white"
+                    >
+                        <Square size={12} fill="currentColor" />
+                    </button>
+                ) : (
+                    <button
+                        type="submit"
+                        disabled={isLoading || !value.trim()}
+                        aria-label="Send message"
+                        className="relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#7c6cfc] text-white transition-all duration-200 hover:bg-[#9b8dff] hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
+                    >
+                        <Send size={15} className="-ml-0.5" />
+                    </button>
+                )}
             </form>
             {(usageText || counter) && (
                 <div className="mx-auto mt-2 flex w-full max-w-full md:max-w-2xl lg:max-w-3xl items-center justify-between gap-3 px-1 text-xs text-slate-500 dark:text-neutral-500">

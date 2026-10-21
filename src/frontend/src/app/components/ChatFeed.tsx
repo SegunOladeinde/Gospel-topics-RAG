@@ -101,7 +101,8 @@ export function ChatFeed({ messages, isLoading, error }: Props) {
                 </div>
             ))}
 
-            {isLoading && <ThinkingBubble />}
+            {/* Dots only until the answer starts streaming in. */}
+            {isLoading && messages.at(-1)?.role !== "assistant" && <ThinkingBubble />}
 
             {error && (
                 <div className="rounded-2xl border px-5 py-4 text-sm relative overflow-hidden backdrop-blur-md

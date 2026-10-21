@@ -9,9 +9,19 @@ import {
     type ChatError,
     type Usage,
 } from "@/lib/usage";
+import { createSseParser } from "@/lib/sse";
 
-const API_URL = "/api/query";
+const STREAM_URL = "/api/query/stream";
 const TITLE_MAX_CHARS = 80; // same as the backend's make_title()
+
+// The final "done" event of a streamed answer (QueryResponse on the backend).
+interface QueryDone {
+    answer: string;
+    sources?: string[];
+    source_links?: SourceLink[];
+    conversation_id?: string | null;
+    usage?: Usage | null;
+}
 
 interface StoredMessage {
     role: "user" | "assistant";
@@ -23,6 +33,18 @@ interface StoredMessage {
 function makeTitle(question: string): string {
     const title = question.split(/\s+/).filter(Boolean).join(" ");
     return title.length <= TITLE_MAX_CHARS ? title : `${title.slice(0, TITLE_MAX_CHARS - 1).trimEnd()}…`;
+}
+
+// The caller's allowance, or undefined if it couldn't be fetched.
+async function fetchUsage(): Promise<Usage | null | undefined> {
+    try {
+        const res = await fetch("/api/usage");
+        if (!res.ok) return undefined;
+        const data: { usage?: Usage | null } = await res.json();
+        return data.usage ?? null;
+    } catch {
+        return undefined;
+    }
 }
 
 // Chat state lives in React state (see CLAUDE.md). Signed-in users' chats are
@@ -45,6 +67,8 @@ export function useChat() {
     const [error, setError] = useState<ChatError | null>(null);
     // The chat on screen, readable after an await (state would be stale).
     const activeIdRef = useRef<string | null>(null);
+    // The request for the answer streaming in, so Stop can cancel it.
+    const abortRef = useRef<AbortController | null>(null);
 
     const showConversation = (id: string | null, chatMessages: Message[]) => {
         activeIdRef.current = id;
@@ -77,12 +101,9 @@ export function useChat() {
         if (!isLoaded) return;
         let cancelled = false;
 
-        fetch("/api/usage")
-            .then((res) => (res.ok ? res.json() : null))
-            .then((data: { usage?: Usage | null } | null) => {
-                if (!cancelled) setUsage(data?.usage ?? null);
-            })
-            .catch(() => {});
+        fetchUsage().then((next) => {
+            if (!cancelled && next !== undefined) setUsage(next);
+        });
 
         if (userId) {
             fetch("/api/conversations")
@@ -171,6 +192,26 @@ export function useChat() {
         return true;
     };
 
+    // Remember a finished (or stopped) turn in the sidebar and the cache.
+    const keepChat = (id: string, saved: boolean, chatMessages: Message[]) => {
+        setChatCache((prev) => ({ ...prev, [id]: chatMessages }));
+        setConversations((prev) => {
+            const existing = prev.find((c) => c.id === id);
+            const entry: ConversationSummary = {
+                id,
+                title: existing?.title ?? makeTitle(chatMessages[0].content),
+                saved: saved || Boolean(existing?.saved),
+            };
+            // Most recently active first, like the backend's list.
+            return [entry, ...prev.filter((c) => c.id !== id)];
+        });
+    };
+
+    // Stop the answer that's streaming in; what arrived so far stays.
+    const stopGeneration = () => {
+        abortRef.current?.abort();
+    };
+
     const sendQuestion = async (question: string) => {
         if (!question.trim() || isLoading || isLoadingConversation) return;
 
@@ -192,8 +233,17 @@ export function useChat() {
         setIsLoading(true);
         setError(null);
 
+        const controller = new AbortController();
+        abortRef.current = controller;
+        let answer = "";
+        const stillHere = () => activeIdRef.current === askedIn;
+        const withAnswer = (extra: Partial<Message>): Message[] => [
+            ...updatedMessages,
+            { role: "assistant", content: answer, ...extra },
+        ];
+
         try {
-            const res = await fetch(API_URL, {
+            const res = await fetch(STREAM_URL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -201,53 +251,87 @@ export function useChat() {
                     messages: trimForRequest(updatedMessages).map(({ role, content }) => ({ role, content })),
                     ...(savedChat && askedIn ? { conversation_id: askedIn } : {}),
                 }),
+                signal: controller.signal,
             });
-            const data = await res.json().catch(() => null);
 
             if (!res.ok) {
+                const data = await res.json().catch(() => null);
                 const chatError = toChatError(res.status, data);
                 if (data?.usage) setUsage(data.usage);
                 if (chatError.code === "GUEST_LIMIT_REACHED") openSignIn();
                 throw chatError;
             }
 
-            const finalMessages: Message[] = [
-                ...updatedMessages,
-                {
-                    role: "assistant",
-                    content: data.answer ?? "No answer was returned.",
-                    sources: data.sources ?? [],
-                    sourceLinks: data.source_links,
-                },
-            ];
+            const result: { done: QueryDone | null; error: string | null } = { done: null, error: null };
+            if ((res.headers.get("content-type") ?? "").includes("application/json")) {
+                // A backend without streaming: the whole answer at once.
+                result.done = await res.json();
+                answer = result.done?.answer ?? "";
+            } else if (res.body) {
+                const parser = createSseParser(({ event, data }) => {
+                    if (event === "token") {
+                        answer += (data as { text?: string }).text ?? "";
+                        if (stillHere()) setMessages(withAnswer({ streaming: true }));
+                    } else if (event === "done") {
+                        result.done = data as QueryDone;
+                    } else if (event === "error") {
+                        result.error = (data as { detail?: string }).detail ?? null;
+                    }
+                });
+                const reader = res.body.getReader();
+                const decoder = new TextDecoder();
+                for (;;) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+                    parser.push(decoder.decode(value, { stream: true }));
+                }
+                parser.push(decoder.decode());
+                parser.end();
+            }
+
+            if (result.error || !result.done) {
+                // Keep any partial answer on screen above the error.
+                if (answer && stillHere()) setMessages(withAnswer({ stopped: true }));
+                throw { message: result.error ?? "The answer was interrupted. Please try again." } as ChatError;
+            }
+
+            const data = result.done;
+            const finalMessages = withAnswer({
+                content: data.answer || answer || "No answer was returned.",
+                sources: data.sources ?? [],
+                sourceLinks: data.source_links,
+            });
             if (data.usage !== undefined) setUsage(data.usage);
 
             // The backend returns the saved conversation's id for signed-in
             // users; otherwise keep the chat in this tab under a local id.
-            const id: string =
-                data.conversation_id ?? askedIn ?? `local-${Date.now()}`;
-            const saved = Boolean(data.conversation_id);
-            setChatCache((prev) => ({ ...prev, [id]: finalMessages }));
-            setConversations((prev) => {
-                const existing = prev.find((c) => c.id === id);
-                const entry: ConversationSummary = {
-                    id,
-                    title: existing?.title ?? makeTitle(finalMessages[0].content),
-                    saved,
-                };
-                // Most recently active first, like the backend's list.
-                return [entry, ...prev.filter((c) => c.id !== id)];
-            });
+            const id: string = data.conversation_id ?? askedIn ?? `local-${Date.now()}`;
+            keepChat(id, Boolean(data.conversation_id), finalMessages);
             // Don't yank the user back if they switched chats while waiting.
-            if (activeIdRef.current === askedIn) showConversation(id, finalMessages);
+            if (stillHere()) showConversation(id, finalMessages);
         } catch (err) {
-            if (activeIdRef.current !== askedIn) return;
+            if (err instanceof DOMException && err.name === "AbortError") {
+                // Stopped by the user. The backend counts the question but
+                // doesn't save a half answer, so keep it in this tab only.
+                const stoppedMessages = withAnswer({ stopped: true });
+                const id = askedIn ?? `local-${Date.now()}`;
+                keepChat(id, false, stoppedMessages);
+                if (stillHere()) showConversation(id, stoppedMessages);
+                // The stopped question still counted; no "done" event brought
+                // the new allowance, so ask for it.
+                fetchUsage().then((next) => {
+                    if (next !== undefined) setUsage(next);
+                });
+                return;
+            }
+            if (!stillHere()) return;
             setError(
                 err && typeof err === "object" && "message" in err && typeof (err as ChatError).message === "string"
                     ? (err as ChatError)
                     : { message: "Something went wrong while contacting the server." }
             );
         } finally {
+            if (abortRef.current === controller) abortRef.current = null;
             setIsLoading(false);
         }
     };
@@ -267,5 +351,6 @@ export function useChat() {
         handleNewChat,
         selectConversation,
         deleteConversation,
+        stopGeneration,
     };
 }

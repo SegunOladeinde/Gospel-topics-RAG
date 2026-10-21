@@ -57,7 +57,9 @@ export function MessageBubble({ message }: Props) {
               dark:[&_blockquote]:border-[#7c6cfc]/50 dark:[&_blockquote]:text-neutral-300 dark:[&_blockquote]:bg-white/[0.02] dark:[&_blockquote]:py-1 dark:[&_blockquote]:pr-2 dark:[&_blockquote]:rounded-r-md
             "
                     >
-                        <ReactMarkdown>{message.content}</ReactMarkdown>
+                        <ReactMarkdown>
+                            {message.content || (message.stopped ? "_Stopped before an answer arrived._" : "")}
+                        </ReactMarkdown>
                     </div>
                 )}
 
@@ -86,8 +88,11 @@ export function MessageBubble({ message }: Props) {
                 )}
 
                 {!isUser && (
-                    <div className="relative z-10 mt-3 -mb-1.5 -mr-2 flex justify-end">
-                        <CopyButton text={message.content} />
+                    <div className="relative z-10 mt-3 -mb-1.5 -mr-2 flex items-center justify-end gap-2">
+                        {message.stopped && message.content && (
+                            <span className="text-xs text-slate-500 dark:text-neutral-500">Stopped</span>
+                        )}
+                        <CopyButton text={message.content} disabled={message.streaming || !message.content} />
                     </div>
                 )}
             </div>

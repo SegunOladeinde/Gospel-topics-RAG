@@ -11,6 +11,10 @@ export interface Message {
   content: string;
   sources?: string[];
   sourceLinks?: SourceLink[];
+  // Still arriving token by token.
+  streaming?: boolean;
+  // Stopped (or cut off) before the answer finished.
+  stopped?: boolean;
 }
 
 // One entry in the sidebar. saved=false for chats that only live in this tab

@@ -29,7 +29,7 @@ export default function Home() {
   const {
     messages, input, setInput, isLoading, isLoadingConversation, error, usage,
     conversations, conversationId, isSignedIn, sendQuestion, handleNewChat, selectConversation,
-    deleteConversation,
+    deleteConversation, stopGeneration,
   } = useChat();
 
   const isMobile = useIsMobile();
@@ -107,6 +107,8 @@ export default function Home() {
           onSubmit={sendQuestion}
           isLoading={isLoading || isLoadingConversation}
           usageText={usageLabel(usage)}
+          onStop={stopGeneration}
+          canStop={isLoading}
         />
       </main>
     </div>
