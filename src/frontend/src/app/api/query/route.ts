@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { auth } from "@clerk/nextjs/server";
 
-import { proxyToBackend } from "@/lib/backendProxy";
+import { proxyToBackend, QUERY_BACKEND_TIMEOUT_MS } from "@/lib/backendProxy";
 import { checkIsAdmin } from "@/lib/currentUserIsAdmin";
 
-// Long enough for a Render cold start (see BACKEND_TIMEOUT_MS in backendProxy).
-export const maxDuration = 60;
+// The most the Hobby plan allows with Fluid compute, as for the streaming
+// route: long enough to wait out a Render cold start.
+export const maxDuration = 300;
 
 // Proxies the browser's chat request to the FastAPI backend, attaching the
 // shared API key and the caller's identity server-side so neither can be
@@ -26,5 +27,6 @@ export async function POST(request: NextRequest) {
     body,
     userId,
     isAdmin: await checkIsAdmin(userId),
+    timeoutMs: QUERY_BACKEND_TIMEOUT_MS,
   });
 }

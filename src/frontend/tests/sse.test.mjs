@@ -58,3 +58,11 @@ describe("createSseParser", () => {
     assert.deepEqual(events, [{ event: "message", data: "hello" }]);
   });
 });
+
+it("keep-alive comments produce no events", () => {
+  const events = [];
+  const parser = createSseParser((e) => events.push(e));
+  parser.push(": keep-alive\n\n: keep-alive\n\nevent: token\ndata: {\"text\":\"Hi\"}\n\n");
+  parser.end();
+  assert.deepEqual(events, [{ event: "token", data: { text: "Hi" } }]);
+});

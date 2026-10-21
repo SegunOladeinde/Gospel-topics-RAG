@@ -19,6 +19,11 @@ const BACKEND_API_KEY = process.env.BACKEND_API_KEY;
 // kills the function.
 const BACKEND_TIMEOUT_MS = 55_000;
 
+// The query routes allow QUERY_MAX_DURATION_S (Vercel's limit for the plan),
+// so they can wait out a whole cold start instead of asking the user to
+// retry. Their wait for the backend's first byte stays well under it.
+export const QUERY_BACKEND_TIMEOUT_MS = 150_000;
+
 export const WAKING_UP_MESSAGE =
   "Waking up the server, please try again in a moment.";
 
@@ -34,6 +39,8 @@ interface ProxyOptions {
   // The browser's request signal: if the user stops or leaves, the backend
   // request is cancelled too (so a streaming answer stops being generated).
   signal?: AbortSignal;
+  // How long to wait for the backend to answer (default BACKEND_TIMEOUT_MS).
+  timeoutMs?: number;
 }
 
 // Forwards one request to the FastAPI backend with the shared API key and
@@ -42,7 +49,7 @@ interface ProxyOptions {
 // pages into a JSON { detail } the UI can show.
 export async function proxyToBackend(
   incoming: Headers,
-  { path, method, body, userId, isAdmin, stream = false, signal }: ProxyOptions
+  { path, method, body, userId, isAdmin, stream = false, signal, timeoutMs = BACKEND_TIMEOUT_MS }: ProxyOptions
 ): Promise<NextResponse> {
   const missing = [
     !BACKEND_URL && "BACKEND_URL",
@@ -65,7 +72,7 @@ export async function proxyToBackend(
   const controller = new AbortController();
   const timer = setTimeout(
     () => controller.abort(new DOMException("Backend timed out", "TimeoutError")),
-    BACKEND_TIMEOUT_MS
+    timeoutMs
   );
   signal?.addEventListener("abort", () => controller.abort(signal.reason), { once: true });
 
@@ -92,7 +99,7 @@ export async function proxyToBackend(
     const timedOut = err instanceof Error && err.name === "TimeoutError";
     console.error(
       timedOut
-        ? `Backend did not respond within ${BACKEND_TIMEOUT_MS / 1000}s`
+        ? `Backend did not respond within ${timeoutMs / 1000}s`
         : "Failed to reach the backend service",
       err
     );
