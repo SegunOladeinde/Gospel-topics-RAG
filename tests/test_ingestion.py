@@ -340,3 +340,84 @@ def test_max_documents_caps_a_run_and_the_next_run_continues(tmp_path):
     assert first.new == 2 and len(store.documents) == 2
     second = run_ingestion(ingest_config(cfg), docs_for(cfg), store, FakeEmbedder(), dry_run=False, max_documents=2)
     assert (second.new, second.unchanged) == (1, 2) and len(store.documents) == 3
+
+
+# ---------------------------------------------------------------------------
+# Streaming runs, direct-Postgres batches, progress
+# ---------------------------------------------------------------------------
+
+class AtomicStore(FakeStore):
+    """A store with write_batch, like SqlRagStore: one call per batch."""
+
+    def write_batch(self, documents, sha256, chunk_counts, rows_for):
+        ids = FakeStore.upsert_documents(self, documents, sha256, chunk_counts)
+        rows = rows_for(ids)
+        for doc_id in ids.values():
+            self.chunks[doc_id] = [r for r in rows if r["document_id"] == doc_id]
+        self.calls.append(("batch", len(documents), len(rows)))
+        return ids
+
+
+def test_atomic_store_writes_each_batch_in_one_call_with_the_final_sha(tmp_path):
+    cfg = collection(tmp_path)
+    for slug in ("a", "b", "c"):
+        write(cfg, slug, slug.upper(), f"About {slug}.")
+    store = AtomicStore()
+    report = run_ingestion(ingest_config(cfg), docs_for(cfg), store, FakeEmbedder(), dry_run=False, write_batch_docs=2)
+    assert [c for c in store.calls if c[0] == "batch"] == [("batch", 2, 2), ("batch", 1, 1)]
+    assert all(c[2] for c in store.calls if c[0] == "upsert")  # never the in-progress ''
+    assert report.written and report.new == 3
+
+
+def test_document_refs_hash_up_front_and_read_text_only_when_loaded(tmp_path):
+    from src.backend.ingestion.documents import scan_documents
+
+    cfg = collection(tmp_path)
+    write(cfg, "faith", "Faith", "About faith.")
+    [ref] = scan_documents(cfg)
+    assert ref.key == ("topical_guide", "faith")
+    assert ref.sha256 == docs_for(cfg)[0].sha256
+    assert ref.load() == docs_for(cfg)[0]
+
+    store = AtomicStore()
+    run_ingestion(ingest_config(cfg), scan_documents(cfg), store, FakeEmbedder(), dry_run=False)
+    assert store.documents[("topical_guide", "faith")]["sha256"] == ref.sha256
+
+
+def test_force_rewrites_unchanged_pages(tmp_path):
+    cfg = collection(tmp_path)
+    write(cfg, "faith", "Faith", "About faith.")
+    store = AtomicStore()
+    run_ingestion(ingest_config(cfg), docs_for(cfg), store, FakeEmbedder(), dry_run=False)
+    again = run_ingestion(ingest_config(cfg), docs_for(cfg), store, FakeEmbedder(), dry_run=False, force=True)
+    assert (again.changed, again.unchanged) == (1, 0)
+    assert len([c for c in store.calls if c[0] == "batch"]) == 2
+
+
+def test_run_reports_its_speed(tmp_path):
+    cfg = collection(tmp_path)
+    for slug in ("a", "b"):
+        write(cfg, slug, slug.upper(), f"About {slug}.")
+    ticks = iter([0.0, 3.0, 6.0, 6.0])
+    report = run_ingestion(ingest_config(cfg), docs_for(cfg), AtomicStore(), FakeEmbedder(), dry_run=False,
+                           write_batch_docs=1, clock=lambda: next(ticks))
+    assert report.seconds == 6.0
+    assert report.pages_per_minute == 20.0
+
+
+def test_format_progress_shows_rate_and_eta():
+    assert pipeline.format_progress(300, 5000, 612, 30.0) == "300/5000 pages (612 passages) | 600 pages/min | ETA 7m50s"
+    assert pipeline.format_progress(0, 10, 0, 0.0).endswith("0 pages/min | ETA 0m00s")
+
+
+def test_halfvec_binary_matches_pgvectors_wire_format():
+    import struct
+
+    import numpy as np
+
+    from src.backend.ingestion.stores import halfvec_binary
+
+    data = halfvec_binary([0.5, -0.25, 0.1])
+    assert struct.unpack(">HH", data[:4]) == (3, 0)
+    assert np.frombuffer(data[4:], dtype=">f2").tolist() == np.asarray([0.5, -0.25, 0.1], dtype=np.float16).tolist()
+    assert len(halfvec_binary([0.0] * 1536)) == 4 + 2 * 1536

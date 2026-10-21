@@ -111,6 +111,76 @@
  },
  "summary": [
   {
+   "variant": "pg_bm25f:0.5,0.3",
+   "worse": [],
+   "relevant": 99,
+   "off_topic": 26,
+   "must_fix_ok": [
+    "followup-tithing",
+    "followup-sacrament-scriptures",
+    "doctrine-moroni"
+   ],
+   "worse_than_unfiltered": [],
+   "changed_vs_unfiltered": [
+    "followup-faith",
+    "followup-sacrament-scriptures",
+    "mixed-grace-with-history",
+    "bom-king-benjamin"
+   ]
+  },
+  {
+   "variant": "pg_bm25f:0.7,0.3",
+   "worse": [],
+   "relevant": 99,
+   "off_topic": 26,
+   "must_fix_ok": [
+    "followup-tithing",
+    "followup-sacrament-scriptures",
+    "doctrine-moroni"
+   ],
+   "worse_than_unfiltered": [],
+   "changed_vs_unfiltered": [
+    "followup-sacrament-scriptures",
+    "mixed-grace-with-history",
+    "bom-king-benjamin"
+   ]
+  },
+  {
+   "variant": "pg_bm25f:0.5,-",
+   "worse": [],
+   "relevant": 99,
+   "off_topic": 28,
+   "must_fix_ok": [
+    "followup-tithing",
+    "followup-sacrament-scriptures",
+    "doctrine-moroni"
+   ],
+   "worse_than_unfiltered": [],
+   "changed_vs_unfiltered": [
+    "followup-faith",
+    "followup-sacrament-scriptures",
+    "mixed-grace-with-history",
+    "bom-king-benjamin"
+   ]
+  },
+  {
+   "variant": "pg_bm25f:0.7,-",
+   "worse": [],
+   "relevant": 99,
+   "off_topic": 28,
+   "must_fix_ok": [
+    "followup-tithing",
+    "followup-sacrament-scriptures",
+    "doctrine-moroni"
+   ],
+   "worse_than_unfiltered": [],
+   "changed_vs_unfiltered": [
+    "followup-sacrament-scriptures",
+    "mixed-grace-with-history",
+    "bom-king-benjamin"
+   ]
+  },
+  {
    "variant": "pg_bm25:0.5,0.3",
    "worse": [],
    "relevant": 97,
@@ -163,6 +233,88 @@
     "followup-tithing",
     "followup-sacrament-scriptures",
     "doctrine-moroni"
+   ]
+  },
+  {
+   "variant": "pg_bm25f:0.5,0.4",
+   "worse": [
+    "doctrine-after-death",
+    "bom-alma"
+   ],
+   "relevant": 97,
+   "off_topic": 20,
+   "must_fix_ok": [
+    "followup-tithing",
+    "followup-sacrament-scriptures",
+    "doctrine-moroni"
+   ],
+   "worse_than_unfiltered": [],
+   "changed_vs_unfiltered": [
+    "followup-faith",
+    "followup-sacrament-scriptures",
+    "mixed-grace-with-history",
+    "bom-king-benjamin"
+   ]
+  },
+  {
+   "variant": "pg_bm25f:0.7,0.4",
+   "worse": [
+    "doctrine-after-death",
+    "bom-alma"
+   ],
+   "relevant": 97,
+   "off_topic": 20,
+   "must_fix_ok": [
+    "followup-tithing",
+    "followup-sacrament-scriptures",
+    "doctrine-moroni"
+   ],
+   "worse_than_unfiltered": [],
+   "changed_vs_unfiltered": [
+    "followup-sacrament-scriptures",
+    "mixed-grace-with-history",
+    "bom-king-benjamin"
+   ]
+  },
+  {
+   "variant": "pg_bm25f:0.5,0.35",
+   "worse": [
+    "doctrine-after-death",
+    "bom-alma"
+   ],
+   "relevant": 97,
+   "off_topic": 23,
+   "must_fix_ok": [
+    "followup-tithing",
+    "followup-sacrament-scriptures",
+    "doctrine-moroni"
+   ],
+   "worse_than_unfiltered": [],
+   "changed_vs_unfiltered": [
+    "followup-faith",
+    "followup-sacrament-scriptures",
+    "mixed-grace-with-history",
+    "bom-king-benjamin"
+   ]
+  },
+  {
+   "variant": "pg_bm25f:0.7,0.35",
+   "worse": [
+    "doctrine-after-death",
+    "bom-alma"
+   ],
+   "relevant": 97,
+   "off_topic": 23,
+   "must_fix_ok": [
+    "followup-tithing",
+    "followup-sacrament-scriptures",
+    "doctrine-moroni"
+   ],
+   "worse_than_unfiltered": [],
+   "changed_vs_unfiltered": [
+    "followup-sacrament-scriptures",
+    "mixed-grace-with-history",
+    "bom-king-benjamin"
    ]
   },
   {
@@ -222,6 +374,55 @@
    ]
   },
   {
+   "variant": "pg_bm25f:0.5,0.45",
+   "worse": [
+    "doctrine-moroni",
+    "doctrine-after-death",
+    "tithing-hard-times",
+    "sacrament-prayers",
+    "bom-alma"
+   ],
+   "relevant": 93,
+   "off_topic": 18,
+   "must_fix_ok": [
+    "followup-tithing",
+    "followup-sacrament-scriptures"
+   ],
+   "worse_than_unfiltered": [
+    "bom-king-benjamin"
+   ],
+   "changed_vs_unfiltered": [
+    "followup-faith",
+    "followup-sacrament-scriptures",
+    "mixed-grace-with-history",
+    "bom-king-benjamin"
+   ]
+  },
+  {
+   "variant": "pg_bm25f:0.7,0.45",
+   "worse": [
+    "doctrine-moroni",
+    "doctrine-after-death",
+    "tithing-hard-times",
+    "sacrament-prayers",
+    "bom-alma"
+   ],
+   "relevant": 93,
+   "off_topic": 18,
+   "must_fix_ok": [
+    "followup-tithing",
+    "followup-sacrament-scriptures"
+   ],
+   "worse_than_unfiltered": [
+    "bom-king-benjamin"
+   ],
+   "changed_vs_unfiltered": [
+    "followup-sacrament-scriptures",
+    "mixed-grace-with-history",
+    "bom-king-benjamin"
+   ]
+  },
+  {
    "variant": "pg_bm25:0.5,0.45",
    "worse": [
     "doctrine-moroni",
@@ -251,122 +452,6 @@
    "must_fix_ok": [
     "followup-tithing",
     "followup-sacrament-scriptures"
-   ]
-  },
-  {
-   "variant": "pg_bm25d:0.5,0.3",
-   "worse": [
-    "doctrine-sacrament-purpose",
-    "doctrine-repentance-steps",
-    "followup-faith",
-    "followup-tithing",
-    "tithing-use",
-    "sacrament-weekly",
-    "bom-translation",
-    "followup-wow-commandment"
-   ],
-   "relevant": 111,
-   "off_topic": 41,
-   "must_fix_ok": [
-    "followup-sacrament-scriptures",
-    "doctrine-moroni"
-   ]
-  },
-  {
-   "variant": "pg_bm25d:0.7,0.3",
-   "worse": [
-    "doctrine-sacrament-purpose",
-    "doctrine-repentance-steps",
-    "followup-faith",
-    "followup-tithing",
-    "tithing-use",
-    "sacrament-weekly",
-    "bom-translation",
-    "followup-wow-commandment"
-   ],
-   "relevant": 111,
-   "off_topic": 41,
-   "must_fix_ok": [
-    "followup-sacrament-scriptures",
-    "doctrine-moroni"
-   ]
-  },
-  {
-   "variant": "pg_bm25d:0.5,-",
-   "worse": [
-    "doctrine-sacrament-purpose",
-    "doctrine-repentance-steps",
-    "followup-faith",
-    "followup-tithing",
-    "tithing-use",
-    "sacrament-weekly",
-    "bom-translation",
-    "followup-wow-commandment"
-   ],
-   "relevant": 111,
-   "off_topic": 42,
-   "must_fix_ok": [
-    "followup-sacrament-scriptures",
-    "doctrine-moroni"
-   ]
-  },
-  {
-   "variant": "pg_bm25d:0.7,-",
-   "worse": [
-    "doctrine-sacrament-purpose",
-    "doctrine-repentance-steps",
-    "followup-faith",
-    "followup-tithing",
-    "tithing-use",
-    "sacrament-weekly",
-    "bom-translation",
-    "followup-wow-commandment"
-   ],
-   "relevant": 111,
-   "off_topic": 42,
-   "must_fix_ok": [
-    "followup-sacrament-scriptures",
-    "doctrine-moroni"
-   ]
-  },
-  {
-   "variant": "pg_bm25d:0.5,0.4",
-   "worse": [
-    "doctrine-sacrament-purpose",
-    "doctrine-after-death",
-    "doctrine-repentance-steps",
-    "followup-faith",
-    "followup-tithing",
-    "sacrament-weekly",
-    "bom-alma",
-    "bom-translation",
-    "followup-wow-commandment"
-   ],
-   "relevant": 109,
-   "off_topic": 34,
-   "must_fix_ok": [
-    "followup-sacrament-scriptures",
-    "doctrine-moroni"
-   ]
-  },
-  {
-   "variant": "pg_bm25d:0.7,0.4",
-   "worse": [
-    "doctrine-sacrament-purpose",
-    "doctrine-after-death",
-    "doctrine-repentance-steps",
-    "followup-faith",
-    "followup-tithing",
-    "sacrament-weekly",
-    "bom-alma",
-    "bom-translation",
-    "followup-wow-commandment"
-   ],
-   "relevant": 109,
-   "off_topic": 34,
-   "must_fix_ok": [
-    "followup-sacrament-scriptures",
-    "doctrine-moroni"
    ]
   },
   {
@@ -461,48 +546,6 @@
    "relevant": 99,
    "off_topic": 29,
    "must_fix_ok": [
-    "doctrine-moroni"
-   ]
-  },
-  {
-   "variant": "pg_bm25d:0.5,0.35",
-   "worse": [
-    "doctrine-sacrament-purpose",
-    "doctrine-after-death",
-    "doctrine-repentance-steps",
-    "followup-faith",
-    "followup-tithing",
-    "tithing-use",
-    "sacrament-weekly",
-    "bom-alma",
-    "bom-translation",
-    "followup-wow-commandment"
-   ],
-   "relevant": 109,
-   "off_topic": 38,
-   "must_fix_ok": [
-    "followup-sacrament-scriptures",
-    "doctrine-moroni"
-   ]
-  },
-  {
-   "variant": "pg_bm25d:0.7,0.35",
-   "worse": [
-    "doctrine-sacrament-purpose",
-    "doctrine-after-death",
-    "doctrine-repentance-steps",
-    "followup-faith",
-    "followup-tithing",
-    "tithing-use",
-    "sacrament-weekly",
-    "bom-alma",
-    "bom-translation",
-    "followup-wow-commandment"
-   ],
-   "relevant": 109,
-   "off_topic": 38,
-   "must_fix_ok": [
-    "followup-sacrament-scriptures",
     "doctrine-moroni"
    ]
   },
@@ -619,48 +662,6 @@
    "must_fix_ok": [
     "doctrine-moroni"
    ]
-  },
-  {
-   "variant": "pg_bm25d:0.5,0.45",
-   "worse": [
-    "doctrine-sacrament-purpose",
-    "doctrine-moroni",
-    "doctrine-after-death",
-    "doctrine-repentance-steps",
-    "followup-faith",
-    "followup-tithing",
-    "sacrament-prayers",
-    "sacrament-weekly",
-    "bom-alma",
-    "bom-translation",
-    "followup-wow-commandment"
-   ],
-   "relevant": 106,
-   "off_topic": 28,
-   "must_fix_ok": [
-    "followup-sacrament-scriptures"
-   ]
-  },
-  {
-   "variant": "pg_bm25d:0.7,0.45",
-   "worse": [
-    "doctrine-sacrament-purpose",
-    "doctrine-moroni",
-    "doctrine-after-death",
-    "doctrine-repentance-steps",
-    "followup-faith",
-    "followup-tithing",
-    "sacrament-prayers",
-    "sacrament-weekly",
-    "bom-alma",
-    "bom-translation",
-    "followup-wow-commandment"
-   ],
-   "relevant": 106,
-   "off_topic": 28,
-   "must_fix_ok": [
-    "followup-sacrament-scriptures"
-   ]
   }
  ],
  "results": {
@@ -693,7 +694,7 @@
     "bible_dictionary/confirmation",
     "topical_guide/baptism-immersion"
    ],
-   "pg_bm25d:0.5,-": [
+   "pg_bm25f:0.5,-": [
     "topical_guide/baptism",
     "bible_dictionary/baptism",
     "topics_and_questions/baptism",
@@ -715,7 +716,7 @@
     "bible_dictionary/confirmation",
     "topical_guide/baptism-immersion"
    ],
-   "pg_bm25d:0.5,0.3": [
+   "pg_bm25f:0.5,0.3": [
     "topical_guide/baptism",
     "bible_dictionary/baptism",
     "topics_and_questions/baptism",
@@ -737,7 +738,7 @@
     "bible_dictionary/confirmation",
     "topical_guide/baptism-immersion"
    ],
-   "pg_bm25d:0.5,0.35": [
+   "pg_bm25f:0.5,0.35": [
     "topical_guide/baptism",
     "bible_dictionary/baptism",
     "topics_and_questions/baptism",
@@ -759,7 +760,7 @@
     "bible_dictionary/confirmation",
     "topical_guide/baptism-immersion"
    ],
-   "pg_bm25d:0.5,0.4": [
+   "pg_bm25f:0.5,0.4": [
     "topical_guide/baptism",
     "bible_dictionary/baptism",
     "topics_and_questions/baptism",
@@ -781,7 +782,7 @@
     "bible_dictionary/confirmation",
     "topical_guide/baptism-immersion"
    ],
-   "pg_bm25d:0.5,0.45": [
+   "pg_bm25f:0.5,0.45": [
     "topical_guide/baptism",
     "bible_dictionary/baptism",
     "topics_and_questions/baptism",
@@ -803,7 +804,7 @@
     "bible_dictionary/confirmation",
     "topical_guide/baptism-immersion"
    ],
-   "pg_bm25d:0.7,-": [
+   "pg_bm25f:0.7,-": [
     "topical_guide/baptism",
     "bible_dictionary/baptism",
     "topics_and_questions/baptism",
@@ -825,7 +826,7 @@
     "bible_dictionary/confirmation",
     "topical_guide/baptism-immersion"
    ],
-   "pg_bm25d:0.7,0.3": [
+   "pg_bm25f:0.7,0.3": [
     "topical_guide/baptism",
     "bible_dictionary/baptism",
     "topics_and_questions/baptism",
@@ -847,7 +848,7 @@
     "bible_dictionary/confirmation",
     "topical_guide/baptism-immersion"
    ],
-   "pg_bm25d:0.7,0.35": [
+   "pg_bm25f:0.7,0.35": [
     "topical_guide/baptism",
     "bible_dictionary/baptism",
     "topics_and_questions/baptism",
@@ -869,7 +870,7 @@
     "bible_dictionary/confirmation",
     "topical_guide/baptism-immersion"
    ],
-   "pg_bm25d:0.7,0.4": [
+   "pg_bm25f:0.7,0.4": [
     "topical_guide/baptism",
     "bible_dictionary/baptism",
     "topics_and_questions/baptism",
@@ -891,7 +892,7 @@
     "bible_dictionary/confirmation",
     "topical_guide/baptism-immersion"
    ],
-   "pg_bm25d:0.7,0.45": [
+   "pg_bm25f:0.7,0.45": [
     "topical_guide/baptism",
     "bible_dictionary/baptism",
     "topics_and_questions/baptism",
@@ -923,12 +924,10 @@
     "topics_and_questions/sacrament",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.5,-": [
+   "pg_bm25f:0.5,-": [
     "topics_and_questions/sacrament-study-guide",
     "topics_and_questions/sacrament",
-    "topics_and_questions/sacrament-meeting",
-    "topical_guide/sacrament",
-    "topics_and_questions/holy-ghost-gift-study-guide"
+    "topics_and_questions/sacrament-meeting"
    ],
    "pg_ft:0.5,0.3": [
     "topics_and_questions/sacrament-study-guide",
@@ -941,12 +940,10 @@
     "topics_and_questions/sacrament",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.5,0.3": [
+   "pg_bm25f:0.5,0.3": [
     "topics_and_questions/sacrament-study-guide",
     "topics_and_questions/sacrament",
-    "topics_and_questions/sacrament-meeting",
-    "topical_guide/sacrament",
-    "topics_and_questions/holy-ghost-gift-study-guide"
+    "topics_and_questions/sacrament-meeting"
    ],
    "pg_ft:0.5,0.35": [
     "topics_and_questions/sacrament-study-guide",
@@ -959,12 +956,10 @@
     "topics_and_questions/sacrament",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.5,0.35": [
+   "pg_bm25f:0.5,0.35": [
     "topics_and_questions/sacrament-study-guide",
     "topics_and_questions/sacrament",
-    "topics_and_questions/sacrament-meeting",
-    "topical_guide/sacrament",
-    "topics_and_questions/holy-ghost-gift-study-guide"
+    "topics_and_questions/sacrament-meeting"
    ],
    "pg_ft:0.5,0.4": [
     "topics_and_questions/sacrament-study-guide",
@@ -977,12 +972,10 @@
     "topics_and_questions/sacrament",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.5,0.4": [
+   "pg_bm25f:0.5,0.4": [
     "topics_and_questions/sacrament-study-guide",
     "topics_and_questions/sacrament",
-    "topics_and_questions/sacrament-meeting",
-    "topical_guide/sacrament",
-    "topics_and_questions/holy-ghost-gift-study-guide"
+    "topics_and_questions/sacrament-meeting"
    ],
    "pg_ft:0.5,0.45": [
     "topics_and_questions/sacrament-study-guide",
@@ -995,12 +988,10 @@
     "topics_and_questions/sacrament",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.5,0.45": [
+   "pg_bm25f:0.5,0.45": [
     "topics_and_questions/sacrament-study-guide",
     "topics_and_questions/sacrament",
-    "topics_and_questions/sacrament-meeting",
-    "topical_guide/sacrament",
-    "topics_and_questions/holy-ghost-gift-study-guide"
+    "topics_and_questions/sacrament-meeting"
    ],
    "pg_ft:0.7,-": [
     "topics_and_questions/sacrament-study-guide",
@@ -1013,12 +1004,10 @@
     "topics_and_questions/sacrament",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.7,-": [
+   "pg_bm25f:0.7,-": [
     "topics_and_questions/sacrament-study-guide",
     "topics_and_questions/sacrament",
-    "topics_and_questions/sacrament-meeting",
-    "topical_guide/sacrament",
-    "topics_and_questions/holy-ghost-gift-study-guide"
+    "topics_and_questions/sacrament-meeting"
    ],
    "pg_ft:0.7,0.3": [
     "topics_and_questions/sacrament-study-guide",
@@ -1031,12 +1020,10 @@
     "topics_and_questions/sacrament",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.7,0.3": [
+   "pg_bm25f:0.7,0.3": [
     "topics_and_questions/sacrament-study-guide",
     "topics_and_questions/sacrament",
-    "topics_and_questions/sacrament-meeting",
-    "topical_guide/sacrament",
-    "topics_and_questions/holy-ghost-gift-study-guide"
+    "topics_and_questions/sacrament-meeting"
    ],
    "pg_ft:0.7,0.35": [
     "topics_and_questions/sacrament-study-guide",
@@ -1049,12 +1036,10 @@
     "topics_and_questions/sacrament",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.7,0.35": [
+   "pg_bm25f:0.7,0.35": [
     "topics_and_questions/sacrament-study-guide",
     "topics_and_questions/sacrament",
-    "topics_and_questions/sacrament-meeting",
-    "topical_guide/sacrament",
-    "topics_and_questions/holy-ghost-gift-study-guide"
+    "topics_and_questions/sacrament-meeting"
    ],
    "pg_ft:0.7,0.4": [
     "topics_and_questions/sacrament-study-guide",
@@ -1067,12 +1052,10 @@
     "topics_and_questions/sacrament",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.7,0.4": [
+   "pg_bm25f:0.7,0.4": [
     "topics_and_questions/sacrament-study-guide",
     "topics_and_questions/sacrament",
-    "topics_and_questions/sacrament-meeting",
-    "topical_guide/sacrament",
-    "topics_and_questions/holy-ghost-gift-study-guide"
+    "topics_and_questions/sacrament-meeting"
    ],
    "pg_ft:0.7,0.45": [
     "topics_and_questions/sacrament-study-guide",
@@ -1085,12 +1068,10 @@
     "topics_and_questions/sacrament",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.7,0.45": [
+   "pg_bm25f:0.7,0.45": [
     "topics_and_questions/sacrament-study-guide",
     "topics_and_questions/sacrament",
-    "topics_and_questions/sacrament-meeting",
-    "topical_guide/sacrament",
-    "topics_and_questions/holy-ghost-gift-study-guide"
+    "topics_and_questions/sacrament-meeting"
    ]
   },
   "doctrine-moroni": {
@@ -1132,7 +1113,7 @@
     "topics_and_questions/scriptures",
     "topics_and_questions/spiritual-gifts"
    ],
-   "pg_bm25d:0.5,-": [
+   "pg_bm25f:0.5,-": [
     "topics_and_questions/joseph-smiths-character",
     "topics_and_questions/religion-vs-violence",
     "topics_and_questions/abraham-book-of",
@@ -1160,7 +1141,7 @@
     "topics_and_questions/scriptures",
     "topics_and_questions/spiritual-gifts"
    ],
-   "pg_bm25d:0.5,0.3": [
+   "pg_bm25f:0.5,0.3": [
     "topics_and_questions/joseph-smiths-character",
     "topics_and_questions/religion-vs-violence",
     "topics_and_questions/abraham-book-of",
@@ -1188,7 +1169,7 @@
     "topics_and_questions/scriptures",
     "topics_and_questions/spiritual-gifts"
    ],
-   "pg_bm25d:0.5,0.35": [
+   "pg_bm25f:0.5,0.35": [
     "topics_and_questions/joseph-smiths-character",
     "topics_and_questions/religion-vs-violence",
     "topics_and_questions/abraham-book-of",
@@ -1214,7 +1195,7 @@
     "topics_and_questions/scriptures",
     "topics_and_questions/spiritual-gifts"
    ],
-   "pg_bm25d:0.5,0.4": [
+   "pg_bm25f:0.5,0.4": [
     "topics_and_questions/joseph-smiths-character",
     "topics_and_questions/religion-vs-violence",
     "topics_and_questions/abraham-book-of",
@@ -1237,7 +1218,7 @@
     "topics_and_questions/restoration-of-the-church",
     "topics_and_questions/scriptures"
    ],
-   "pg_bm25d:0.5,0.45": [
+   "pg_bm25f:0.5,0.45": [
     "topics_and_questions/joseph-smiths-character",
     "topics_and_questions/religion-vs-violence",
     "topics_and_questions/abraham-book-of",
@@ -1264,7 +1245,7 @@
     "topics_and_questions/restoration-of-the-church",
     "topics_and_questions/spiritual-gifts"
    ],
-   "pg_bm25d:0.7,-": [
+   "pg_bm25f:0.7,-": [
     "topics_and_questions/joseph-smiths-character",
     "topics_and_questions/abraham-book-of",
     "topics_and_questions/book-of-mormon-and-dna-studies",
@@ -1292,7 +1273,7 @@
     "topics_and_questions/restoration-of-the-church",
     "topics_and_questions/spiritual-gifts"
    ],
-   "pg_bm25d:0.7,0.3": [
+   "pg_bm25f:0.7,0.3": [
     "topics_and_questions/joseph-smiths-character",
     "topics_and_questions/abraham-book-of",
     "topics_and_questions/book-of-mormon-and-dna-studies",
@@ -1320,7 +1301,7 @@
     "topics_and_questions/restoration-of-the-church",
     "topics_and_questions/spiritual-gifts"
    ],
-   "pg_bm25d:0.7,0.35": [
+   "pg_bm25f:0.7,0.35": [
     "topics_and_questions/joseph-smiths-character",
     "topics_and_questions/abraham-book-of",
     "topics_and_questions/book-of-mormon-and-dna-studies",
@@ -1346,7 +1327,7 @@
     "topics_and_questions/restoration-of-the-church",
     "topics_and_questions/spiritual-gifts"
    ],
-   "pg_bm25d:0.7,0.4": [
+   "pg_bm25f:0.7,0.4": [
     "topics_and_questions/joseph-smiths-character",
     "topics_and_questions/abraham-book-of",
     "topics_and_questions/book-of-mormon-and-dna-studies",
@@ -1369,7 +1350,7 @@
     "topics_and_questions/religion-vs-violence",
     "topics_and_questions/restoration-of-the-church"
    ],
-   "pg_bm25d:0.7,0.45": [
+   "pg_bm25f:0.7,0.45": [
     "topics_and_questions/joseph-smiths-character",
     "topics_and_questions/abraham-book-of",
     "topics_and_questions/book-of-mormon-and-dna-studies",
@@ -1415,13 +1396,13 @@
     "topics_and_questions/grace",
     "topical_guide/capital-punishment"
    ],
-   "pg_bm25d:0.5,-": [
+   "pg_bm25f:0.5,-": [
     "topical_guide/life-after-death",
     "topics_and_questions/spirit-world-study-guide",
     "topics_and_questions/postmortality",
     "topical_guide/die",
-    "topics_and_questions/grace",
     "topics_and_questions/heaven",
+    "topics_and_questions/grace",
     "topical_guide/capital-punishment"
    ],
    "pg_ft:0.5,0.3": [
@@ -1440,13 +1421,13 @@
     "topics_and_questions/heaven",
     "topics_and_questions/grace"
    ],
-   "pg_bm25d:0.5,0.3": [
+   "pg_bm25f:0.5,0.3": [
     "topical_guide/life-after-death",
     "topics_and_questions/spirit-world-study-guide",
     "topics_and_questions/postmortality",
     "topical_guide/die",
-    "topics_and_questions/grace",
-    "topics_and_questions/heaven"
+    "topics_and_questions/heaven",
+    "topics_and_questions/grace"
    ],
    "pg_ft:0.5,0.35": [
     "topical_guide/life-after-death",
@@ -1462,7 +1443,7 @@
     "topical_guide/die",
     "topics_and_questions/grace"
    ],
-   "pg_bm25d:0.5,0.35": [
+   "pg_bm25f:0.5,0.35": [
     "topical_guide/life-after-death",
     "topics_and_questions/spirit-world-study-guide",
     "topics_and_questions/postmortality",
@@ -1483,7 +1464,7 @@
     "topical_guide/die",
     "topics_and_questions/grace"
    ],
-   "pg_bm25d:0.5,0.4": [
+   "pg_bm25f:0.5,0.4": [
     "topical_guide/life-after-death",
     "topics_and_questions/spirit-world-study-guide",
     "topics_and_questions/postmortality",
@@ -1503,7 +1484,7 @@
     "topics_and_questions/postmortality",
     "topics_and_questions/grace"
    ],
-   "pg_bm25d:0.5,0.45": [
+   "pg_bm25f:0.5,0.45": [
     "topical_guide/life-after-death",
     "topics_and_questions/spirit-world-study-guide",
     "topics_and_questions/postmortality",
@@ -1527,7 +1508,7 @@
     "topics_and_questions/heaven",
     "topical_guide/capital-punishment"
    ],
-   "pg_bm25d:0.7,-": [
+   "pg_bm25f:0.7,-": [
     "topical_guide/life-after-death",
     "topics_and_questions/postmortality",
     "topics_and_questions/grace",
@@ -1552,7 +1533,7 @@
     "topical_guide/die",
     "topics_and_questions/heaven"
    ],
-   "pg_bm25d:0.7,0.3": [
+   "pg_bm25f:0.7,0.3": [
     "topical_guide/life-after-death",
     "topics_and_questions/postmortality",
     "topics_and_questions/grace",
@@ -1574,7 +1555,7 @@
     "topics_and_questions/spirit-world-study-guide",
     "topical_guide/die"
    ],
-   "pg_bm25d:0.7,0.35": [
+   "pg_bm25f:0.7,0.35": [
     "topical_guide/life-after-death",
     "topics_and_questions/postmortality",
     "topics_and_questions/grace",
@@ -1595,7 +1576,7 @@
     "topics_and_questions/spirit-world-study-guide",
     "topical_guide/die"
    ],
-   "pg_bm25d:0.7,0.4": [
+   "pg_bm25f:0.7,0.4": [
     "topical_guide/life-after-death",
     "topics_and_questions/postmortality",
     "topics_and_questions/grace",
@@ -1615,7 +1596,7 @@
     "topics_and_questions/grace",
     "topics_and_questions/spirit-world-study-guide"
    ],
-   "pg_bm25d:0.7,0.45": [
+   "pg_bm25f:0.7,0.45": [
     "topical_guide/life-after-death",
     "topics_and_questions/postmortality",
     "topics_and_questions/grace",
@@ -1647,13 +1628,11 @@
     "bible_dictionary/repentance",
     "topical_guide/repent"
    ],
-   "pg_bm25d:0.5,-": [
+   "pg_bm25f:0.5,-": [
     "topics_and_questions/repentance-study-guide",
     "topics_and_questions/repentance",
     "bible_dictionary/repentance",
-    "topics_and_questions/judging-others-study-guide",
-    "topical_guide/repent",
-    "topics_and_questions/membership-councils"
+    "topical_guide/repent"
    ],
    "pg_ft:0.5,0.3": [
     "topics_and_questions/repentance",
@@ -1667,13 +1646,11 @@
     "bible_dictionary/repentance",
     "topical_guide/repent"
    ],
-   "pg_bm25d:0.5,0.3": [
+   "pg_bm25f:0.5,0.3": [
     "topics_and_questions/repentance-study-guide",
     "topics_and_questions/repentance",
     "bible_dictionary/repentance",
-    "topics_and_questions/judging-others-study-guide",
-    "topical_guide/repent",
-    "topics_and_questions/membership-councils"
+    "topical_guide/repent"
    ],
    "pg_ft:0.5,0.35": [
     "topics_and_questions/repentance",
@@ -1687,13 +1664,11 @@
     "bible_dictionary/repentance",
     "topical_guide/repent"
    ],
-   "pg_bm25d:0.5,0.35": [
+   "pg_bm25f:0.5,0.35": [
     "topics_and_questions/repentance-study-guide",
     "topics_and_questions/repentance",
     "bible_dictionary/repentance",
-    "topics_and_questions/judging-others-study-guide",
-    "topical_guide/repent",
-    "topics_and_questions/membership-councils"
+    "topical_guide/repent"
    ],
    "pg_ft:0.5,0.4": [
     "topics_and_questions/repentance",
@@ -1707,13 +1682,11 @@
     "bible_dictionary/repentance",
     "topical_guide/repent"
    ],
-   "pg_bm25d:0.5,0.4": [
+   "pg_bm25f:0.5,0.4": [
     "topics_and_questions/repentance-study-guide",
     "topics_and_questions/repentance",
     "bible_dictionary/repentance",
-    "topics_and_questions/judging-others-study-guide",
-    "topical_guide/repent",
-    "topics_and_questions/membership-councils"
+    "topical_guide/repent"
    ],
    "pg_ft:0.5,0.45": [
     "topics_and_questions/repentance",
@@ -1727,11 +1700,10 @@
     "bible_dictionary/repentance",
     "topical_guide/repent"
    ],
-   "pg_bm25d:0.5,0.45": [
+   "pg_bm25f:0.5,0.45": [
     "topics_and_questions/repentance-study-guide",
     "topics_and_questions/repentance",
     "bible_dictionary/repentance",
-    "topics_and_questions/judging-others-study-guide",
     "topical_guide/repent"
    ],
    "pg_ft:0.7,-": [
@@ -1746,13 +1718,11 @@
     "bible_dictionary/repentance",
     "topical_guide/repent"
    ],
-   "pg_bm25d:0.7,-": [
+   "pg_bm25f:0.7,-": [
     "topics_and_questions/repentance-study-guide",
     "topics_and_questions/repentance",
     "bible_dictionary/repentance",
-    "topical_guide/repent",
-    "topics_and_questions/judging-others-study-guide",
-    "topics_and_questions/membership-councils"
+    "topical_guide/repent"
    ],
    "pg_ft:0.7,0.3": [
     "topics_and_questions/repentance",
@@ -1766,13 +1736,11 @@
     "bible_dictionary/repentance",
     "topical_guide/repent"
    ],
-   "pg_bm25d:0.7,0.3": [
+   "pg_bm25f:0.7,0.3": [
     "topics_and_questions/repentance-study-guide",
     "topics_and_questions/repentance",
     "bible_dictionary/repentance",
-    "topical_guide/repent",
-    "topics_and_questions/judging-others-study-guide",
-    "topics_and_questions/membership-councils"
+    "topical_guide/repent"
    ],
    "pg_ft:0.7,0.35": [
     "topics_and_questions/repentance",
@@ -1786,13 +1754,11 @@
     "bible_dictionary/repentance",
     "topical_guide/repent"
    ],
-   "pg_bm25d:0.7,0.35": [
+   "pg_bm25f:0.7,0.35": [
     "topics_and_questions/repentance-study-guide",
     "topics_and_questions/repentance",
     "bible_dictionary/repentance",
-    "topical_guide/repent",
-    "topics_and_questions/judging-others-study-guide",
-    "topics_and_questions/membership-councils"
+    "topical_guide/repent"
    ],
    "pg_ft:0.7,0.4": [
     "topics_and_questions/repentance",
@@ -1806,13 +1772,11 @@
     "bible_dictionary/repentance",
     "topical_guide/repent"
    ],
-   "pg_bm25d:0.7,0.4": [
+   "pg_bm25f:0.7,0.4": [
     "topics_and_questions/repentance-study-guide",
     "topics_and_questions/repentance",
     "bible_dictionary/repentance",
-    "topical_guide/repent",
-    "topics_and_questions/judging-others-study-guide",
-    "topics_and_questions/membership-councils"
+    "topical_guide/repent"
    ],
    "pg_ft:0.7,0.45": [
     "topics_and_questions/repentance",
@@ -1826,12 +1790,11 @@
     "bible_dictionary/repentance",
     "topical_guide/repent"
    ],
-   "pg_bm25d:0.7,0.45": [
+   "pg_bm25f:0.7,0.45": [
     "topics_and_questions/repentance-study-guide",
     "topics_and_questions/repentance",
     "bible_dictionary/repentance",
-    "topical_guide/repent",
-    "topics_and_questions/judging-others-study-guide"
+    "topical_guide/repent"
    ]
   },
   "doctrine-temples": {
@@ -1861,9 +1824,9 @@
     "topics_and_questions/temples-study-guide",
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
    ],
-   "pg_bm25d:0.5,-": [
-    "topics_and_questions/church-financial-administration",
+   "pg_bm25f:0.5,-": [
     "topics_and_questions/temples",
+    "topics_and_questions/church-financial-administration",
     "topics_and_questions/temples-study-guide",
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
    ],
@@ -1880,9 +1843,9 @@
     "topics_and_questions/temples-study-guide",
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
    ],
-   "pg_bm25d:0.5,0.3": [
-    "topics_and_questions/church-financial-administration",
+   "pg_bm25f:0.5,0.3": [
     "topics_and_questions/temples",
+    "topics_and_questions/church-financial-administration",
     "topics_and_questions/temples-study-guide",
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
    ],
@@ -1899,9 +1862,9 @@
     "topics_and_questions/temples-study-guide",
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
    ],
-   "pg_bm25d:0.5,0.35": [
-    "topics_and_questions/church-financial-administration",
+   "pg_bm25f:0.5,0.35": [
     "topics_and_questions/temples",
+    "topics_and_questions/church-financial-administration",
     "topics_and_questions/temples-study-guide",
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
    ],
@@ -1918,9 +1881,9 @@
     "topics_and_questions/temples-study-guide",
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
    ],
-   "pg_bm25d:0.5,0.4": [
-    "topics_and_questions/church-financial-administration",
+   "pg_bm25f:0.5,0.4": [
     "topics_and_questions/temples",
+    "topics_and_questions/church-financial-administration",
     "topics_and_questions/temples-study-guide",
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
    ],
@@ -1937,9 +1900,9 @@
     "topics_and_questions/temples-study-guide",
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
    ],
-   "pg_bm25d:0.5,0.45": [
-    "topics_and_questions/church-financial-administration",
+   "pg_bm25f:0.5,0.45": [
     "topics_and_questions/temples",
+    "topics_and_questions/church-financial-administration",
     "topics_and_questions/temples-study-guide",
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
    ],
@@ -1956,9 +1919,9 @@
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints",
     "topics_and_questions/temples-study-guide"
    ],
-   "pg_bm25d:0.7,-": [
-    "topics_and_questions/church-financial-administration",
+   "pg_bm25f:0.7,-": [
     "topics_and_questions/temples",
+    "topics_and_questions/church-financial-administration",
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints",
     "topics_and_questions/temples-study-guide"
    ],
@@ -1975,9 +1938,9 @@
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints",
     "topics_and_questions/temples-study-guide"
    ],
-   "pg_bm25d:0.7,0.3": [
-    "topics_and_questions/church-financial-administration",
+   "pg_bm25f:0.7,0.3": [
     "topics_and_questions/temples",
+    "topics_and_questions/church-financial-administration",
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints",
     "topics_and_questions/temples-study-guide"
    ],
@@ -1994,9 +1957,9 @@
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints",
     "topics_and_questions/temples-study-guide"
    ],
-   "pg_bm25d:0.7,0.35": [
-    "topics_and_questions/church-financial-administration",
+   "pg_bm25f:0.7,0.35": [
     "topics_and_questions/temples",
+    "topics_and_questions/church-financial-administration",
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints",
     "topics_and_questions/temples-study-guide"
    ],
@@ -2013,9 +1976,9 @@
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints",
     "topics_and_questions/temples-study-guide"
    ],
-   "pg_bm25d:0.7,0.4": [
-    "topics_and_questions/church-financial-administration",
+   "pg_bm25f:0.7,0.4": [
     "topics_and_questions/temples",
+    "topics_and_questions/church-financial-administration",
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints",
     "topics_and_questions/temples-study-guide"
    ],
@@ -2032,9 +1995,9 @@
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints",
     "topics_and_questions/temples-study-guide"
    ],
-   "pg_bm25d:0.7,0.45": [
-    "topics_and_questions/church-financial-administration",
+   "pg_bm25f:0.7,0.45": [
     "topics_and_questions/temples",
+    "topics_and_questions/church-financial-administration",
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints",
     "topics_and_questions/temples-study-guide"
    ]
@@ -2058,12 +2021,10 @@
     "topics_and_questions/faith-in-jesus-christ",
     "bible_dictionary/faith"
    ],
-   "pg_bm25d:0.5,-": [
+   "pg_bm25f:0.5,-": [
     "topics_and_questions/faith-in-jesus-christ-study-guide",
-    "topics_and_questions/faith-in-jesus-christ",
     "bible_dictionary/faith",
-    "topical_guide/increase",
-    "topics_and_questions/salvation-study-guide"
+    "topics_and_questions/faith-in-jesus-christ"
    ],
    "pg_ft:0.5,0.3": [
     "topics_and_questions/faith-in-jesus-christ-study-guide",
@@ -2074,12 +2035,10 @@
     "topics_and_questions/faith-in-jesus-christ",
     "bible_dictionary/faith"
    ],
-   "pg_bm25d:0.5,0.3": [
+   "pg_bm25f:0.5,0.3": [
     "topics_and_questions/faith-in-jesus-christ-study-guide",
-    "topics_and_questions/faith-in-jesus-christ",
     "bible_dictionary/faith",
-    "topical_guide/increase",
-    "topics_and_questions/salvation-study-guide"
+    "topics_and_questions/faith-in-jesus-christ"
    ],
    "pg_ft:0.5,0.35": [
     "topics_and_questions/faith-in-jesus-christ-study-guide",
@@ -2090,12 +2049,10 @@
     "topics_and_questions/faith-in-jesus-christ",
     "bible_dictionary/faith"
    ],
-   "pg_bm25d:0.5,0.35": [
+   "pg_bm25f:0.5,0.35": [
     "topics_and_questions/faith-in-jesus-christ-study-guide",
-    "topics_and_questions/faith-in-jesus-christ",
     "bible_dictionary/faith",
-    "topical_guide/increase",
-    "topics_and_questions/salvation-study-guide"
+    "topics_and_questions/faith-in-jesus-christ"
    ],
    "pg_ft:0.5,0.4": [
     "topics_and_questions/faith-in-jesus-christ-study-guide",
@@ -2106,12 +2063,10 @@
     "topics_and_questions/faith-in-jesus-christ",
     "bible_dictionary/faith"
    ],
-   "pg_bm25d:0.5,0.4": [
+   "pg_bm25f:0.5,0.4": [
     "topics_and_questions/faith-in-jesus-christ-study-guide",
-    "topics_and_questions/faith-in-jesus-christ",
     "bible_dictionary/faith",
-    "topical_guide/increase",
-    "topics_and_questions/salvation-study-guide"
+    "topics_and_questions/faith-in-jesus-christ"
    ],
    "pg_ft:0.5,0.45": [
     "topics_and_questions/faith-in-jesus-christ-study-guide",
@@ -2122,11 +2077,10 @@
     "topics_and_questions/faith-in-jesus-christ",
     "bible_dictionary/faith"
    ],
-   "pg_bm25d:0.5,0.45": [
+   "pg_bm25f:0.5,0.45": [
     "topics_and_questions/faith-in-jesus-christ-study-guide",
-    "topics_and_questions/faith-in-jesus-christ",
     "bible_dictionary/faith",
-    "topical_guide/increase"
+    "topics_and_questions/faith-in-jesus-christ"
    ],
    "pg_ft:0.7,-": [
     "topics_and_questions/faith-in-jesus-christ-study-guide",
@@ -2137,12 +2091,10 @@
     "topics_and_questions/faith-in-jesus-christ",
     "bible_dictionary/faith"
    ],
-   "pg_bm25d:0.7,-": [
+   "pg_bm25f:0.7,-": [
     "topics_and_questions/faith-in-jesus-christ-study-guide",
     "topics_and_questions/faith-in-jesus-christ",
-    "topical_guide/increase",
-    "bible_dictionary/faith",
-    "topics_and_questions/salvation-study-guide"
+    "bible_dictionary/faith"
    ],
    "pg_ft:0.7,0.3": [
     "topics_and_questions/faith-in-jesus-christ-study-guide",
@@ -2153,12 +2105,10 @@
     "topics_and_questions/faith-in-jesus-christ",
     "bible_dictionary/faith"
    ],
-   "pg_bm25d:0.7,0.3": [
+   "pg_bm25f:0.7,0.3": [
     "topics_and_questions/faith-in-jesus-christ-study-guide",
     "topics_and_questions/faith-in-jesus-christ",
-    "topical_guide/increase",
-    "bible_dictionary/faith",
-    "topics_and_questions/salvation-study-guide"
+    "bible_dictionary/faith"
    ],
    "pg_ft:0.7,0.35": [
     "topics_and_questions/faith-in-jesus-christ-study-guide",
@@ -2169,12 +2119,10 @@
     "topics_and_questions/faith-in-jesus-christ",
     "bible_dictionary/faith"
    ],
-   "pg_bm25d:0.7,0.35": [
+   "pg_bm25f:0.7,0.35": [
     "topics_and_questions/faith-in-jesus-christ-study-guide",
     "topics_and_questions/faith-in-jesus-christ",
-    "topical_guide/increase",
-    "bible_dictionary/faith",
-    "topics_and_questions/salvation-study-guide"
+    "bible_dictionary/faith"
    ],
    "pg_ft:0.7,0.4": [
     "topics_and_questions/faith-in-jesus-christ-study-guide",
@@ -2185,12 +2133,10 @@
     "topics_and_questions/faith-in-jesus-christ",
     "bible_dictionary/faith"
    ],
-   "pg_bm25d:0.7,0.4": [
+   "pg_bm25f:0.7,0.4": [
     "topics_and_questions/faith-in-jesus-christ-study-guide",
     "topics_and_questions/faith-in-jesus-christ",
-    "topical_guide/increase",
-    "bible_dictionary/faith",
-    "topics_and_questions/salvation-study-guide"
+    "bible_dictionary/faith"
    ],
    "pg_ft:0.7,0.45": [
     "topics_and_questions/faith-in-jesus-christ-study-guide",
@@ -2201,10 +2147,9 @@
     "topics_and_questions/faith-in-jesus-christ",
     "bible_dictionary/faith"
    ],
-   "pg_bm25d:0.7,0.45": [
+   "pg_bm25f:0.7,0.45": [
     "topics_and_questions/faith-in-jesus-christ-study-guide",
     "topics_and_questions/faith-in-jesus-christ",
-    "topical_guide/increase",
     "bible_dictionary/faith"
    ]
   },
@@ -2237,14 +2182,12 @@
     "topics_and_questions/tithing",
     "topical_guide/tenth"
    ],
-   "pg_bm25d:0.5,-": [
+   "pg_bm25f:0.5,-": [
     "topics_and_questions/tithing-study-guide",
     "topical_guide/tithing",
     "topics_and_questions/church-financial-administration",
-    "topical_guide/tenth",
     "topics_and_questions/tithing",
-    "bible_dictionary/tithe",
-    "topics_and_questions/family-finances"
+    "topical_guide/tenth"
    ],
    "pg_ft:0.5,0.3": [
     "topics_and_questions/tithing-study-guide",
@@ -2259,14 +2202,12 @@
     "topics_and_questions/tithing",
     "topical_guide/tenth"
    ],
-   "pg_bm25d:0.5,0.3": [
+   "pg_bm25f:0.5,0.3": [
     "topics_and_questions/tithing-study-guide",
     "topical_guide/tithing",
     "topics_and_questions/church-financial-administration",
-    "topical_guide/tenth",
     "topics_and_questions/tithing",
-    "bible_dictionary/tithe",
-    "topics_and_questions/family-finances"
+    "topical_guide/tenth"
    ],
    "pg_ft:0.5,0.35": [
     "topics_and_questions/tithing-study-guide",
@@ -2281,14 +2222,12 @@
     "topics_and_questions/tithing",
     "topical_guide/tenth"
    ],
-   "pg_bm25d:0.5,0.35": [
+   "pg_bm25f:0.5,0.35": [
     "topics_and_questions/tithing-study-guide",
     "topical_guide/tithing",
     "topics_and_questions/church-financial-administration",
-    "topical_guide/tenth",
     "topics_and_questions/tithing",
-    "bible_dictionary/tithe",
-    "topics_and_questions/family-finances"
+    "topical_guide/tenth"
    ],
    "pg_ft:0.5,0.4": [
     "topics_and_questions/tithing-study-guide",
@@ -2303,14 +2242,12 @@
     "topics_and_questions/tithing",
     "topical_guide/tenth"
    ],
-   "pg_bm25d:0.5,0.4": [
+   "pg_bm25f:0.5,0.4": [
     "topics_and_questions/tithing-study-guide",
     "topical_guide/tithing",
     "topics_and_questions/church-financial-administration",
-    "topical_guide/tenth",
     "topics_and_questions/tithing",
-    "bible_dictionary/tithe",
-    "topics_and_questions/family-finances"
+    "topical_guide/tenth"
    ],
    "pg_ft:0.5,0.45": [
     "topics_and_questions/tithing-study-guide",
@@ -2325,14 +2262,12 @@
     "topics_and_questions/tithing",
     "topical_guide/tenth"
    ],
-   "pg_bm25d:0.5,0.45": [
+   "pg_bm25f:0.5,0.45": [
     "topics_and_questions/tithing-study-guide",
     "topical_guide/tithing",
     "topics_and_questions/church-financial-administration",
-    "topical_guide/tenth",
     "topics_and_questions/tithing",
-    "bible_dictionary/tithe",
-    "topics_and_questions/family-finances"
+    "topical_guide/tenth"
    ],
    "pg_ft:0.7,-": [
     "topics_and_questions/tithing-study-guide",
@@ -2348,14 +2283,12 @@
     "topics_and_questions/church-financial-administration",
     "topics_and_questions/tithing"
    ],
-   "pg_bm25d:0.7,-": [
+   "pg_bm25f:0.7,-": [
     "topics_and_questions/tithing-study-guide",
     "topical_guide/tithing",
     "topical_guide/tenth",
-    "bible_dictionary/tithe",
     "topics_and_questions/church-financial-administration",
-    "topics_and_questions/tithing",
-    "topics_and_questions/family-finances"
+    "topics_and_questions/tithing"
    ],
    "pg_ft:0.7,0.3": [
     "topics_and_questions/tithing-study-guide",
@@ -2370,14 +2303,12 @@
     "topics_and_questions/church-financial-administration",
     "topics_and_questions/tithing"
    ],
-   "pg_bm25d:0.7,0.3": [
+   "pg_bm25f:0.7,0.3": [
     "topics_and_questions/tithing-study-guide",
     "topical_guide/tithing",
     "topical_guide/tenth",
-    "bible_dictionary/tithe",
     "topics_and_questions/church-financial-administration",
-    "topics_and_questions/tithing",
-    "topics_and_questions/family-finances"
+    "topics_and_questions/tithing"
    ],
    "pg_ft:0.7,0.35": [
     "topics_and_questions/tithing-study-guide",
@@ -2392,14 +2323,12 @@
     "topics_and_questions/church-financial-administration",
     "topics_and_questions/tithing"
    ],
-   "pg_bm25d:0.7,0.35": [
+   "pg_bm25f:0.7,0.35": [
     "topics_and_questions/tithing-study-guide",
     "topical_guide/tithing",
     "topical_guide/tenth",
-    "bible_dictionary/tithe",
     "topics_and_questions/church-financial-administration",
-    "topics_and_questions/tithing",
-    "topics_and_questions/family-finances"
+    "topics_and_questions/tithing"
    ],
    "pg_ft:0.7,0.4": [
     "topics_and_questions/tithing-study-guide",
@@ -2414,14 +2343,12 @@
     "topics_and_questions/church-financial-administration",
     "topics_and_questions/tithing"
    ],
-   "pg_bm25d:0.7,0.4": [
+   "pg_bm25f:0.7,0.4": [
     "topics_and_questions/tithing-study-guide",
     "topical_guide/tithing",
     "topical_guide/tenth",
-    "bible_dictionary/tithe",
     "topics_and_questions/church-financial-administration",
-    "topics_and_questions/tithing",
-    "topics_and_questions/family-finances"
+    "topics_and_questions/tithing"
    ],
    "pg_ft:0.7,0.45": [
     "topics_and_questions/tithing-study-guide",
@@ -2436,14 +2363,12 @@
     "topics_and_questions/church-financial-administration",
     "topics_and_questions/tithing"
    ],
-   "pg_bm25d:0.7,0.45": [
+   "pg_bm25f:0.7,0.45": [
     "topics_and_questions/tithing-study-guide",
     "topical_guide/tithing",
     "topical_guide/tenth",
-    "bible_dictionary/tithe",
     "topics_and_questions/church-financial-administration",
-    "topics_and_questions/tithing",
-    "topics_and_questions/family-finances"
+    "topics_and_questions/tithing"
    ]
   },
   "followup-sacrament-scriptures": {
@@ -2479,11 +2404,10 @@
     "topics_and_questions/missionary-work-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.5,-": [
+   "pg_bm25f:0.5,-": [
     "topics_and_questions/sacrament",
     "topical_guide/sacrament",
     "topics_and_questions/sacrament-study-guide",
-    "topics_and_questions/missionary-work-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
    "pg_ft:0.5,0.3": [
@@ -2502,11 +2426,10 @@
     "topics_and_questions/missionary-work-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.5,0.3": [
+   "pg_bm25f:0.5,0.3": [
     "topics_and_questions/sacrament",
     "topical_guide/sacrament",
     "topics_and_questions/sacrament-study-guide",
-    "topics_and_questions/missionary-work-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
    "pg_ft:0.5,0.35": [
@@ -2525,11 +2448,10 @@
     "topics_and_questions/missionary-work-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.5,0.35": [
+   "pg_bm25f:0.5,0.35": [
     "topics_and_questions/sacrament",
     "topical_guide/sacrament",
     "topics_and_questions/sacrament-study-guide",
-    "topics_and_questions/missionary-work-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
    "pg_ft:0.5,0.4": [
@@ -2548,11 +2470,10 @@
     "topics_and_questions/missionary-work-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.5,0.4": [
+   "pg_bm25f:0.5,0.4": [
     "topics_and_questions/sacrament",
     "topical_guide/sacrament",
     "topics_and_questions/sacrament-study-guide",
-    "topics_and_questions/missionary-work-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
    "pg_ft:0.5,0.45": [
@@ -2571,11 +2492,10 @@
     "topics_and_questions/missionary-work-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.5,0.45": [
+   "pg_bm25f:0.5,0.45": [
     "topics_and_questions/sacrament",
     "topical_guide/sacrament",
     "topics_and_questions/sacrament-study-guide",
-    "topics_and_questions/missionary-work-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
    "pg_ft:0.7,-": [
@@ -2594,11 +2514,10 @@
     "topics_and_questions/missionary-work-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.7,-": [
+   "pg_bm25f:0.7,-": [
     "topics_and_questions/sacrament",
     "topical_guide/sacrament",
     "topics_and_questions/sacrament-study-guide",
-    "topics_and_questions/missionary-work-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
    "pg_ft:0.7,0.3": [
@@ -2617,11 +2536,10 @@
     "topics_and_questions/missionary-work-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.7,0.3": [
+   "pg_bm25f:0.7,0.3": [
     "topics_and_questions/sacrament",
     "topical_guide/sacrament",
     "topics_and_questions/sacrament-study-guide",
-    "topics_and_questions/missionary-work-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
    "pg_ft:0.7,0.35": [
@@ -2640,11 +2558,10 @@
     "topics_and_questions/missionary-work-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.7,0.35": [
+   "pg_bm25f:0.7,0.35": [
     "topics_and_questions/sacrament",
     "topical_guide/sacrament",
     "topics_and_questions/sacrament-study-guide",
-    "topics_and_questions/missionary-work-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
    "pg_ft:0.7,0.4": [
@@ -2663,11 +2580,10 @@
     "topics_and_questions/missionary-work-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.7,0.4": [
+   "pg_bm25f:0.7,0.4": [
     "topics_and_questions/sacrament",
     "topical_guide/sacrament",
     "topics_and_questions/sacrament-study-guide",
-    "topics_and_questions/missionary-work-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
    "pg_ft:0.7,0.45": [
@@ -2686,11 +2602,10 @@
     "topics_and_questions/missionary-work-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.7,0.45": [
+   "pg_bm25f:0.7,0.45": [
     "topics_and_questions/sacrament",
     "topical_guide/sacrament",
     "topics_and_questions/sacrament-study-guide",
-    "topics_and_questions/missionary-work-study-guide",
     "topics_and_questions/sacrament-meeting"
    ]
   },
@@ -2721,12 +2636,11 @@
     "topical_guide/tithing",
     "topics_and_questions/tithing-study-guide"
    ],
-   "pg_bm25d:0.5,-": [
+   "pg_bm25f:0.5,-": [
     "topics_and_questions/tithing",
     "topics_and_questions/church-financial-administration",
     "topical_guide/tithing",
-    "topics_and_questions/tithing-study-guide",
-    "bible_dictionary/tithe"
+    "topics_and_questions/tithing-study-guide"
    ],
    "pg_ft:0.5,0.3": [
     "topical_guide/tithing",
@@ -2741,12 +2655,11 @@
     "topical_guide/tithing",
     "topics_and_questions/tithing-study-guide"
    ],
-   "pg_bm25d:0.5,0.3": [
+   "pg_bm25f:0.5,0.3": [
     "topics_and_questions/tithing",
     "topics_and_questions/church-financial-administration",
     "topical_guide/tithing",
-    "topics_and_questions/tithing-study-guide",
-    "bible_dictionary/tithe"
+    "topics_and_questions/tithing-study-guide"
    ],
    "pg_ft:0.5,0.35": [
     "topical_guide/tithing",
@@ -2761,12 +2674,11 @@
     "topical_guide/tithing",
     "topics_and_questions/tithing-study-guide"
    ],
-   "pg_bm25d:0.5,0.35": [
+   "pg_bm25f:0.5,0.35": [
     "topics_and_questions/tithing",
     "topics_and_questions/church-financial-administration",
     "topical_guide/tithing",
-    "topics_and_questions/tithing-study-guide",
-    "bible_dictionary/tithe"
+    "topics_and_questions/tithing-study-guide"
    ],
    "pg_ft:0.5,0.4": [
     "topical_guide/tithing",
@@ -2781,12 +2693,11 @@
     "topical_guide/tithing",
     "topics_and_questions/tithing-study-guide"
    ],
-   "pg_bm25d:0.5,0.4": [
+   "pg_bm25f:0.5,0.4": [
     "topics_and_questions/tithing",
     "topics_and_questions/church-financial-administration",
     "topical_guide/tithing",
-    "topics_and_questions/tithing-study-guide",
-    "bible_dictionary/tithe"
+    "topics_and_questions/tithing-study-guide"
    ],
    "pg_ft:0.5,0.45": [
     "topical_guide/tithing",
@@ -2801,12 +2712,11 @@
     "topical_guide/tithing",
     "topics_and_questions/tithing-study-guide"
    ],
-   "pg_bm25d:0.5,0.45": [
+   "pg_bm25f:0.5,0.45": [
     "topics_and_questions/tithing",
     "topics_and_questions/church-financial-administration",
     "topical_guide/tithing",
-    "topics_and_questions/tithing-study-guide",
-    "bible_dictionary/tithe"
+    "topics_and_questions/tithing-study-guide"
    ],
    "pg_ft:0.7,-": [
     "topical_guide/tithing",
@@ -2821,11 +2731,10 @@
     "topics_and_questions/tithing-study-guide",
     "topics_and_questions/church-financial-administration"
    ],
-   "pg_bm25d:0.7,-": [
+   "pg_bm25f:0.7,-": [
     "topics_and_questions/tithing",
     "topical_guide/tithing",
     "topics_and_questions/tithing-study-guide",
-    "bible_dictionary/tithe",
     "topics_and_questions/church-financial-administration"
    ],
    "pg_ft:0.7,0.3": [
@@ -2841,11 +2750,10 @@
     "topics_and_questions/tithing-study-guide",
     "topics_and_questions/church-financial-administration"
    ],
-   "pg_bm25d:0.7,0.3": [
+   "pg_bm25f:0.7,0.3": [
     "topics_and_questions/tithing",
     "topical_guide/tithing",
     "topics_and_questions/tithing-study-guide",
-    "bible_dictionary/tithe",
     "topics_and_questions/church-financial-administration"
    ],
    "pg_ft:0.7,0.35": [
@@ -2861,11 +2769,10 @@
     "topics_and_questions/tithing-study-guide",
     "topics_and_questions/church-financial-administration"
    ],
-   "pg_bm25d:0.7,0.35": [
+   "pg_bm25f:0.7,0.35": [
     "topics_and_questions/tithing",
     "topical_guide/tithing",
     "topics_and_questions/tithing-study-guide",
-    "bible_dictionary/tithe",
     "topics_and_questions/church-financial-administration"
    ],
    "pg_ft:0.7,0.4": [
@@ -2881,11 +2788,10 @@
     "topics_and_questions/tithing-study-guide",
     "topics_and_questions/church-financial-administration"
    ],
-   "pg_bm25d:0.7,0.4": [
+   "pg_bm25f:0.7,0.4": [
     "topics_and_questions/tithing",
     "topical_guide/tithing",
     "topics_and_questions/tithing-study-guide",
-    "bible_dictionary/tithe",
     "topics_and_questions/church-financial-administration"
    ],
    "pg_ft:0.7,0.45": [
@@ -2901,11 +2807,10 @@
     "topics_and_questions/tithing-study-guide",
     "topics_and_questions/church-financial-administration"
    ],
-   "pg_bm25d:0.7,0.45": [
+   "pg_bm25f:0.7,0.45": [
     "topics_and_questions/tithing",
     "topical_guide/tithing",
     "topics_and_questions/tithing-study-guide",
-    "bible_dictionary/tithe",
     "topics_and_questions/church-financial-administration"
    ]
   },
@@ -2932,13 +2837,12 @@
     "bible_dictionary/introduction",
     "bible_dictionary/grace"
    ],
-   "pg_bm25d:0.5,-": [
+   "pg_bm25f:0.5,-": [
     "topics_and_questions/grace-study-guide",
-    "topics_and_questions/grace",
     "topical_guide/grace",
-    "bible_dictionary/introduction",
     "bible_dictionary/grace",
-    "topical_guide/salvation-by-grace"
+    "topical_guide/salvation-by-grace",
+    "topics_and_questions/grace"
    ],
    "pg_ft:0.5,0.3": [
     "topical_guide/grace",
@@ -2951,13 +2855,12 @@
     "bible_dictionary/introduction",
     "bible_dictionary/grace"
    ],
-   "pg_bm25d:0.5,0.3": [
+   "pg_bm25f:0.5,0.3": [
     "topics_and_questions/grace-study-guide",
-    "topics_and_questions/grace",
     "topical_guide/grace",
-    "bible_dictionary/introduction",
     "bible_dictionary/grace",
-    "topical_guide/salvation-by-grace"
+    "topical_guide/salvation-by-grace",
+    "topics_and_questions/grace"
    ],
    "pg_ft:0.5,0.35": [
     "topical_guide/grace",
@@ -2970,13 +2873,12 @@
     "bible_dictionary/introduction",
     "bible_dictionary/grace"
    ],
-   "pg_bm25d:0.5,0.35": [
+   "pg_bm25f:0.5,0.35": [
     "topics_and_questions/grace-study-guide",
-    "topics_and_questions/grace",
     "topical_guide/grace",
-    "bible_dictionary/introduction",
     "bible_dictionary/grace",
-    "topical_guide/salvation-by-grace"
+    "topical_guide/salvation-by-grace",
+    "topics_and_questions/grace"
    ],
    "pg_ft:0.5,0.4": [
     "topical_guide/grace",
@@ -2989,13 +2891,12 @@
     "bible_dictionary/introduction",
     "bible_dictionary/grace"
    ],
-   "pg_bm25d:0.5,0.4": [
+   "pg_bm25f:0.5,0.4": [
     "topics_and_questions/grace-study-guide",
-    "topics_and_questions/grace",
     "topical_guide/grace",
-    "bible_dictionary/introduction",
     "bible_dictionary/grace",
-    "topical_guide/salvation-by-grace"
+    "topical_guide/salvation-by-grace",
+    "topics_and_questions/grace"
    ],
    "pg_ft:0.5,0.45": [
     "topical_guide/grace",
@@ -3008,13 +2909,12 @@
     "bible_dictionary/introduction",
     "bible_dictionary/grace"
    ],
-   "pg_bm25d:0.5,0.45": [
+   "pg_bm25f:0.5,0.45": [
     "topics_and_questions/grace-study-guide",
-    "topics_and_questions/grace",
     "topical_guide/grace",
-    "bible_dictionary/introduction",
     "bible_dictionary/grace",
-    "topical_guide/salvation-by-grace"
+    "topical_guide/salvation-by-grace",
+    "topics_and_questions/grace"
    ],
    "pg_ft:0.7,-": [
     "topical_guide/grace",
@@ -3027,13 +2927,12 @@
     "bible_dictionary/grace",
     "bible_dictionary/introduction"
    ],
-   "pg_bm25d:0.7,-": [
+   "pg_bm25f:0.7,-": [
     "topics_and_questions/grace-study-guide",
-    "topics_and_questions/grace",
     "topical_guide/grace",
     "bible_dictionary/grace",
-    "bible_dictionary/introduction",
-    "topical_guide/salvation-by-grace"
+    "topical_guide/salvation-by-grace",
+    "topics_and_questions/grace"
    ],
    "pg_ft:0.7,0.3": [
     "topical_guide/grace",
@@ -3046,13 +2945,12 @@
     "bible_dictionary/grace",
     "bible_dictionary/introduction"
    ],
-   "pg_bm25d:0.7,0.3": [
+   "pg_bm25f:0.7,0.3": [
     "topics_and_questions/grace-study-guide",
-    "topics_and_questions/grace",
     "topical_guide/grace",
     "bible_dictionary/grace",
-    "bible_dictionary/introduction",
-    "topical_guide/salvation-by-grace"
+    "topical_guide/salvation-by-grace",
+    "topics_and_questions/grace"
    ],
    "pg_ft:0.7,0.35": [
     "topical_guide/grace",
@@ -3065,13 +2963,12 @@
     "bible_dictionary/grace",
     "bible_dictionary/introduction"
    ],
-   "pg_bm25d:0.7,0.35": [
+   "pg_bm25f:0.7,0.35": [
     "topics_and_questions/grace-study-guide",
-    "topics_and_questions/grace",
     "topical_guide/grace",
     "bible_dictionary/grace",
-    "bible_dictionary/introduction",
-    "topical_guide/salvation-by-grace"
+    "topical_guide/salvation-by-grace",
+    "topics_and_questions/grace"
    ],
    "pg_ft:0.7,0.4": [
     "topical_guide/grace",
@@ -3084,13 +2981,12 @@
     "bible_dictionary/grace",
     "bible_dictionary/introduction"
    ],
-   "pg_bm25d:0.7,0.4": [
+   "pg_bm25f:0.7,0.4": [
     "topics_and_questions/grace-study-guide",
-    "topics_and_questions/grace",
     "topical_guide/grace",
     "bible_dictionary/grace",
-    "bible_dictionary/introduction",
-    "topical_guide/salvation-by-grace"
+    "topical_guide/salvation-by-grace",
+    "topics_and_questions/grace"
    ],
    "pg_ft:0.7,0.45": [
     "topical_guide/grace",
@@ -3103,13 +2999,12 @@
     "bible_dictionary/grace",
     "bible_dictionary/introduction"
    ],
-   "pg_bm25d:0.7,0.45": [
+   "pg_bm25f:0.7,0.45": [
     "topics_and_questions/grace-study-guide",
-    "topics_and_questions/grace",
     "topical_guide/grace",
     "bible_dictionary/grace",
-    "bible_dictionary/introduction",
-    "topical_guide/salvation-by-grace"
+    "topical_guide/salvation-by-grace",
+    "topics_and_questions/grace"
    ]
   },
   "long-priesthood-authority": {
@@ -3145,7 +3040,7 @@
     "topics_and_questions/priesthood-keys-study-guide",
     "topics_and_questions/sabbath-day-study-guide"
    ],
-   "pg_bm25d:0.5,-": [
+   "pg_bm25f:0.5,-": [
     "topics_and_questions/restoration-of-the-priesthood-study-guide",
     "topics_and_questions/restoration-of-the-priesthood",
     "topics_and_questions/baptism-study-guide",
@@ -3169,7 +3064,7 @@
     "topics_and_questions/priesthood-keys-study-guide",
     "topics_and_questions/sabbath-day-study-guide"
    ],
-   "pg_bm25d:0.5,0.3": [
+   "pg_bm25f:0.5,0.3": [
     "topics_and_questions/restoration-of-the-priesthood-study-guide",
     "topics_and_questions/restoration-of-the-priesthood",
     "topics_and_questions/baptism-study-guide",
@@ -3193,7 +3088,7 @@
     "topics_and_questions/priesthood-keys-study-guide",
     "topics_and_questions/sabbath-day-study-guide"
    ],
-   "pg_bm25d:0.5,0.35": [
+   "pg_bm25f:0.5,0.35": [
     "topics_and_questions/restoration-of-the-priesthood-study-guide",
     "topics_and_questions/restoration-of-the-priesthood",
     "topics_and_questions/baptism-study-guide",
@@ -3217,7 +3112,7 @@
     "topics_and_questions/priesthood-keys-study-guide",
     "topics_and_questions/sabbath-day-study-guide"
    ],
-   "pg_bm25d:0.5,0.4": [
+   "pg_bm25f:0.5,0.4": [
     "topics_and_questions/restoration-of-the-priesthood-study-guide",
     "topics_and_questions/restoration-of-the-priesthood",
     "topics_and_questions/baptism-study-guide",
@@ -3241,7 +3136,7 @@
     "topics_and_questions/priesthood-keys-study-guide",
     "topics_and_questions/sabbath-day-study-guide"
    ],
-   "pg_bm25d:0.5,0.45": [
+   "pg_bm25f:0.5,0.45": [
     "topics_and_questions/restoration-of-the-priesthood-study-guide",
     "topics_and_questions/restoration-of-the-priesthood",
     "topics_and_questions/baptism-study-guide",
@@ -3265,7 +3160,7 @@
     "topics_and_questions/priesthood-keys-study-guide",
     "topics_and_questions/sabbath-day-study-guide"
    ],
-   "pg_bm25d:0.7,-": [
+   "pg_bm25f:0.7,-": [
     "topics_and_questions/restoration-of-the-priesthood-study-guide",
     "topics_and_questions/baptism-study-guide",
     "topics_and_questions/restoration-of-the-church-study-guide",
@@ -3289,7 +3184,7 @@
     "topics_and_questions/priesthood-keys-study-guide",
     "topics_and_questions/sabbath-day-study-guide"
    ],
-   "pg_bm25d:0.7,0.3": [
+   "pg_bm25f:0.7,0.3": [
     "topics_and_questions/restoration-of-the-priesthood-study-guide",
     "topics_and_questions/baptism-study-guide",
     "topics_and_questions/restoration-of-the-church-study-guide",
@@ -3313,7 +3208,7 @@
     "topics_and_questions/priesthood-keys-study-guide",
     "topics_and_questions/sabbath-day-study-guide"
    ],
-   "pg_bm25d:0.7,0.35": [
+   "pg_bm25f:0.7,0.35": [
     "topics_and_questions/restoration-of-the-priesthood-study-guide",
     "topics_and_questions/baptism-study-guide",
     "topics_and_questions/restoration-of-the-church-study-guide",
@@ -3337,7 +3232,7 @@
     "topics_and_questions/priesthood-keys-study-guide",
     "topics_and_questions/sabbath-day-study-guide"
    ],
-   "pg_bm25d:0.7,0.4": [
+   "pg_bm25f:0.7,0.4": [
     "topics_and_questions/restoration-of-the-priesthood-study-guide",
     "topics_and_questions/baptism-study-guide",
     "topics_and_questions/restoration-of-the-church-study-guide",
@@ -3361,7 +3256,7 @@
     "topics_and_questions/priesthood-keys-study-guide",
     "topics_and_questions/sabbath-day-study-guide"
    ],
-   "pg_bm25d:0.7,0.45": [
+   "pg_bm25f:0.7,0.45": [
     "topics_and_questions/restoration-of-the-priesthood-study-guide",
     "topics_and_questions/baptism-study-guide",
     "topics_and_questions/restoration-of-the-church-study-guide",
@@ -3393,13 +3288,11 @@
     "topical_guide/tight",
     "topics_and_questions/family-finances"
    ],
-   "pg_bm25d:0.5,-": [
+   "pg_bm25f:0.5,-": [
     "topics_and_questions/tithing-study-guide",
-    "topics_and_questions/family-finances",
     "topics_and_questions/church-financial-administration",
-    "topics_and_questions/tithing",
     "topical_guide/tight",
-    "topical_guide/tithing"
+    "topics_and_questions/family-finances"
    ],
    "pg_ft:0.5,0.3": [
     "topics_and_questions/tithing-study-guide",
@@ -3412,13 +3305,11 @@
     "topical_guide/tight",
     "topics_and_questions/family-finances"
    ],
-   "pg_bm25d:0.5,0.3": [
+   "pg_bm25f:0.5,0.3": [
     "topics_and_questions/tithing-study-guide",
-    "topics_and_questions/family-finances",
     "topics_and_questions/church-financial-administration",
-    "topics_and_questions/tithing",
     "topical_guide/tight",
-    "topical_guide/tithing"
+    "topics_and_questions/family-finances"
    ],
    "pg_ft:0.5,0.35": [
     "topics_and_questions/tithing-study-guide",
@@ -3430,12 +3321,10 @@
     "topics_and_questions/church-financial-administration",
     "topics_and_questions/family-finances"
    ],
-   "pg_bm25d:0.5,0.35": [
+   "pg_bm25f:0.5,0.35": [
     "topics_and_questions/tithing-study-guide",
-    "topics_and_questions/family-finances",
     "topics_and_questions/church-financial-administration",
-    "topics_and_questions/tithing",
-    "topical_guide/tithing"
+    "topics_and_questions/family-finances"
    ],
    "pg_ft:0.5,0.4": [
     "topics_and_questions/tithing-study-guide",
@@ -3447,12 +3336,10 @@
     "topics_and_questions/church-financial-administration",
     "topics_and_questions/family-finances"
    ],
-   "pg_bm25d:0.5,0.4": [
+   "pg_bm25f:0.5,0.4": [
     "topics_and_questions/tithing-study-guide",
-    "topics_and_questions/family-finances",
     "topics_and_questions/church-financial-administration",
-    "topics_and_questions/tithing",
-    "topical_guide/tithing"
+    "topics_and_questions/family-finances"
    ],
    "pg_ft:0.5,0.45": [
     "topics_and_questions/tithing-study-guide",
@@ -3463,12 +3350,9 @@
     "topics_and_questions/tithing-study-guide",
     "topics_and_questions/church-financial-administration"
    ],
-   "pg_bm25d:0.5,0.45": [
+   "pg_bm25f:0.5,0.45": [
     "topics_and_questions/tithing-study-guide",
-    "topics_and_questions/family-finances",
-    "topics_and_questions/church-financial-administration",
-    "topics_and_questions/tithing",
-    "topical_guide/tithing"
+    "topics_and_questions/church-financial-administration"
    ],
    "pg_ft:0.7,-": [
     "topics_and_questions/tithing-study-guide",
@@ -3481,13 +3365,11 @@
     "topical_guide/tight",
     "topics_and_questions/family-finances"
    ],
-   "pg_bm25d:0.7,-": [
+   "pg_bm25f:0.7,-": [
     "topics_and_questions/tithing-study-guide",
-    "topics_and_questions/family-finances",
-    "topics_and_questions/tithing",
-    "topical_guide/tithing",
     "topics_and_questions/church-financial-administration",
-    "topical_guide/tight"
+    "topical_guide/tight",
+    "topics_and_questions/family-finances"
    ],
    "pg_ft:0.7,0.3": [
     "topics_and_questions/tithing-study-guide",
@@ -3500,13 +3382,11 @@
     "topical_guide/tight",
     "topics_and_questions/family-finances"
    ],
-   "pg_bm25d:0.7,0.3": [
+   "pg_bm25f:0.7,0.3": [
     "topics_and_questions/tithing-study-guide",
-    "topics_and_questions/family-finances",
-    "topics_and_questions/tithing",
-    "topical_guide/tithing",
     "topics_and_questions/church-financial-administration",
-    "topical_guide/tight"
+    "topical_guide/tight",
+    "topics_and_questions/family-finances"
    ],
    "pg_ft:0.7,0.35": [
     "topics_and_questions/tithing-study-guide",
@@ -3518,12 +3398,10 @@
     "topics_and_questions/church-financial-administration",
     "topics_and_questions/family-finances"
    ],
-   "pg_bm25d:0.7,0.35": [
+   "pg_bm25f:0.7,0.35": [
     "topics_and_questions/tithing-study-guide",
-    "topics_and_questions/family-finances",
-    "topics_and_questions/tithing",
-    "topical_guide/tithing",
-    "topics_and_questions/church-financial-administration"
+    "topics_and_questions/church-financial-administration",
+    "topics_and_questions/family-finances"
    ],
    "pg_ft:0.7,0.4": [
     "topics_and_questions/tithing-study-guide",
@@ -3535,12 +3413,10 @@
     "topics_and_questions/church-financial-administration",
     "topics_and_questions/family-finances"
    ],
-   "pg_bm25d:0.7,0.4": [
+   "pg_bm25f:0.7,0.4": [
     "topics_and_questions/tithing-study-guide",
-    "topics_and_questions/family-finances",
-    "topics_and_questions/tithing",
-    "topical_guide/tithing",
-    "topics_and_questions/church-financial-administration"
+    "topics_and_questions/church-financial-administration",
+    "topics_and_questions/family-finances"
    ],
    "pg_ft:0.7,0.45": [
     "topics_and_questions/tithing-study-guide",
@@ -3551,11 +3427,8 @@
     "topics_and_questions/tithing-study-guide",
     "topics_and_questions/church-financial-administration"
    ],
-   "pg_bm25d:0.7,0.45": [
+   "pg_bm25f:0.7,0.45": [
     "topics_and_questions/tithing-study-guide",
-    "topics_and_questions/family-finances",
-    "topics_and_questions/tithing",
-    "topical_guide/tithing",
     "topics_and_questions/church-financial-administration"
    ]
   },
@@ -3582,12 +3455,10 @@
     "topics_and_questions/tithing",
     "topics_and_questions/church-financial-administration"
    ],
-   "pg_bm25d:0.5,-": [
+   "pg_bm25f:0.5,-": [
     "topics_and_questions/tithing-study-guide",
-    "topics_and_questions/church-financial-administration",
     "topics_and_questions/tithing",
-    "topical_guide/tithing",
-    "topics_and_questions/family-finances"
+    "topics_and_questions/church-financial-administration"
    ],
    "pg_ft:0.5,0.3": [
     "topics_and_questions/tithing-study-guide",
@@ -3600,12 +3471,10 @@
     "topics_and_questions/tithing",
     "topics_and_questions/church-financial-administration"
    ],
-   "pg_bm25d:0.5,0.3": [
+   "pg_bm25f:0.5,0.3": [
     "topics_and_questions/tithing-study-guide",
-    "topics_and_questions/church-financial-administration",
     "topics_and_questions/tithing",
-    "topical_guide/tithing",
-    "topics_and_questions/family-finances"
+    "topics_and_questions/church-financial-administration"
    ],
    "pg_ft:0.5,0.35": [
     "topics_and_questions/tithing-study-guide",
@@ -3618,12 +3487,10 @@
     "topics_and_questions/tithing",
     "topics_and_questions/church-financial-administration"
    ],
-   "pg_bm25d:0.5,0.35": [
+   "pg_bm25f:0.5,0.35": [
     "topics_and_questions/tithing-study-guide",
-    "topics_and_questions/church-financial-administration",
     "topics_and_questions/tithing",
-    "topical_guide/tithing",
-    "topics_and_questions/family-finances"
+    "topics_and_questions/church-financial-administration"
    ],
    "pg_ft:0.5,0.4": [
     "topics_and_questions/tithing-study-guide",
@@ -3636,11 +3503,10 @@
     "topics_and_questions/tithing",
     "topics_and_questions/church-financial-administration"
    ],
-   "pg_bm25d:0.5,0.4": [
+   "pg_bm25f:0.5,0.4": [
     "topics_and_questions/tithing-study-guide",
-    "topics_and_questions/church-financial-administration",
     "topics_and_questions/tithing",
-    "topical_guide/tithing"
+    "topics_and_questions/church-financial-administration"
    ],
    "pg_ft:0.5,0.45": [
     "topics_and_questions/tithing-study-guide",
@@ -3653,11 +3519,10 @@
     "topics_and_questions/tithing",
     "topics_and_questions/church-financial-administration"
    ],
-   "pg_bm25d:0.5,0.45": [
+   "pg_bm25f:0.5,0.45": [
     "topics_and_questions/tithing-study-guide",
-    "topics_and_questions/church-financial-administration",
     "topics_and_questions/tithing",
-    "topical_guide/tithing"
+    "topics_and_questions/church-financial-administration"
    ],
    "pg_ft:0.7,-": [
     "topics_and_questions/tithing-study-guide",
@@ -3670,12 +3535,10 @@
     "topics_and_questions/tithing",
     "topics_and_questions/church-financial-administration"
    ],
-   "pg_bm25d:0.7,-": [
+   "pg_bm25f:0.7,-": [
     "topics_and_questions/tithing-study-guide",
-    "topics_and_questions/church-financial-administration",
     "topics_and_questions/tithing",
-    "topical_guide/tithing",
-    "topics_and_questions/family-finances"
+    "topics_and_questions/church-financial-administration"
    ],
    "pg_ft:0.7,0.3": [
     "topics_and_questions/tithing-study-guide",
@@ -3688,12 +3551,10 @@
     "topics_and_questions/tithing",
     "topics_and_questions/church-financial-administration"
    ],
-   "pg_bm25d:0.7,0.3": [
+   "pg_bm25f:0.7,0.3": [
     "topics_and_questions/tithing-study-guide",
-    "topics_and_questions/church-financial-administration",
     "topics_and_questions/tithing",
-    "topical_guide/tithing",
-    "topics_and_questions/family-finances"
+    "topics_and_questions/church-financial-administration"
    ],
    "pg_ft:0.7,0.35": [
     "topics_and_questions/tithing-study-guide",
@@ -3706,12 +3567,10 @@
     "topics_and_questions/tithing",
     "topics_and_questions/church-financial-administration"
    ],
-   "pg_bm25d:0.7,0.35": [
+   "pg_bm25f:0.7,0.35": [
     "topics_and_questions/tithing-study-guide",
-    "topics_and_questions/church-financial-administration",
     "topics_and_questions/tithing",
-    "topical_guide/tithing",
-    "topics_and_questions/family-finances"
+    "topics_and_questions/church-financial-administration"
    ],
    "pg_ft:0.7,0.4": [
     "topics_and_questions/tithing-study-guide",
@@ -3724,11 +3583,10 @@
     "topics_and_questions/tithing",
     "topics_and_questions/church-financial-administration"
    ],
-   "pg_bm25d:0.7,0.4": [
+   "pg_bm25f:0.7,0.4": [
     "topics_and_questions/tithing-study-guide",
-    "topics_and_questions/church-financial-administration",
     "topics_and_questions/tithing",
-    "topical_guide/tithing"
+    "topics_and_questions/church-financial-administration"
    ],
    "pg_ft:0.7,0.45": [
     "topics_and_questions/tithing-study-guide",
@@ -3741,11 +3599,10 @@
     "topics_and_questions/tithing",
     "topics_and_questions/church-financial-administration"
    ],
-   "pg_bm25d:0.7,0.45": [
+   "pg_bm25f:0.7,0.45": [
     "topics_and_questions/tithing-study-guide",
-    "topics_and_questions/church-financial-administration",
     "topics_and_questions/tithing",
-    "topical_guide/tithing"
+    "topics_and_questions/church-financial-administration"
    ]
   },
   "sacrament-prayers": {
@@ -3783,12 +3640,12 @@
     "topics_and_questions/holy-ghost-gift-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.5,-": [
-    "topics_and_questions/holy-ghost-gift-study-guide",
+   "pg_bm25f:0.5,-": [
     "topics_and_questions/sacrament",
     "topics_and_questions/sacrament-study-guide",
     "topics_and_questions/gifts-of-the-spirit-study-guide",
     "topical_guide/promise",
+    "topics_and_questions/holy-ghost-gift-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
    "pg_ft:0.5,0.3": [
@@ -3808,12 +3665,12 @@
     "topics_and_questions/holy-ghost-gift-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.5,0.3": [
-    "topics_and_questions/holy-ghost-gift-study-guide",
+   "pg_bm25f:0.5,0.3": [
     "topics_and_questions/sacrament",
     "topics_and_questions/sacrament-study-guide",
     "topics_and_questions/gifts-of-the-spirit-study-guide",
     "topical_guide/promise",
+    "topics_and_questions/holy-ghost-gift-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
    "pg_ft:0.5,0.35": [
@@ -3833,12 +3690,12 @@
     "topics_and_questions/holy-ghost-gift-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.5,0.35": [
-    "topics_and_questions/holy-ghost-gift-study-guide",
+   "pg_bm25f:0.5,0.35": [
     "topics_and_questions/sacrament",
     "topics_and_questions/sacrament-study-guide",
     "topics_and_questions/gifts-of-the-spirit-study-guide",
     "topical_guide/promise",
+    "topics_and_questions/holy-ghost-gift-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
    "pg_ft:0.5,0.4": [
@@ -3857,12 +3714,12 @@
     "topics_and_questions/holy-ghost-gift-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.5,0.4": [
-    "topics_and_questions/holy-ghost-gift-study-guide",
+   "pg_bm25f:0.5,0.4": [
     "topics_and_questions/sacrament",
     "topics_and_questions/sacrament-study-guide",
     "topics_and_questions/gifts-of-the-spirit-study-guide",
     "topical_guide/promise",
+    "topics_and_questions/holy-ghost-gift-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
    "pg_ft:0.5,0.45": [
@@ -3880,12 +3737,12 @@
     "topical_guide/promise",
     "topics_and_questions/holy-ghost-gift-study-guide"
    ],
-   "pg_bm25d:0.5,0.45": [
-    "topics_and_questions/holy-ghost-gift-study-guide",
+   "pg_bm25f:0.5,0.45": [
     "topics_and_questions/sacrament",
     "topics_and_questions/sacrament-study-guide",
     "topics_and_questions/gifts-of-the-spirit-study-guide",
-    "topical_guide/promise"
+    "topical_guide/promise",
+    "topics_and_questions/holy-ghost-gift-study-guide"
    ],
    "pg_ft:0.7,-": [
     "topics_and_questions/gifts-of-the-spirit-study-guide",
@@ -3904,11 +3761,11 @@
     "topics_and_questions/sacrament-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.7,-": [
-    "topics_and_questions/holy-ghost-gift-study-guide",
+   "pg_bm25f:0.7,-": [
     "topics_and_questions/sacrament",
     "topics_and_questions/gifts-of-the-spirit-study-guide",
     "topical_guide/promise",
+    "topics_and_questions/holy-ghost-gift-study-guide",
     "topics_and_questions/sacrament-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
@@ -3929,11 +3786,11 @@
     "topics_and_questions/sacrament-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.7,0.3": [
-    "topics_and_questions/holy-ghost-gift-study-guide",
+   "pg_bm25f:0.7,0.3": [
     "topics_and_questions/sacrament",
     "topics_and_questions/gifts-of-the-spirit-study-guide",
     "topical_guide/promise",
+    "topics_and_questions/holy-ghost-gift-study-guide",
     "topics_and_questions/sacrament-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
@@ -3954,11 +3811,11 @@
     "topics_and_questions/sacrament-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.7,0.35": [
-    "topics_and_questions/holy-ghost-gift-study-guide",
+   "pg_bm25f:0.7,0.35": [
     "topics_and_questions/sacrament",
     "topics_and_questions/gifts-of-the-spirit-study-guide",
     "topical_guide/promise",
+    "topics_and_questions/holy-ghost-gift-study-guide",
     "topics_and_questions/sacrament-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
@@ -3978,11 +3835,11 @@
     "topics_and_questions/sacrament-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.7,0.4": [
-    "topics_and_questions/holy-ghost-gift-study-guide",
+   "pg_bm25f:0.7,0.4": [
     "topics_and_questions/sacrament",
     "topics_and_questions/gifts-of-the-spirit-study-guide",
     "topical_guide/promise",
+    "topics_and_questions/holy-ghost-gift-study-guide",
     "topics_and_questions/sacrament-study-guide",
     "topics_and_questions/sacrament-meeting"
    ],
@@ -4001,11 +3858,11 @@
     "topics_and_questions/holy-ghost-gift-study-guide",
     "topics_and_questions/sacrament-study-guide"
    ],
-   "pg_bm25d:0.7,0.45": [
-    "topics_and_questions/holy-ghost-gift-study-guide",
+   "pg_bm25f:0.7,0.45": [
     "topics_and_questions/sacrament",
     "topics_and_questions/gifts-of-the-spirit-study-guide",
     "topical_guide/promise",
+    "topics_and_questions/holy-ghost-gift-study-guide",
     "topics_and_questions/sacrament-study-guide"
    ]
   },
@@ -4034,12 +3891,10 @@
     "topics_and_questions/sacrament",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.5,-": [
+   "pg_bm25f:0.5,-": [
     "topics_and_questions/sacrament-study-guide",
-    "topics_and_questions/sacrament-meeting",
     "topics_and_questions/sacrament",
-    "topical_guide/sacrament",
-    "topical_guide/week"
+    "topics_and_questions/sacrament-meeting"
    ],
    "pg_ft:0.5,0.3": [
     "topics_and_questions/sacrament-study-guide",
@@ -4053,12 +3908,10 @@
     "topics_and_questions/sacrament",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.5,0.3": [
+   "pg_bm25f:0.5,0.3": [
     "topics_and_questions/sacrament-study-guide",
-    "topics_and_questions/sacrament-meeting",
     "topics_and_questions/sacrament",
-    "topical_guide/sacrament",
-    "topical_guide/week"
+    "topics_and_questions/sacrament-meeting"
    ],
    "pg_ft:0.5,0.35": [
     "topics_and_questions/sacrament-study-guide",
@@ -4072,12 +3925,10 @@
     "topics_and_questions/sacrament",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.5,0.35": [
+   "pg_bm25f:0.5,0.35": [
     "topics_and_questions/sacrament-study-guide",
-    "topics_and_questions/sacrament-meeting",
     "topics_and_questions/sacrament",
-    "topical_guide/sacrament",
-    "topical_guide/week"
+    "topics_and_questions/sacrament-meeting"
    ],
    "pg_ft:0.5,0.4": [
     "topics_and_questions/sacrament-study-guide",
@@ -4089,12 +3940,10 @@
     "topics_and_questions/sacrament",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.5,0.4": [
+   "pg_bm25f:0.5,0.4": [
     "topics_and_questions/sacrament-study-guide",
-    "topics_and_questions/sacrament-meeting",
     "topics_and_questions/sacrament",
-    "topical_guide/sacrament",
-    "topical_guide/week"
+    "topics_and_questions/sacrament-meeting"
    ],
    "pg_ft:0.5,0.45": [
     "topics_and_questions/sacrament-study-guide",
@@ -4106,12 +3955,10 @@
     "topics_and_questions/sacrament",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.5,0.45": [
+   "pg_bm25f:0.5,0.45": [
     "topics_and_questions/sacrament-study-guide",
-    "topics_and_questions/sacrament-meeting",
     "topics_and_questions/sacrament",
-    "topical_guide/sacrament",
-    "topical_guide/week"
+    "topics_and_questions/sacrament-meeting"
    ],
    "pg_ft:0.7,-": [
     "topics_and_questions/sacrament-study-guide",
@@ -4125,12 +3972,10 @@
     "topics_and_questions/sacrament",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.7,-": [
+   "pg_bm25f:0.7,-": [
     "topics_and_questions/sacrament-study-guide",
-    "topics_and_questions/sacrament-meeting",
     "topics_and_questions/sacrament",
-    "topical_guide/sacrament",
-    "topical_guide/week"
+    "topics_and_questions/sacrament-meeting"
    ],
    "pg_ft:0.7,0.3": [
     "topics_and_questions/sacrament-study-guide",
@@ -4144,12 +3989,10 @@
     "topics_and_questions/sacrament",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.7,0.3": [
+   "pg_bm25f:0.7,0.3": [
     "topics_and_questions/sacrament-study-guide",
-    "topics_and_questions/sacrament-meeting",
     "topics_and_questions/sacrament",
-    "topical_guide/sacrament",
-    "topical_guide/week"
+    "topics_and_questions/sacrament-meeting"
    ],
    "pg_ft:0.7,0.35": [
     "topics_and_questions/sacrament-study-guide",
@@ -4163,12 +4006,10 @@
     "topics_and_questions/sacrament",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.7,0.35": [
+   "pg_bm25f:0.7,0.35": [
     "topics_and_questions/sacrament-study-guide",
-    "topics_and_questions/sacrament-meeting",
     "topics_and_questions/sacrament",
-    "topical_guide/sacrament",
-    "topical_guide/week"
+    "topics_and_questions/sacrament-meeting"
    ],
    "pg_ft:0.7,0.4": [
     "topics_and_questions/sacrament-study-guide",
@@ -4180,12 +4021,10 @@
     "topics_and_questions/sacrament",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.7,0.4": [
+   "pg_bm25f:0.7,0.4": [
     "topics_and_questions/sacrament-study-guide",
-    "topics_and_questions/sacrament-meeting",
     "topics_and_questions/sacrament",
-    "topical_guide/sacrament",
-    "topical_guide/week"
+    "topics_and_questions/sacrament-meeting"
    ],
    "pg_ft:0.7,0.45": [
     "topics_and_questions/sacrament-study-guide",
@@ -4197,12 +4036,10 @@
     "topics_and_questions/sacrament",
     "topics_and_questions/sacrament-meeting"
    ],
-   "pg_bm25d:0.7,0.45": [
+   "pg_bm25f:0.7,0.45": [
     "topics_and_questions/sacrament-study-guide",
-    "topics_and_questions/sacrament-meeting",
     "topics_and_questions/sacrament",
-    "topical_guide/sacrament",
-    "topical_guide/week"
+    "topics_and_questions/sacrament-meeting"
    ]
   },
   "bom-nephi": {
@@ -4234,11 +4071,11 @@
     "topics_and_questions/book-of-mormon-and-dna-studies",
     "topics_and_questions/book-of-mormon-translation"
    ],
-   "pg_bm25d:0.5,-": [
-    "topics_and_questions/book-of-mormon-and-dna-studies",
+   "pg_bm25f:0.5,-": [
     "topical_guide/nephites",
     "topics_and_questions/book-of-mormon-study-guide",
     "bible_dictionary/jeremiah",
+    "topics_and_questions/book-of-mormon-and-dna-studies",
     "topics_and_questions/book-of-mormon-translation"
    ],
    "pg_ft:0.5,0.3": [
@@ -4255,11 +4092,11 @@
     "topics_and_questions/book-of-mormon-and-dna-studies",
     "topics_and_questions/book-of-mormon-translation"
    ],
-   "pg_bm25d:0.5,0.3": [
-    "topics_and_questions/book-of-mormon-and-dna-studies",
+   "pg_bm25f:0.5,0.3": [
     "topical_guide/nephites",
     "topics_and_questions/book-of-mormon-study-guide",
     "bible_dictionary/jeremiah",
+    "topics_and_questions/book-of-mormon-and-dna-studies",
     "topics_and_questions/book-of-mormon-translation"
    ],
    "pg_ft:0.5,0.35": [
@@ -4276,11 +4113,11 @@
     "topics_and_questions/book-of-mormon-and-dna-studies",
     "topics_and_questions/book-of-mormon-translation"
    ],
-   "pg_bm25d:0.5,0.35": [
-    "topics_and_questions/book-of-mormon-and-dna-studies",
+   "pg_bm25f:0.5,0.35": [
     "topical_guide/nephites",
     "topics_and_questions/book-of-mormon-study-guide",
     "bible_dictionary/jeremiah",
+    "topics_and_questions/book-of-mormon-and-dna-studies",
     "topics_and_questions/book-of-mormon-translation"
    ],
    "pg_ft:0.5,0.4": [
@@ -4297,11 +4134,11 @@
     "topics_and_questions/book-of-mormon-and-dna-studies",
     "topics_and_questions/book-of-mormon-translation"
    ],
-   "pg_bm25d:0.5,0.4": [
-    "topics_and_questions/book-of-mormon-and-dna-studies",
+   "pg_bm25f:0.5,0.4": [
     "topical_guide/nephites",
     "topics_and_questions/book-of-mormon-study-guide",
     "bible_dictionary/jeremiah",
+    "topics_and_questions/book-of-mormon-and-dna-studies",
     "topics_and_questions/book-of-mormon-translation"
    ],
    "pg_ft:0.5,0.45": [
@@ -4318,11 +4155,11 @@
     "topics_and_questions/book-of-mormon-and-dna-studies",
     "topics_and_questions/book-of-mormon-translation"
    ],
-   "pg_bm25d:0.5,0.45": [
-    "topics_and_questions/book-of-mormon-and-dna-studies",
+   "pg_bm25f:0.5,0.45": [
     "topical_guide/nephites",
     "topics_and_questions/book-of-mormon-study-guide",
     "bible_dictionary/jeremiah",
+    "topics_and_questions/book-of-mormon-and-dna-studies",
     "topics_and_questions/book-of-mormon-translation"
    ],
    "pg_ft:0.7,-": [
@@ -4339,10 +4176,10 @@
     "topics_and_questions/book-of-mormon-translation",
     "topics_and_questions/book-of-mormon-study-guide"
    ],
-   "pg_bm25d:0.7,-": [
-    "topics_and_questions/book-of-mormon-and-dna-studies",
+   "pg_bm25f:0.7,-": [
     "topical_guide/nephites",
     "bible_dictionary/jeremiah",
+    "topics_and_questions/book-of-mormon-and-dna-studies",
     "topics_and_questions/book-of-mormon-translation",
     "topics_and_questions/book-of-mormon-study-guide"
    ],
@@ -4360,10 +4197,10 @@
     "topics_and_questions/book-of-mormon-translation",
     "topics_and_questions/book-of-mormon-study-guide"
    ],
-   "pg_bm25d:0.7,0.3": [
-    "topics_and_questions/book-of-mormon-and-dna-studies",
+   "pg_bm25f:0.7,0.3": [
     "topical_guide/nephites",
     "bible_dictionary/jeremiah",
+    "topics_and_questions/book-of-mormon-and-dna-studies",
     "topics_and_questions/book-of-mormon-translation",
     "topics_and_questions/book-of-mormon-study-guide"
    ],
@@ -4381,10 +4218,10 @@
     "topics_and_questions/book-of-mormon-translation",
     "topics_and_questions/book-of-mormon-study-guide"
    ],
-   "pg_bm25d:0.7,0.35": [
-    "topics_and_questions/book-of-mormon-and-dna-studies",
+   "pg_bm25f:0.7,0.35": [
     "topical_guide/nephites",
     "bible_dictionary/jeremiah",
+    "topics_and_questions/book-of-mormon-and-dna-studies",
     "topics_and_questions/book-of-mormon-translation",
     "topics_and_questions/book-of-mormon-study-guide"
    ],
@@ -4402,10 +4239,10 @@
     "topics_and_questions/book-of-mormon-translation",
     "topics_and_questions/book-of-mormon-study-guide"
    ],
-   "pg_bm25d:0.7,0.4": [
-    "topics_and_questions/book-of-mormon-and-dna-studies",
+   "pg_bm25f:0.7,0.4": [
     "topical_guide/nephites",
     "bible_dictionary/jeremiah",
+    "topics_and_questions/book-of-mormon-and-dna-studies",
     "topics_and_questions/book-of-mormon-translation",
     "topics_and_questions/book-of-mormon-study-guide"
    ],
@@ -4423,10 +4260,10 @@
     "topics_and_questions/book-of-mormon-translation",
     "topics_and_questions/book-of-mormon-study-guide"
    ],
-   "pg_bm25d:0.7,0.45": [
-    "topics_and_questions/book-of-mormon-and-dna-studies",
+   "pg_bm25f:0.7,0.45": [
     "topical_guide/nephites",
     "bible_dictionary/jeremiah",
+    "topics_and_questions/book-of-mormon-and-dna-studies",
     "topics_and_questions/book-of-mormon-translation",
     "topics_and_questions/book-of-mormon-study-guide"
    ]
@@ -4464,7 +4301,7 @@
     "topical_guide/learn",
     "topical_guide/change"
    ],
-   "pg_bm25d:0.5,-": [
+   "pg_bm25f:0.5,-": [
     "topics_and_questions/repentance-study-guide",
     "topical_guide/man-new-spiritually-reborn",
     "topical_guide/young",
@@ -4489,7 +4326,7 @@
     "topical_guide/learn",
     "topical_guide/change"
    ],
-   "pg_bm25d:0.5,0.3": [
+   "pg_bm25f:0.5,0.3": [
     "topics_and_questions/repentance-study-guide",
     "topical_guide/man-new-spiritually-reborn",
     "topical_guide/young",
@@ -4511,7 +4348,7 @@
     "topical_guide/mighty",
     "topical_guide/learn"
    ],
-   "pg_bm25d:0.5,0.35": [
+   "pg_bm25f:0.5,0.35": [
     "topics_and_questions/repentance-study-guide",
     "topical_guide/man-new-spiritually-reborn",
     "topical_guide/young",
@@ -4530,7 +4367,7 @@
     "topical_guide/mighty",
     "topical_guide/learn"
    ],
-   "pg_bm25d:0.5,0.4": [
+   "pg_bm25f:0.5,0.4": [
     "topics_and_questions/repentance-study-guide",
     "topical_guide/man-new-spiritually-reborn",
     "topical_guide/mighty",
@@ -4548,7 +4385,7 @@
     "topical_guide/mighty",
     "topical_guide/learn"
    ],
-   "pg_bm25d:0.5,0.45": [
+   "pg_bm25f:0.5,0.45": [
     "topics_and_questions/repentance-study-guide",
     "topical_guide/man-new-spiritually-reborn",
     "topical_guide/mighty",
@@ -4570,7 +4407,7 @@
     "topics_and_questions/conversion-study-guide",
     "topical_guide/change"
    ],
-   "pg_bm25d:0.7,-": [
+   "pg_bm25f:0.7,-": [
     "topics_and_questions/repentance-study-guide",
     "topical_guide/man-new-spiritually-reborn",
     "topical_guide/mighty",
@@ -4595,7 +4432,7 @@
     "topics_and_questions/conversion-study-guide",
     "topical_guide/change"
    ],
-   "pg_bm25d:0.7,0.3": [
+   "pg_bm25f:0.7,0.3": [
     "topics_and_questions/repentance-study-guide",
     "topical_guide/man-new-spiritually-reborn",
     "topical_guide/mighty",
@@ -4617,7 +4454,7 @@
     "topical_guide/learn",
     "topical_guide/young"
    ],
-   "pg_bm25d:0.7,0.35": [
+   "pg_bm25f:0.7,0.35": [
     "topics_and_questions/repentance-study-guide",
     "topical_guide/man-new-spiritually-reborn",
     "topical_guide/mighty",
@@ -4636,7 +4473,7 @@
     "topical_guide/mighty",
     "topical_guide/learn"
    ],
-   "pg_bm25d:0.7,0.4": [
+   "pg_bm25f:0.7,0.4": [
     "topics_and_questions/repentance-study-guide",
     "topical_guide/man-new-spiritually-reborn",
     "topical_guide/mighty",
@@ -4654,7 +4491,7 @@
     "topical_guide/mighty",
     "topical_guide/learn"
    ],
-   "pg_bm25d:0.7,0.45": [
+   "pg_bm25f:0.7,0.45": [
     "topics_and_questions/repentance-study-guide",
     "topical_guide/man-new-spiritually-reborn",
     "topical_guide/mighty",
@@ -4696,14 +4533,13 @@
     "topical_guide/teaching",
     "topics_and_questions/caring-for-those-in-need-study-guide"
    ],
-   "pg_bm25d:0.5,-": [
+   "pg_bm25f:0.5,-": [
     "topical_guide/service",
     "bible_dictionary/benjamin",
     "topics_and_questions/service",
-    "topics_and_questions/teaching-the-gospel",
+    "topics_and_questions/missionary-work-study-guide",
     "topics_and_questions/caring-for-those-in-need-study-guide",
-    "topical_guide/teaching",
-    "topical_guide/serve"
+    "bible_dictionary/evil-merodach"
    ],
    "pg_ft:0.5,0.3": [
     "topical_guide/service",
@@ -4722,14 +4558,12 @@
     "topical_guide/teaching",
     "topics_and_questions/caring-for-those-in-need-study-guide"
    ],
-   "pg_bm25d:0.5,0.3": [
+   "pg_bm25f:0.5,0.3": [
     "topical_guide/service",
     "bible_dictionary/benjamin",
     "topics_and_questions/service",
-    "topics_and_questions/teaching-the-gospel",
-    "topics_and_questions/caring-for-those-in-need-study-guide",
-    "topical_guide/teaching",
-    "topical_guide/serve"
+    "topics_and_questions/missionary-work-study-guide",
+    "topics_and_questions/caring-for-those-in-need-study-guide"
    ],
    "pg_ft:0.5,0.35": [
     "topical_guide/service",
@@ -4748,14 +4582,12 @@
     "topical_guide/teaching",
     "topics_and_questions/caring-for-those-in-need-study-guide"
    ],
-   "pg_bm25d:0.5,0.35": [
+   "pg_bm25f:0.5,0.35": [
     "topical_guide/service",
     "bible_dictionary/benjamin",
     "topics_and_questions/service",
-    "topics_and_questions/teaching-the-gospel",
-    "topics_and_questions/caring-for-those-in-need-study-guide",
-    "topical_guide/teaching",
-    "topical_guide/serve"
+    "topics_and_questions/missionary-work-study-guide",
+    "topics_and_questions/caring-for-those-in-need-study-guide"
    ],
    "pg_ft:0.5,0.4": [
     "topical_guide/service",
@@ -4773,14 +4605,12 @@
     "topical_guide/teaching",
     "topics_and_questions/caring-for-those-in-need-study-guide"
    ],
-   "pg_bm25d:0.5,0.4": [
+   "pg_bm25f:0.5,0.4": [
     "topical_guide/service",
     "bible_dictionary/benjamin",
     "topics_and_questions/service",
-    "topics_and_questions/teaching-the-gospel",
-    "topics_and_questions/caring-for-those-in-need-study-guide",
-    "topical_guide/teaching",
-    "topical_guide/serve"
+    "topics_and_questions/missionary-work-study-guide",
+    "topics_and_questions/caring-for-those-in-need-study-guide"
    ],
    "pg_ft:0.5,0.45": [
     "topical_guide/service",
@@ -4795,12 +4625,12 @@
     "topics_and_questions/service",
     "topics_and_questions/caring-for-those-in-need-study-guide"
    ],
-   "pg_bm25d:0.5,0.45": [
+   "pg_bm25f:0.5,0.45": [
     "topical_guide/service",
     "bible_dictionary/benjamin",
     "topics_and_questions/service",
-    "topics_and_questions/caring-for-those-in-need-study-guide",
-    "topical_guide/serve"
+    "topics_and_questions/missionary-work-study-guide",
+    "topics_and_questions/caring-for-those-in-need-study-guide"
    ],
    "pg_ft:0.7,-": [
     "topical_guide/service",
@@ -4819,14 +4649,13 @@
     "topics_and_questions/teaching-the-gospel",
     "topical_guide/teaching"
    ],
-   "pg_bm25d:0.7,-": [
+   "pg_bm25f:0.7,-": [
     "topical_guide/service",
     "topics_and_questions/service",
     "topics_and_questions/caring-for-those-in-need-study-guide",
-    "topical_guide/serve",
     "bible_dictionary/benjamin",
-    "topics_and_questions/teaching-the-gospel",
-    "topical_guide/teaching"
+    "topics_and_questions/missionary-work-study-guide",
+    "bible_dictionary/evil-merodach"
    ],
    "pg_ft:0.7,0.3": [
     "topical_guide/service",
@@ -4845,14 +4674,12 @@
     "topics_and_questions/teaching-the-gospel",
     "topical_guide/teaching"
    ],
-   "pg_bm25d:0.7,0.3": [
+   "pg_bm25f:0.7,0.3": [
     "topical_guide/service",
     "topics_and_questions/service",
     "topics_and_questions/caring-for-those-in-need-study-guide",
-    "topical_guide/serve",
     "bible_dictionary/benjamin",
-    "topics_and_questions/teaching-the-gospel",
-    "topical_guide/teaching"
+    "topics_and_questions/missionary-work-study-guide"
    ],
    "pg_ft:0.7,0.35": [
     "topical_guide/service",
@@ -4871,14 +4698,12 @@
     "topics_and_questions/teaching-the-gospel",
     "topical_guide/teaching"
    ],
-   "pg_bm25d:0.7,0.35": [
+   "pg_bm25f:0.7,0.35": [
     "topical_guide/service",
     "topics_and_questions/service",
     "topics_and_questions/caring-for-those-in-need-study-guide",
-    "topical_guide/serve",
     "bible_dictionary/benjamin",
-    "topics_and_questions/teaching-the-gospel",
-    "topical_guide/teaching"
+    "topics_and_questions/missionary-work-study-guide"
    ],
    "pg_ft:0.7,0.4": [
     "topical_guide/service",
@@ -4896,14 +4721,12 @@
     "topics_and_questions/teaching-the-gospel",
     "topical_guide/teaching"
    ],
-   "pg_bm25d:0.7,0.4": [
+   "pg_bm25f:0.7,0.4": [
     "topical_guide/service",
     "topics_and_questions/service",
     "topics_and_questions/caring-for-those-in-need-study-guide",
-    "topical_guide/serve",
     "bible_dictionary/benjamin",
-    "topics_and_questions/teaching-the-gospel",
-    "topical_guide/teaching"
+    "topics_and_questions/missionary-work-study-guide"
    ],
    "pg_ft:0.7,0.45": [
     "topical_guide/service",
@@ -4918,12 +4741,12 @@
     "topics_and_questions/caring-for-those-in-need-study-guide",
     "bible_dictionary/benjamin"
    ],
-   "pg_bm25d:0.7,0.45": [
+   "pg_bm25f:0.7,0.45": [
     "topical_guide/service",
     "topics_and_questions/service",
     "topics_and_questions/caring-for-those-in-need-study-guide",
-    "topical_guide/serve",
-    "bible_dictionary/benjamin"
+    "bible_dictionary/benjamin",
+    "topics_and_questions/missionary-work-study-guide"
    ]
   },
   "joseph-smith-who": {
@@ -4957,13 +4780,13 @@
     "topical_guide/smith",
     "topical_guide/smith-joseph"
    ],
-   "pg_bm25d:0.5,-": [
-    "topical_guide/smith-joseph",
+   "pg_bm25f:0.5,-": [
     "topics_and_questions/joseph-smith",
     "topics_and_questions/joseph-smith-study-guide",
     "topics_and_questions/relief-society",
     "topical_guide/joseph-smith",
-    "topical_guide/smith"
+    "topical_guide/smith",
+    "topical_guide/smith-joseph"
    ],
    "pg_ft:0.5,0.3": [
     "topics_and_questions/joseph-smith",
@@ -4980,13 +4803,13 @@
     "topical_guide/smith",
     "topical_guide/smith-joseph"
    ],
-   "pg_bm25d:0.5,0.3": [
-    "topical_guide/smith-joseph",
+   "pg_bm25f:0.5,0.3": [
     "topics_and_questions/joseph-smith",
     "topics_and_questions/joseph-smith-study-guide",
     "topics_and_questions/relief-society",
     "topical_guide/joseph-smith",
-    "topical_guide/smith"
+    "topical_guide/smith",
+    "topical_guide/smith-joseph"
    ],
    "pg_ft:0.5,0.35": [
     "topics_and_questions/joseph-smith",
@@ -5003,13 +4826,13 @@
     "topical_guide/smith",
     "topical_guide/smith-joseph"
    ],
-   "pg_bm25d:0.5,0.35": [
-    "topical_guide/smith-joseph",
+   "pg_bm25f:0.5,0.35": [
     "topics_and_questions/joseph-smith",
     "topics_and_questions/joseph-smith-study-guide",
     "topics_and_questions/relief-society",
     "topical_guide/joseph-smith",
-    "topical_guide/smith"
+    "topical_guide/smith",
+    "topical_guide/smith-joseph"
    ],
    "pg_ft:0.5,0.4": [
     "topics_and_questions/joseph-smith",
@@ -5026,13 +4849,13 @@
     "topical_guide/smith",
     "topical_guide/smith-joseph"
    ],
-   "pg_bm25d:0.5,0.4": [
-    "topical_guide/smith-joseph",
+   "pg_bm25f:0.5,0.4": [
     "topics_and_questions/joseph-smith",
     "topics_and_questions/joseph-smith-study-guide",
     "topics_and_questions/relief-society",
     "topical_guide/joseph-smith",
-    "topical_guide/smith"
+    "topical_guide/smith",
+    "topical_guide/smith-joseph"
    ],
    "pg_ft:0.5,0.45": [
     "topics_and_questions/joseph-smith",
@@ -5046,10 +4869,10 @@
     "topical_guide/smith-joseph",
     "topical_guide/joseph-smith"
    ],
-   "pg_bm25d:0.5,0.45": [
-    "topical_guide/smith-joseph",
+   "pg_bm25f:0.5,0.45": [
     "topics_and_questions/joseph-smith",
     "topics_and_questions/joseph-smith-study-guide",
+    "topical_guide/smith-joseph",
     "topical_guide/joseph-smith"
    ],
    "pg_ft:0.7,-": [
@@ -5067,13 +4890,13 @@
     "topical_guide/smith",
     "topical_guide/smith-joseph"
    ],
-   "pg_bm25d:0.7,-": [
-    "topical_guide/smith-joseph",
+   "pg_bm25f:0.7,-": [
     "topics_and_questions/joseph-smith",
     "topics_and_questions/joseph-smith-study-guide",
     "topical_guide/joseph-smith",
     "topics_and_questions/relief-society",
-    "topical_guide/smith"
+    "topical_guide/smith",
+    "topical_guide/smith-joseph"
    ],
    "pg_ft:0.7,0.3": [
     "topics_and_questions/joseph-smith",
@@ -5090,13 +4913,13 @@
     "topical_guide/smith",
     "topical_guide/smith-joseph"
    ],
-   "pg_bm25d:0.7,0.3": [
-    "topical_guide/smith-joseph",
+   "pg_bm25f:0.7,0.3": [
     "topics_and_questions/joseph-smith",
     "topics_and_questions/joseph-smith-study-guide",
     "topical_guide/joseph-smith",
     "topics_and_questions/relief-society",
-    "topical_guide/smith"
+    "topical_guide/smith",
+    "topical_guide/smith-joseph"
    ],
    "pg_ft:0.7,0.35": [
     "topics_and_questions/joseph-smith",
@@ -5113,13 +4936,13 @@
     "topical_guide/smith",
     "topical_guide/smith-joseph"
    ],
-   "pg_bm25d:0.7,0.35": [
-    "topical_guide/smith-joseph",
+   "pg_bm25f:0.7,0.35": [
     "topics_and_questions/joseph-smith",
     "topics_and_questions/joseph-smith-study-guide",
     "topical_guide/joseph-smith",
     "topics_and_questions/relief-society",
-    "topical_guide/smith"
+    "topical_guide/smith",
+    "topical_guide/smith-joseph"
    ],
    "pg_ft:0.7,0.4": [
     "topics_and_questions/joseph-smith",
@@ -5136,13 +4959,13 @@
     "topical_guide/smith",
     "topical_guide/smith-joseph"
    ],
-   "pg_bm25d:0.7,0.4": [
-    "topical_guide/smith-joseph",
+   "pg_bm25f:0.7,0.4": [
     "topics_and_questions/joseph-smith",
     "topics_and_questions/joseph-smith-study-guide",
     "topical_guide/joseph-smith",
     "topics_and_questions/relief-society",
-    "topical_guide/smith"
+    "topical_guide/smith",
+    "topical_guide/smith-joseph"
    ],
    "pg_ft:0.7,0.45": [
     "topics_and_questions/joseph-smith",
@@ -5156,11 +4979,11 @@
     "topical_guide/joseph-smith",
     "topical_guide/smith-joseph"
    ],
-   "pg_bm25d:0.7,0.45": [
-    "topical_guide/smith-joseph",
+   "pg_bm25f:0.7,0.45": [
     "topics_and_questions/joseph-smith",
     "topics_and_questions/joseph-smith-study-guide",
-    "topical_guide/joseph-smith"
+    "topical_guide/joseph-smith",
+    "topical_guide/smith-joseph"
    ]
   },
   "joseph-smith-first-vision": {
@@ -5190,10 +5013,10 @@
     "topics_and_questions/first-vision",
     "topics_and_questions/first-vision-accounts"
    ],
-   "pg_bm25d:0.5,-": [
-    "topics_and_questions/first-vision",
+   "pg_bm25f:0.5,-": [
     "topical_guide/first-vision",
     "topics_and_questions/first-vision-study-guide",
+    "topics_and_questions/first-vision",
     "topics_and_questions/first-vision-accounts"
    ],
    "pg_ft:0.5,0.3": [
@@ -5209,10 +5032,10 @@
     "topics_and_questions/first-vision",
     "topics_and_questions/first-vision-accounts"
    ],
-   "pg_bm25d:0.5,0.3": [
-    "topics_and_questions/first-vision",
+   "pg_bm25f:0.5,0.3": [
     "topical_guide/first-vision",
     "topics_and_questions/first-vision-study-guide",
+    "topics_and_questions/first-vision",
     "topics_and_questions/first-vision-accounts"
    ],
    "pg_ft:0.5,0.35": [
@@ -5228,10 +5051,10 @@
     "topics_and_questions/first-vision",
     "topics_and_questions/first-vision-accounts"
    ],
-   "pg_bm25d:0.5,0.35": [
-    "topics_and_questions/first-vision",
+   "pg_bm25f:0.5,0.35": [
     "topical_guide/first-vision",
     "topics_and_questions/first-vision-study-guide",
+    "topics_and_questions/first-vision",
     "topics_and_questions/first-vision-accounts"
    ],
    "pg_ft:0.5,0.4": [
@@ -5247,10 +5070,10 @@
     "topics_and_questions/first-vision",
     "topics_and_questions/first-vision-accounts"
    ],
-   "pg_bm25d:0.5,0.4": [
-    "topics_and_questions/first-vision",
+   "pg_bm25f:0.5,0.4": [
     "topical_guide/first-vision",
     "topics_and_questions/first-vision-study-guide",
+    "topics_and_questions/first-vision",
     "topics_and_questions/first-vision-accounts"
    ],
    "pg_ft:0.5,0.45": [
@@ -5266,10 +5089,10 @@
     "topics_and_questions/first-vision",
     "topics_and_questions/first-vision-accounts"
    ],
-   "pg_bm25d:0.5,0.45": [
-    "topics_and_questions/first-vision",
+   "pg_bm25f:0.5,0.45": [
     "topical_guide/first-vision",
     "topics_and_questions/first-vision-study-guide",
+    "topics_and_questions/first-vision",
     "topics_and_questions/first-vision-accounts"
    ],
    "pg_ft:0.7,-": [
@@ -5285,9 +5108,9 @@
     "topics_and_questions/first-vision-study-guide",
     "topics_and_questions/first-vision-accounts"
    ],
-   "pg_bm25d:0.7,-": [
-    "topics_and_questions/first-vision",
+   "pg_bm25f:0.7,-": [
     "topical_guide/first-vision",
+    "topics_and_questions/first-vision",
     "topics_and_questions/first-vision-study-guide",
     "topics_and_questions/first-vision-accounts"
    ],
@@ -5304,9 +5127,9 @@
     "topics_and_questions/first-vision-study-guide",
     "topics_and_questions/first-vision-accounts"
    ],
-   "pg_bm25d:0.7,0.3": [
-    "topics_and_questions/first-vision",
+   "pg_bm25f:0.7,0.3": [
     "topical_guide/first-vision",
+    "topics_and_questions/first-vision",
     "topics_and_questions/first-vision-study-guide",
     "topics_and_questions/first-vision-accounts"
    ],
@@ -5323,9 +5146,9 @@
     "topics_and_questions/first-vision-study-guide",
     "topics_and_questions/first-vision-accounts"
    ],
-   "pg_bm25d:0.7,0.35": [
-    "topics_and_questions/first-vision",
+   "pg_bm25f:0.7,0.35": [
     "topical_guide/first-vision",
+    "topics_and_questions/first-vision",
     "topics_and_questions/first-vision-study-guide",
     "topics_and_questions/first-vision-accounts"
    ],
@@ -5342,9 +5165,9 @@
     "topics_and_questions/first-vision-study-guide",
     "topics_and_questions/first-vision-accounts"
    ],
-   "pg_bm25d:0.7,0.4": [
-    "topics_and_questions/first-vision",
+   "pg_bm25f:0.7,0.4": [
     "topical_guide/first-vision",
+    "topics_and_questions/first-vision",
     "topics_and_questions/first-vision-study-guide",
     "topics_and_questions/first-vision-accounts"
    ],
@@ -5361,9 +5184,9 @@
     "topics_and_questions/first-vision-study-guide",
     "topics_and_questions/first-vision-accounts"
    ],
-   "pg_bm25d:0.7,0.45": [
-    "topics_and_questions/first-vision",
+   "pg_bm25f:0.7,0.45": [
     "topical_guide/first-vision",
+    "topics_and_questions/first-vision",
     "topics_and_questions/first-vision-study-guide",
     "topics_and_questions/first-vision-accounts"
    ]
@@ -5387,13 +5210,10 @@
     "topics_and_questions/book-of-mormon-study-guide",
     "topics_and_questions/spaulding-manuscript"
    ],
-   "pg_bm25d:0.5,-": [
-    "topics_and_questions/book-of-mormon-study-guide",
+   "pg_bm25f:0.5,-": [
     "topics_and_questions/book-of-mormon-translation",
-    "topics_and_questions/spaulding-manuscript",
-    "topics_and_questions/translation-and-historicity-of-the-book-of-abraham",
-    "topical_guide/book-of-mormon",
-    "topics_and_questions/gold-plates"
+    "topics_and_questions/book-of-mormon-study-guide",
+    "topics_and_questions/spaulding-manuscript"
    ],
    "pg_ft:0.5,0.3": [
     "topics_and_questions/book-of-mormon-translation",
@@ -5404,13 +5224,10 @@
     "topics_and_questions/book-of-mormon-study-guide",
     "topics_and_questions/spaulding-manuscript"
    ],
-   "pg_bm25d:0.5,0.3": [
-    "topics_and_questions/book-of-mormon-study-guide",
+   "pg_bm25f:0.5,0.3": [
     "topics_and_questions/book-of-mormon-translation",
-    "topics_and_questions/spaulding-manuscript",
-    "topics_and_questions/translation-and-historicity-of-the-book-of-abraham",
-    "topical_guide/book-of-mormon",
-    "topics_and_questions/gold-plates"
+    "topics_and_questions/book-of-mormon-study-guide",
+    "topics_and_questions/spaulding-manuscript"
    ],
    "pg_ft:0.5,0.35": [
     "topics_and_questions/book-of-mormon-translation",
@@ -5421,13 +5238,10 @@
     "topics_and_questions/book-of-mormon-study-guide",
     "topics_and_questions/spaulding-manuscript"
    ],
-   "pg_bm25d:0.5,0.35": [
-    "topics_and_questions/book-of-mormon-study-guide",
+   "pg_bm25f:0.5,0.35": [
     "topics_and_questions/book-of-mormon-translation",
-    "topics_and_questions/spaulding-manuscript",
-    "topics_and_questions/translation-and-historicity-of-the-book-of-abraham",
-    "topical_guide/book-of-mormon",
-    "topics_and_questions/gold-plates"
+    "topics_and_questions/book-of-mormon-study-guide",
+    "topics_and_questions/spaulding-manuscript"
    ],
    "pg_ft:0.5,0.4": [
     "topics_and_questions/book-of-mormon-translation",
@@ -5438,13 +5252,10 @@
     "topics_and_questions/book-of-mormon-study-guide",
     "topics_and_questions/spaulding-manuscript"
    ],
-   "pg_bm25d:0.5,0.4": [
-    "topics_and_questions/book-of-mormon-study-guide",
+   "pg_bm25f:0.5,0.4": [
     "topics_and_questions/book-of-mormon-translation",
-    "topics_and_questions/spaulding-manuscript",
-    "topics_and_questions/translation-and-historicity-of-the-book-of-abraham",
-    "topical_guide/book-of-mormon",
-    "topics_and_questions/gold-plates"
+    "topics_and_questions/book-of-mormon-study-guide",
+    "topics_and_questions/spaulding-manuscript"
    ],
    "pg_ft:0.5,0.45": [
     "topics_and_questions/book-of-mormon-translation",
@@ -5455,13 +5266,10 @@
     "topics_and_questions/book-of-mormon-study-guide",
     "topics_and_questions/spaulding-manuscript"
    ],
-   "pg_bm25d:0.5,0.45": [
-    "topics_and_questions/book-of-mormon-study-guide",
+   "pg_bm25f:0.5,0.45": [
     "topics_and_questions/book-of-mormon-translation",
-    "topics_and_questions/spaulding-manuscript",
-    "topics_and_questions/translation-and-historicity-of-the-book-of-abraham",
-    "topical_guide/book-of-mormon",
-    "topics_and_questions/gold-plates"
+    "topics_and_questions/book-of-mormon-study-guide",
+    "topics_and_questions/spaulding-manuscript"
    ],
    "pg_ft:0.7,-": [
     "topics_and_questions/book-of-mormon-translation",
@@ -5472,13 +5280,10 @@
     "topics_and_questions/book-of-mormon-study-guide",
     "topics_and_questions/spaulding-manuscript"
    ],
-   "pg_bm25d:0.7,-": [
-    "topics_and_questions/book-of-mormon-study-guide",
+   "pg_bm25f:0.7,-": [
     "topics_and_questions/book-of-mormon-translation",
-    "topics_and_questions/translation-and-historicity-of-the-book-of-abraham",
-    "topical_guide/book-of-mormon",
-    "topics_and_questions/spaulding-manuscript",
-    "topics_and_questions/gold-plates"
+    "topics_and_questions/book-of-mormon-study-guide",
+    "topics_and_questions/spaulding-manuscript"
    ],
    "pg_ft:0.7,0.3": [
     "topics_and_questions/book-of-mormon-translation",
@@ -5489,13 +5294,10 @@
     "topics_and_questions/book-of-mormon-study-guide",
     "topics_and_questions/spaulding-manuscript"
    ],
-   "pg_bm25d:0.7,0.3": [
-    "topics_and_questions/book-of-mormon-study-guide",
+   "pg_bm25f:0.7,0.3": [
     "topics_and_questions/book-of-mormon-translation",
-    "topics_and_questions/translation-and-historicity-of-the-book-of-abraham",
-    "topical_guide/book-of-mormon",
-    "topics_and_questions/spaulding-manuscript",
-    "topics_and_questions/gold-plates"
+    "topics_and_questions/book-of-mormon-study-guide",
+    "topics_and_questions/spaulding-manuscript"
    ],
    "pg_ft:0.7,0.35": [
     "topics_and_questions/book-of-mormon-translation",
@@ -5506,13 +5308,10 @@
     "topics_and_questions/book-of-mormon-study-guide",
     "topics_and_questions/spaulding-manuscript"
    ],
-   "pg_bm25d:0.7,0.35": [
-    "topics_and_questions/book-of-mormon-study-guide",
+   "pg_bm25f:0.7,0.35": [
     "topics_and_questions/book-of-mormon-translation",
-    "topics_and_questions/translation-and-historicity-of-the-book-of-abraham",
-    "topical_guide/book-of-mormon",
-    "topics_and_questions/spaulding-manuscript",
-    "topics_and_questions/gold-plates"
+    "topics_and_questions/book-of-mormon-study-guide",
+    "topics_and_questions/spaulding-manuscript"
    ],
    "pg_ft:0.7,0.4": [
     "topics_and_questions/book-of-mormon-translation",
@@ -5523,13 +5322,10 @@
     "topics_and_questions/book-of-mormon-study-guide",
     "topics_and_questions/spaulding-manuscript"
    ],
-   "pg_bm25d:0.7,0.4": [
-    "topics_and_questions/book-of-mormon-study-guide",
+   "pg_bm25f:0.7,0.4": [
     "topics_and_questions/book-of-mormon-translation",
-    "topics_and_questions/translation-and-historicity-of-the-book-of-abraham",
-    "topical_guide/book-of-mormon",
-    "topics_and_questions/spaulding-manuscript",
-    "topics_and_questions/gold-plates"
+    "topics_and_questions/book-of-mormon-study-guide",
+    "topics_and_questions/spaulding-manuscript"
    ],
    "pg_ft:0.7,0.45": [
     "topics_and_questions/book-of-mormon-translation",
@@ -5540,13 +5336,10 @@
     "topics_and_questions/book-of-mormon-study-guide",
     "topics_and_questions/spaulding-manuscript"
    ],
-   "pg_bm25d:0.7,0.45": [
-    "topics_and_questions/book-of-mormon-study-guide",
+   "pg_bm25f:0.7,0.45": [
     "topics_and_questions/book-of-mormon-translation",
-    "topics_and_questions/translation-and-historicity-of-the-book-of-abraham",
-    "topical_guide/book-of-mormon",
-    "topics_and_questions/spaulding-manuscript",
-    "topics_and_questions/gold-plates"
+    "topics_and_questions/book-of-mormon-study-guide",
+    "topics_and_questions/spaulding-manuscript"
    ]
   },
   "temples-endowment": {
@@ -5576,12 +5369,11 @@
     "topics_and_questions/endowment-and-sealing-study-guide",
     "topical_guide/endowment"
    ],
-   "pg_bm25d:0.5,-": [
-    "topics_and_questions/endowment-and-sealing-study-guide",
+   "pg_bm25f:0.5,-": [
     "topics_and_questions/endowment",
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints",
-    "topical_guide/endowment",
-    "topics_and_questions/temples"
+    "topics_and_questions/endowment-and-sealing-study-guide",
+    "topical_guide/endowment"
    ],
    "pg_ft:0.5,0.3": [
     "topics_and_questions/endowment",
@@ -5596,12 +5388,11 @@
     "topics_and_questions/endowment-and-sealing-study-guide",
     "topical_guide/endowment"
    ],
-   "pg_bm25d:0.5,0.3": [
-    "topics_and_questions/endowment-and-sealing-study-guide",
+   "pg_bm25f:0.5,0.3": [
     "topics_and_questions/endowment",
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints",
-    "topical_guide/endowment",
-    "topics_and_questions/temples"
+    "topics_and_questions/endowment-and-sealing-study-guide",
+    "topical_guide/endowment"
    ],
    "pg_ft:0.5,0.35": [
     "topics_and_questions/endowment",
@@ -5616,12 +5407,11 @@
     "topics_and_questions/endowment-and-sealing-study-guide",
     "topical_guide/endowment"
    ],
-   "pg_bm25d:0.5,0.35": [
-    "topics_and_questions/endowment-and-sealing-study-guide",
+   "pg_bm25f:0.5,0.35": [
     "topics_and_questions/endowment",
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints",
-    "topical_guide/endowment",
-    "topics_and_questions/temples"
+    "topics_and_questions/endowment-and-sealing-study-guide",
+    "topical_guide/endowment"
    ],
    "pg_ft:0.5,0.4": [
     "topics_and_questions/endowment",
@@ -5636,12 +5426,11 @@
     "topics_and_questions/endowment-and-sealing-study-guide",
     "topical_guide/endowment"
    ],
-   "pg_bm25d:0.5,0.4": [
-    "topics_and_questions/endowment-and-sealing-study-guide",
+   "pg_bm25f:0.5,0.4": [
     "topics_and_questions/endowment",
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints",
-    "topical_guide/endowment",
-    "topics_and_questions/temples"
+    "topics_and_questions/endowment-and-sealing-study-guide",
+    "topical_guide/endowment"
    ],
    "pg_ft:0.5,0.45": [
     "topics_and_questions/endowment",
@@ -5656,12 +5445,11 @@
     "topics_and_questions/endowment-and-sealing-study-guide",
     "topical_guide/endowment"
    ],
-   "pg_bm25d:0.5,0.45": [
-    "topics_and_questions/endowment-and-sealing-study-guide",
+   "pg_bm25f:0.5,0.45": [
     "topics_and_questions/endowment",
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints",
-    "topical_guide/endowment",
-    "topics_and_questions/temples"
+    "topics_and_questions/endowment-and-sealing-study-guide",
+    "topical_guide/endowment"
    ],
    "pg_ft:0.7,-": [
     "topics_and_questions/endowment",
@@ -5676,12 +5464,11 @@
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints",
     "topics_and_questions/endowment-and-sealing-study-guide"
    ],
-   "pg_bm25d:0.7,-": [
-    "topics_and_questions/endowment-and-sealing-study-guide",
+   "pg_bm25f:0.7,-": [
     "topics_and_questions/endowment",
     "topical_guide/endowment",
-    "topics_and_questions/temples",
-    "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
+    "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints",
+    "topics_and_questions/endowment-and-sealing-study-guide"
    ],
    "pg_ft:0.7,0.3": [
     "topics_and_questions/endowment",
@@ -5696,12 +5483,11 @@
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints",
     "topics_and_questions/endowment-and-sealing-study-guide"
    ],
-   "pg_bm25d:0.7,0.3": [
-    "topics_and_questions/endowment-and-sealing-study-guide",
+   "pg_bm25f:0.7,0.3": [
     "topics_and_questions/endowment",
     "topical_guide/endowment",
-    "topics_and_questions/temples",
-    "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
+    "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints",
+    "topics_and_questions/endowment-and-sealing-study-guide"
    ],
    "pg_ft:0.7,0.35": [
     "topics_and_questions/endowment",
@@ -5716,12 +5502,11 @@
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints",
     "topics_and_questions/endowment-and-sealing-study-guide"
    ],
-   "pg_bm25d:0.7,0.35": [
-    "topics_and_questions/endowment-and-sealing-study-guide",
+   "pg_bm25f:0.7,0.35": [
     "topics_and_questions/endowment",
     "topical_guide/endowment",
-    "topics_and_questions/temples",
-    "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
+    "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints",
+    "topics_and_questions/endowment-and-sealing-study-guide"
    ],
    "pg_ft:0.7,0.4": [
     "topics_and_questions/endowment",
@@ -5736,12 +5521,11 @@
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints",
     "topics_and_questions/endowment-and-sealing-study-guide"
    ],
-   "pg_bm25d:0.7,0.4": [
-    "topics_and_questions/endowment-and-sealing-study-guide",
+   "pg_bm25f:0.7,0.4": [
     "topics_and_questions/endowment",
     "topical_guide/endowment",
-    "topics_and_questions/temples",
-    "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
+    "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints",
+    "topics_and_questions/endowment-and-sealing-study-guide"
    ],
    "pg_ft:0.7,0.45": [
     "topics_and_questions/endowment",
@@ -5756,12 +5540,11 @@
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints",
     "topics_and_questions/endowment-and-sealing-study-guide"
    ],
-   "pg_bm25d:0.7,0.45": [
-    "topics_and_questions/endowment-and-sealing-study-guide",
+   "pg_bm25f:0.7,0.45": [
     "topics_and_questions/endowment",
     "topical_guide/endowment",
-    "topics_and_questions/temples",
-    "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
+    "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints",
+    "topics_and_questions/endowment-and-sealing-study-guide"
    ]
   },
   "temples-marriage": {
@@ -5791,7 +5574,7 @@
     "topics_and_questions/plural-marriage",
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
    ],
-   "pg_bm25d:0.5,-": [
+   "pg_bm25f:0.5,-": [
     "topical_guide/temple-marriage",
     "topics_and_questions/marriage-study-guide",
     "topics_and_questions/temples",
@@ -5811,7 +5594,7 @@
     "topics_and_questions/plural-marriage",
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
    ],
-   "pg_bm25d:0.5,0.3": [
+   "pg_bm25f:0.5,0.3": [
     "topical_guide/temple-marriage",
     "topics_and_questions/marriage-study-guide",
     "topics_and_questions/temples",
@@ -5830,7 +5613,7 @@
     "topics_and_questions/temples",
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
    ],
-   "pg_bm25d:0.5,0.35": [
+   "pg_bm25f:0.5,0.35": [
     "topical_guide/temple-marriage",
     "topics_and_questions/marriage-study-guide",
     "topics_and_questions/temples",
@@ -5848,7 +5631,7 @@
     "topics_and_questions/temples",
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
    ],
-   "pg_bm25d:0.5,0.4": [
+   "pg_bm25f:0.5,0.4": [
     "topical_guide/temple-marriage",
     "topics_and_questions/marriage-study-guide",
     "topics_and_questions/temples",
@@ -5866,7 +5649,7 @@
     "topics_and_questions/temples",
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
    ],
-   "pg_bm25d:0.5,0.45": [
+   "pg_bm25f:0.5,0.45": [
     "topical_guide/temple-marriage",
     "topics_and_questions/marriage-study-guide",
     "topics_and_questions/temples",
@@ -5885,12 +5668,12 @@
     "topics_and_questions/plural-marriage",
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
    ],
-   "pg_bm25d:0.7,-": [
+   "pg_bm25f:0.7,-": [
     "topical_guide/temple-marriage",
     "topics_and_questions/marriage-study-guide",
     "topics_and_questions/temples",
-    "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints",
-    "topics_and_questions/plural-marriage"
+    "topics_and_questions/plural-marriage",
+    "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
    ],
    "pg_ft:0.7,0.3": [
     "topical_guide/temple-marriage",
@@ -5905,12 +5688,12 @@
     "topics_and_questions/plural-marriage",
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
    ],
-   "pg_bm25d:0.7,0.3": [
+   "pg_bm25f:0.7,0.3": [
     "topical_guide/temple-marriage",
     "topics_and_questions/marriage-study-guide",
     "topics_and_questions/temples",
-    "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints",
-    "topics_and_questions/plural-marriage"
+    "topics_and_questions/plural-marriage",
+    "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
    ],
    "pg_ft:0.7,0.35": [
     "topical_guide/temple-marriage",
@@ -5924,7 +5707,7 @@
     "topics_and_questions/temples",
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
    ],
-   "pg_bm25d:0.7,0.35": [
+   "pg_bm25f:0.7,0.35": [
     "topical_guide/temple-marriage",
     "topics_and_questions/marriage-study-guide",
     "topics_and_questions/temples",
@@ -5942,7 +5725,7 @@
     "topics_and_questions/temples",
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
    ],
-   "pg_bm25d:0.7,0.4": [
+   "pg_bm25f:0.7,0.4": [
     "topical_guide/temple-marriage",
     "topics_and_questions/marriage-study-guide",
     "topics_and_questions/temples",
@@ -5960,7 +5743,7 @@
     "topics_and_questions/temples",
     "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
    ],
-   "pg_bm25d:0.7,0.45": [
+   "pg_bm25f:0.7,0.45": [
     "topical_guide/temple-marriage",
     "topics_and_questions/marriage-study-guide",
     "topics_and_questions/temples",
@@ -5988,11 +5771,10 @@
     "topics_and_questions/word-of-wisdom-study-guide",
     "topical_guide/hot-drinks"
    ],
-   "pg_bm25d:0.5,-": [
+   "pg_bm25f:0.5,-": [
     "topics_and_questions/word-of-wisdom",
     "topics_and_questions/word-of-wisdom-study-guide",
-    "topical_guide/hot-drinks",
-    "topical_guide/word-of-wisdom"
+    "topical_guide/hot-drinks"
    ],
    "pg_ft:0.5,0.3": [
     "topics_and_questions/word-of-wisdom",
@@ -6004,11 +5786,10 @@
     "topics_and_questions/word-of-wisdom-study-guide",
     "topical_guide/hot-drinks"
    ],
-   "pg_bm25d:0.5,0.3": [
+   "pg_bm25f:0.5,0.3": [
     "topics_and_questions/word-of-wisdom",
     "topics_and_questions/word-of-wisdom-study-guide",
-    "topical_guide/hot-drinks",
-    "topical_guide/word-of-wisdom"
+    "topical_guide/hot-drinks"
    ],
    "pg_ft:0.5,0.35": [
     "topics_and_questions/word-of-wisdom",
@@ -6020,11 +5801,10 @@
     "topics_and_questions/word-of-wisdom-study-guide",
     "topical_guide/hot-drinks"
    ],
-   "pg_bm25d:0.5,0.35": [
+   "pg_bm25f:0.5,0.35": [
     "topics_and_questions/word-of-wisdom",
     "topics_and_questions/word-of-wisdom-study-guide",
-    "topical_guide/hot-drinks",
-    "topical_guide/word-of-wisdom"
+    "topical_guide/hot-drinks"
    ],
    "pg_ft:0.5,0.4": [
     "topics_and_questions/word-of-wisdom",
@@ -6036,11 +5816,10 @@
     "topics_and_questions/word-of-wisdom-study-guide",
     "topical_guide/hot-drinks"
    ],
-   "pg_bm25d:0.5,0.4": [
+   "pg_bm25f:0.5,0.4": [
     "topics_and_questions/word-of-wisdom",
     "topics_and_questions/word-of-wisdom-study-guide",
-    "topical_guide/hot-drinks",
-    "topical_guide/word-of-wisdom"
+    "topical_guide/hot-drinks"
    ],
    "pg_ft:0.5,0.45": [
     "topics_and_questions/word-of-wisdom",
@@ -6052,11 +5831,10 @@
     "topics_and_questions/word-of-wisdom-study-guide",
     "topical_guide/hot-drinks"
    ],
-   "pg_bm25d:0.5,0.45": [
+   "pg_bm25f:0.5,0.45": [
     "topics_and_questions/word-of-wisdom",
     "topics_and_questions/word-of-wisdom-study-guide",
-    "topical_guide/hot-drinks",
-    "topical_guide/word-of-wisdom"
+    "topical_guide/hot-drinks"
    ],
    "pg_ft:0.7,-": [
     "topics_and_questions/word-of-wisdom",
@@ -6068,11 +5846,10 @@
     "topics_and_questions/word-of-wisdom-study-guide",
     "topical_guide/hot-drinks"
    ],
-   "pg_bm25d:0.7,-": [
+   "pg_bm25f:0.7,-": [
     "topics_and_questions/word-of-wisdom",
     "topics_and_questions/word-of-wisdom-study-guide",
-    "topical_guide/hot-drinks",
-    "topical_guide/word-of-wisdom"
+    "topical_guide/hot-drinks"
    ],
    "pg_ft:0.7,0.3": [
     "topics_and_questions/word-of-wisdom",
@@ -6084,11 +5861,10 @@
     "topics_and_questions/word-of-wisdom-study-guide",
     "topical_guide/hot-drinks"
    ],
-   "pg_bm25d:0.7,0.3": [
+   "pg_bm25f:0.7,0.3": [
     "topics_and_questions/word-of-wisdom",
     "topics_and_questions/word-of-wisdom-study-guide",
-    "topical_guide/hot-drinks",
-    "topical_guide/word-of-wisdom"
+    "topical_guide/hot-drinks"
    ],
    "pg_ft:0.7,0.35": [
     "topics_and_questions/word-of-wisdom",
@@ -6100,11 +5876,10 @@
     "topics_and_questions/word-of-wisdom-study-guide",
     "topical_guide/hot-drinks"
    ],
-   "pg_bm25d:0.7,0.35": [
+   "pg_bm25f:0.7,0.35": [
     "topics_and_questions/word-of-wisdom",
     "topics_and_questions/word-of-wisdom-study-guide",
-    "topical_guide/hot-drinks",
-    "topical_guide/word-of-wisdom"
+    "topical_guide/hot-drinks"
    ],
    "pg_ft:0.7,0.4": [
     "topics_and_questions/word-of-wisdom",
@@ -6116,11 +5891,10 @@
     "topics_and_questions/word-of-wisdom-study-guide",
     "topical_guide/hot-drinks"
    ],
-   "pg_bm25d:0.7,0.4": [
+   "pg_bm25f:0.7,0.4": [
     "topics_and_questions/word-of-wisdom",
     "topics_and_questions/word-of-wisdom-study-guide",
-    "topical_guide/hot-drinks",
-    "topical_guide/word-of-wisdom"
+    "topical_guide/hot-drinks"
    ],
    "pg_ft:0.7,0.45": [
     "topics_and_questions/word-of-wisdom",
@@ -6132,11 +5906,10 @@
     "topics_and_questions/word-of-wisdom-study-guide",
     "topical_guide/hot-drinks"
    ],
-   "pg_bm25d:0.7,0.45": [
+   "pg_bm25f:0.7,0.45": [
     "topics_and_questions/word-of-wisdom",
     "topics_and_questions/word-of-wisdom-study-guide",
-    "topical_guide/hot-drinks",
-    "topical_guide/word-of-wisdom"
+    "topical_guide/hot-drinks"
    ]
   },
   "followup-wow-commandment": {
@@ -6156,12 +5929,9 @@
     "topics_and_questions/word-of-wisdom-study-guide",
     "topics_and_questions/word-of-wisdom"
    ],
-   "pg_bm25d:0.5,-": [
-    "topics_and_questions/word-of-wisdom",
+   "pg_bm25f:0.5,-": [
     "topics_and_questions/word-of-wisdom-study-guide",
-    "topical_guide/word-of-wisdom",
-    "topical_guide/word",
-    "topical_guide/diet"
+    "topics_and_questions/word-of-wisdom"
    ],
    "pg_ft:0.5,0.3": [
     "topics_and_questions/word-of-wisdom-study-guide",
@@ -6171,12 +5941,9 @@
     "topics_and_questions/word-of-wisdom-study-guide",
     "topics_and_questions/word-of-wisdom"
    ],
-   "pg_bm25d:0.5,0.3": [
-    "topics_and_questions/word-of-wisdom",
+   "pg_bm25f:0.5,0.3": [
     "topics_and_questions/word-of-wisdom-study-guide",
-    "topical_guide/word-of-wisdom",
-    "topical_guide/word",
-    "topical_guide/diet"
+    "topics_and_questions/word-of-wisdom"
    ],
    "pg_ft:0.5,0.35": [
     "topics_and_questions/word-of-wisdom-study-guide",
@@ -6186,12 +5953,9 @@
     "topics_and_questions/word-of-wisdom-study-guide",
     "topics_and_questions/word-of-wisdom"
    ],
-   "pg_bm25d:0.5,0.35": [
-    "topics_and_questions/word-of-wisdom",
+   "pg_bm25f:0.5,0.35": [
     "topics_and_questions/word-of-wisdom-study-guide",
-    "topical_guide/word-of-wisdom",
-    "topical_guide/word",
-    "topical_guide/diet"
+    "topics_and_questions/word-of-wisdom"
    ],
    "pg_ft:0.5,0.4": [
     "topics_and_questions/word-of-wisdom-study-guide",
@@ -6201,12 +5965,9 @@
     "topics_and_questions/word-of-wisdom-study-guide",
     "topics_and_questions/word-of-wisdom"
    ],
-   "pg_bm25d:0.5,0.4": [
-    "topics_and_questions/word-of-wisdom",
+   "pg_bm25f:0.5,0.4": [
     "topics_and_questions/word-of-wisdom-study-guide",
-    "topical_guide/word-of-wisdom",
-    "topical_guide/word",
-    "topical_guide/diet"
+    "topics_and_questions/word-of-wisdom"
    ],
    "pg_ft:0.5,0.45": [
     "topics_and_questions/word-of-wisdom-study-guide",
@@ -6216,12 +5977,9 @@
     "topics_and_questions/word-of-wisdom-study-guide",
     "topics_and_questions/word-of-wisdom"
    ],
-   "pg_bm25d:0.5,0.45": [
-    "topics_and_questions/word-of-wisdom",
+   "pg_bm25f:0.5,0.45": [
     "topics_and_questions/word-of-wisdom-study-guide",
-    "topical_guide/word-of-wisdom",
-    "topical_guide/word",
-    "topical_guide/diet"
+    "topics_and_questions/word-of-wisdom"
    ],
    "pg_ft:0.7,-": [
     "topics_and_questions/word-of-wisdom-study-guide",
@@ -6231,12 +5989,9 @@
     "topics_and_questions/word-of-wisdom-study-guide",
     "topics_and_questions/word-of-wisdom"
    ],
-   "pg_bm25d:0.7,-": [
-    "topics_and_questions/word-of-wisdom",
+   "pg_bm25f:0.7,-": [
     "topics_and_questions/word-of-wisdom-study-guide",
-    "topical_guide/word-of-wisdom",
-    "topical_guide/diet",
-    "topical_guide/word"
+    "topics_and_questions/word-of-wisdom"
    ],
    "pg_ft:0.7,0.3": [
     "topics_and_questions/word-of-wisdom-study-guide",
@@ -6246,12 +6001,9 @@
     "topics_and_questions/word-of-wisdom-study-guide",
     "topics_and_questions/word-of-wisdom"
    ],
-   "pg_bm25d:0.7,0.3": [
-    "topics_and_questions/word-of-wisdom",
+   "pg_bm25f:0.7,0.3": [
     "topics_and_questions/word-of-wisdom-study-guide",
-    "topical_guide/word-of-wisdom",
-    "topical_guide/diet",
-    "topical_guide/word"
+    "topics_and_questions/word-of-wisdom"
    ],
    "pg_ft:0.7,0.35": [
     "topics_and_questions/word-of-wisdom-study-guide",
@@ -6261,12 +6013,9 @@
     "topics_and_questions/word-of-wisdom-study-guide",
     "topics_and_questions/word-of-wisdom"
    ],
-   "pg_bm25d:0.7,0.35": [
-    "topics_and_questions/word-of-wisdom",
+   "pg_bm25f:0.7,0.35": [
     "topics_and_questions/word-of-wisdom-study-guide",
-    "topical_guide/word-of-wisdom",
-    "topical_guide/diet",
-    "topical_guide/word"
+    "topics_and_questions/word-of-wisdom"
    ],
    "pg_ft:0.7,0.4": [
     "topics_and_questions/word-of-wisdom-study-guide",
@@ -6276,12 +6025,9 @@
     "topics_and_questions/word-of-wisdom-study-guide",
     "topics_and_questions/word-of-wisdom"
    ],
-   "pg_bm25d:0.7,0.4": [
-    "topics_and_questions/word-of-wisdom",
+   "pg_bm25f:0.7,0.4": [
     "topics_and_questions/word-of-wisdom-study-guide",
-    "topical_guide/word-of-wisdom",
-    "topical_guide/diet",
-    "topical_guide/word"
+    "topics_and_questions/word-of-wisdom"
    ],
    "pg_ft:0.7,0.45": [
     "topics_and_questions/word-of-wisdom-study-guide",
@@ -6291,12 +6037,9 @@
     "topics_and_questions/word-of-wisdom-study-guide",
     "topics_and_questions/word-of-wisdom"
    ],
-   "pg_bm25d:0.7,0.45": [
-    "topics_and_questions/word-of-wisdom",
+   "pg_bm25f:0.7,0.45": [
     "topics_and_questions/word-of-wisdom-study-guide",
-    "topical_guide/word-of-wisdom",
-    "topical_guide/diet",
-    "topical_guide/word"
+    "topics_and_questions/word-of-wisdom"
    ]
   },
   "followup-joseph-smith-saw": {
@@ -6336,7 +6079,7 @@
     "topical_guide/seer",
     "topical_guide/smith"
    ],
-   "pg_bm25d:0.5,-": [
+   "pg_bm25f:0.5,-": [
     "topics_and_questions/first-vision-accounts",
     "topics_and_questions/joseph-smith-study-guide",
     "topics_and_questions/restoration-of-the-church",
@@ -6364,7 +6107,7 @@
     "topical_guide/seer",
     "topical_guide/smith"
    ],
-   "pg_bm25d:0.5,0.3": [
+   "pg_bm25f:0.5,0.3": [
     "topics_and_questions/first-vision-accounts",
     "topics_and_questions/joseph-smith-study-guide",
     "topics_and_questions/restoration-of-the-church",
@@ -6392,7 +6135,7 @@
     "topical_guide/seer",
     "topical_guide/smith"
    ],
-   "pg_bm25d:0.5,0.35": [
+   "pg_bm25f:0.5,0.35": [
     "topics_and_questions/first-vision-accounts",
     "topics_and_questions/joseph-smith-study-guide",
     "topics_and_questions/restoration-of-the-church",
@@ -6418,7 +6161,7 @@
     "topics_and_questions/joseph-smith",
     "topical_guide/seer"
    ],
-   "pg_bm25d:0.5,0.4": [
+   "pg_bm25f:0.5,0.4": [
     "topics_and_questions/first-vision-accounts",
     "topics_and_questions/joseph-smith-study-guide",
     "topics_and_questions/restoration-of-the-church",
@@ -6442,7 +6185,7 @@
     "topics_and_questions/joseph-smith",
     "topical_guide/seer"
    ],
-   "pg_bm25d:0.5,0.45": [
+   "pg_bm25f:0.5,0.45": [
     "topics_and_questions/first-vision-accounts",
     "topics_and_questions/joseph-smith-study-guide",
     "topics_and_questions/restoration-of-the-church",
@@ -6468,7 +6211,7 @@
     "topical_guide/smith-joseph",
     "topical_guide/smith"
    ],
-   "pg_bm25d:0.7,-": [
+   "pg_bm25f:0.7,-": [
     "topics_and_questions/first-vision-accounts",
     "topics_and_questions/restoration-of-the-church",
     "topics_and_questions/joseph-smith",
@@ -6496,7 +6239,7 @@
     "topical_guide/smith-joseph",
     "topical_guide/smith"
    ],
-   "pg_bm25d:0.7,0.3": [
+   "pg_bm25f:0.7,0.3": [
     "topics_and_questions/first-vision-accounts",
     "topics_and_questions/restoration-of-the-church",
     "topics_and_questions/joseph-smith",
@@ -6524,7 +6267,7 @@
     "topical_guide/smith-joseph",
     "topical_guide/smith"
    ],
-   "pg_bm25d:0.7,0.35": [
+   "pg_bm25f:0.7,0.35": [
     "topics_and_questions/first-vision-accounts",
     "topics_and_questions/restoration-of-the-church",
     "topics_and_questions/joseph-smith",
@@ -6550,7 +6293,7 @@
     "topics_and_questions/joseph-smith-study-guide",
     "topical_guide/smith-joseph"
    ],
-   "pg_bm25d:0.7,0.4": [
+   "pg_bm25f:0.7,0.4": [
     "topics_and_questions/first-vision-accounts",
     "topics_and_questions/restoration-of-the-church",
     "topics_and_questions/joseph-smith",
@@ -6574,7 +6317,7 @@
     "topics_and_questions/joseph-smith-study-guide",
     "topical_guide/smith-joseph"
    ],
-   "pg_bm25d:0.7,0.45": [
+   "pg_bm25f:0.7,0.45": [
     "topics_and_questions/first-vision-accounts",
     "topics_and_questions/restoration-of-the-church",
     "topics_and_questions/joseph-smith",

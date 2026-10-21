@@ -13,9 +13,15 @@ Variants:
   pgvector         hybrid_search() as deployed (pgvector + Postgres full text)
   pg_ft:w,c        pgvector + Postgres full text, vector weight w, cutoff c
   pg_bm25:w,c      pgvector + in-memory BM25 over rag_chunks, vector weight w, cutoff c
+  pg_bm25f:w,c     the same with collection names and generic verbs dropped from
+                   the BM25 query (what the app deploys: PgvectorBm25Retriever with
+                   keyword_drop_phrases() and GENERIC_VERBS)
 where cutoff c drops keyword-only hits whose similarity to the question is
 below c ("-" = no cutoff). Every fused passage goes to the model, so the
 weights only change the order of sources, not which ones are used.
+
+pg_bm25f is also compared with pg_bm25 at the same settings (the backend
+before the filter): it may not be worse on any question there either.
 
 The three regressions found in the first pgvector eval count as fixed when
 the question is no worse than FAISS and none of the off-topic sources that
@@ -46,6 +52,7 @@ from langchain_openai import ChatOpenAI, OpenAIEmbeddings  # noqa: E402
 
 from src.backend.main import (  # noqa: E402
     CHAT_MODEL,
+    keyword_drop_phrases,
     CHUNKS_PER_RETRIEVER,
     EMBEDDING_MODEL,
     INDEX_DIR,
@@ -55,7 +62,7 @@ from src.backend.main import (  # noqa: E402
     trim_history,
 )
 from src.backend.retrieval import load_local_retriever  # noqa: E402
-from src.backend.retrieval.keyword import full_text_query  # noqa: E402
+from src.backend.retrieval.keyword import GENERIC_VERBS, full_text_query  # noqa: E402
 from src.backend.retrieval.pgvector import PgvectorBm25Retriever, RestTransport, _document, fuse_with_cutoff  # noqa: E402
 
 QUESTIONS = PROJECT_ROOT / "tests" / "eval" / "questions.json"
@@ -132,6 +139,8 @@ async def main() -> None:
     transport = RestTransport(os.environ["SUPABASE_URL"], os.environ["SUPABASE_SERVICE_ROLE_KEY"])
     passages = transport.load_passages()
     bm25 = PgvectorBm25Retriever(transport, embeddings, k=CHUNKS_PER_RETRIEVER, passages=passages)
+    bm25f = PgvectorBm25Retriever(transport, embeddings, k=CHUNKS_PER_RETRIEVER, passages=passages,
+                                  drop_phrases=keyword_drop_phrases(), drop_words=GENERIC_VERBS)
 
     results: dict[str, dict[str, list[str]]] = {}
     for item in items:
@@ -146,6 +155,8 @@ async def main() -> None:
             (r for r in hybrid_rows if r.get("full_text_rank")), key=lambda r: r["full_text_rank"])]
 
         semantic, keyword, similarity = await bm25.search(query)
+        _, keyword_f, similarity_f = await bm25f.search(query)
+        similarity |= similarity_f
         extra = [d.metadata["chunk_id"] for d in full_text if d.metadata["chunk_id"] not in similarity]
         if extra:
             similarity |= {r["chunk_id"]: r["similarity"] for r in await transport.match(embedding, 1, extra)}
@@ -155,6 +166,7 @@ async def main() -> None:
                 tag = f"{w},{'-' if c is None else c}"
                 per[f"pg_ft:{tag}"] = sources_of(fuse_with_cutoff(semantic, full_text, similarity, (w, 1 - w), c))
                 per[f"pg_bm25:{tag}"] = sources_of(fuse_with_cutoff(semantic, keyword, similarity, (w, 1 - w), c))
+                per[f"pg_bm25f:{tag}"] = sources_of(fuse_with_cutoff(semantic, keyword_f, similarity, (w, 1 - w), c))
         print(f"  {item['id']:<30} searched {query!r}", flush=True)
 
     patterns = {i["id"]: i["relevant"] for i in items}
@@ -172,15 +184,29 @@ async def main() -> None:
         fixed = [q for q, banned in MUST_FIX.items()
                  if q not in worse
                  and not any(fnmatch.fnmatch(s, b) for s in results[q][variant] for b in banned)]
-        summary.append({"variant": variant, "worse": worse, "relevant": rel_total, "off_topic": off_total,
-                        "must_fix_ok": fixed})
+        row = {"variant": variant, "worse": worse, "relevant": rel_total, "off_topic": off_total, "must_fix_ok": fixed}
+        if variant.startswith("pg_bm25f:"):
+            before = variant.replace("pg_bm25f:", "pg_bm25:")
+            row["worse_than_unfiltered"] = [
+                qid for qid, per in results.items()
+                if score(per[variant], patterns[qid])[0] < score(per[before], patterns[qid])[0]
+                or score(per[variant], patterns[qid])[1] > score(per[before], patterns[qid])[1]
+            ]
+            row["changed_vs_unfiltered"] = [qid for qid, per in results.items() if per[variant] != per[before]]
+        summary.append(row)
 
     summary.sort(key=lambda r: (len(r["worse"]), -len(r["must_fix_ok"]), r["off_topic"], -r["relevant"]))
     print(f"\n{'variant':<20}{'worse':>6}{'relevant':>10}{'off-topic':>11}  regressions fixed")
-    for row in summary[:12] + [r for r in summary if r["variant"] in ("faiss", "pgvector")]:
+    shown = ("faiss", "pgvector", "pg_bm25:0.5,0.3", "pg_bm25f:0.5,0.3")
+    for row in summary[:12] + [r for r in summary if r["variant"] in shown]:
         print(f"{row['variant']:<20}{len(row['worse']):>6}{row['relevant']:>10}{row['off_topic']:>11}  "
               f"{len(row['must_fix_ok'])}/3  worse: {', '.join(row['worse']) or '-'}")
 
+    for row in summary:
+        if row["variant"] == "pg_bm25f:0.5,0.3":
+            print(f"\npg_bm25f:0.5,0.3 vs pg_bm25:0.5,0.3 (live before the filter): "
+                  f"worse on {len(row['worse_than_unfiltered'])} ({', '.join(row['worse_than_unfiltered']) or '-'}); "
+                  f"sources changed on {len(row['changed_vs_unfiltered'])} ({', '.join(row['changed_vs_unfiltered']) or '-'})")
     OUTPUT.write_text(json.dumps({"inputs": {k: {"intent": v["intent"], "query": v["query"]} for k, v in inputs.items()},
                                   "summary": summary, "results": results}, indent=1), encoding="utf-8")
     print(f"\nwrote {OUTPUT}")

@@ -4,6 +4,7 @@ Same in-memory SQLite setup as tests/test_history_and_usage.py; the chat
 model's astream() is mocked, so nothing calls OpenAI.
 """
 
+import asyncio
 import json
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -79,14 +80,17 @@ def _model(chunks=("Faith is ", "trust in Christ."), fail_after=None):
 
 
 def _events(body: str) -> list[tuple[str, dict]]:
+    """The named events, skipping ": keep-alive" comments."""
     events = []
     for block in body.strip().split("\n\n"):
+        if block.startswith(":"):
+            continue
         lines = dict(line.split(": ", 1) for line in block.splitlines())
         events.append((lines["event"], json.loads(lines["data"])))
     return events
 
 
-def _stream(client, question="What is faith?", *, user_id="", ip="", docs=(FAITH_DOC,), model=None):
+def _stream(client, question="What is faith?", *, user_id="", ip="", docs=(FAITH_DOC,), model=None, search=None):
     headers = {"X-API-Key": VALID_KEY}
     if user_id:
         headers["X-User-Id"] = user_id
@@ -95,7 +99,7 @@ def _stream(client, question="What is faith?", *, user_id="", ip="", docs=(FAITH
     with patch.object(backend, "route_question", new=AsyncMock(return_value=backend.RouteDecision("RAG_NEW_TOPIC", "test question"))), \
          patch.object(app.state, "retriever") as retriever, \
          patch.object(app.state, "chat_model", model or _model()):
-        retriever.ainvoke = AsyncMock(return_value=list(docs))
+        retriever.ainvoke = search or AsyncMock(return_value=list(docs))
         return client.post(
             "/api/v1/query/stream",
             json={"messages": [{"role": "user", "content": question}]},
@@ -117,6 +121,32 @@ def test_streams_tokens_then_done(client):
     assert done["source_links"][0]["label"] == "Topical Guide: Faith"
     assert done["conversation_id"]
     assert done["usage"]["remaining"] == USER_LIMIT - 1
+
+
+def test_stream_starts_with_a_keep_alive_before_any_answer(client):
+    r = _stream(client, user_id="k1")
+    assert r.text.startswith(backend.SSE_KEEPALIVE)
+
+
+def test_keep_alives_repeat_while_the_answer_is_prepared(client, monkeypatch):
+    monkeypatch.setattr(backend, "STREAM_KEEPALIVE_SECONDS", 0.05)
+
+    async def slow_search(_query):
+        await asyncio.sleep(0.3)
+        return [FAITH_DOC]
+
+    r = _stream(client, user_id="k2", search=slow_search)
+    assert r.text.count(backend.SSE_KEEPALIVE) >= 3
+    assert [name for name, _ in _events(r.text)] == ["token", "token", "done"]
+
+
+def test_retrieval_failure_after_the_keep_alive_is_an_error_event(client, db):
+    r = _stream(client, user_id="k3", search=AsyncMock(side_effect=RuntimeError("db down")))
+    assert r.status_code == 200
+    events = _events(r.text)
+    assert [name for name, _ in events] == ["error"]
+    assert "search the document indexes" in events[0][1]["detail"]
+    assert db.query(UserQueryLog).filter_by(user_identifier="k3").count() == 0
 
 
 def test_turn_is_saved_after_the_stream_completes(client, db):
@@ -188,6 +218,7 @@ async def test_stopping_early_counts_the_question_but_saves_nothing(db):
             retriever=retriever, chat_model=_model(), db=db,
         )
         stream = response.body_iterator
+        assert await stream.__anext__() == backend.SSE_KEEPALIVE
         first = await stream.__anext__()
         assert "event: token" in first
         await stream.aclose()  # what a disconnect does

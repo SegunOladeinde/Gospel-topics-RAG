@@ -9,6 +9,7 @@ import hashlib
 import os
 import uuid
 
+import numpy as np
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import inspect, text
@@ -205,5 +206,39 @@ def test_real_startup_with_the_pgvector_bm25_backend(monkeypatch, real_startup, 
     with database() as db:
         total = db.execute(text("SELECT count(*) FROM rag_chunks")).scalar()
 
-    assert health["retriever"] == {"backend": "pgvector_bm25", "chunks": total}
+    assert {k: health["retriever"][k] for k in ("backend", "chunks")} == {"backend": "pgvector_bm25", "chunks": total}
+    assert health["retriever"]["keyword_index"] == {"rebuilding": False, "refreshed_at": None}
     assert any(d.metadata["topic"] == "baptism" for d in keyword_hits)
+
+
+def test_copy_batches_store_the_same_vectors_as_halfvec(database, collection):
+    ingest(collection, SqlRagStore(database))
+    with database() as db:
+        stored = db.execute(text(
+            "SELECT c.embedding::text FROM rag_chunks c JOIN rag_documents d ON d.id = c.document_id "
+            "WHERE d.collection = :c AND d.slug = 'tithing'"
+        ), {"c": collection.name}).scalar()
+        sha = db.execute(text("SELECT content_sha256 FROM rag_documents WHERE collection = :c AND slug = 'tithing'"),
+                         {"c": collection.name}).scalar()
+    values = [float(x) for x in stored.strip("[]").split(",")]
+    # What float16 keeps of each value (0.01 isn't exact in float16).
+    assert np.allclose(values, np.asarray(fake_vector("tithing"), dtype=np.float16), rtol=1e-3, atol=0)
+    assert len(sha) == 64
+
+
+def test_signature_moves_on_every_kind_of_change(database, collection):
+    store = SqlRagStore(database)
+    ingest(collection, store)
+    transport = SqlTransport(database)
+    before = transport.signature()
+
+    (collection.raw_path / "faith.txt").write_text("Faith\nSource: https://www.churchofjesuschrist.org/x/faith\n\nFaith, edited.\n")
+    ingest(collection, store)  # same passage count, new ids
+    after_edit = transport.signature()
+    assert after_edit != before and after_edit[1] > before[1]
+
+    with database() as db:  # a title-only change: the trigger bumps updated_at
+        db.execute(text("UPDATE rag_documents SET title = 'Faith!' WHERE collection = :c AND slug = 'faith'"),
+                   {"c": collection.name})
+        db.commit()
+    assert transport.signature()[2] > after_edit[2]

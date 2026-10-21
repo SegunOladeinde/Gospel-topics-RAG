@@ -100,7 +100,24 @@ uv run python scripts/backup_raw.py          # back up data/raw/ first (only cha
 uv run python scripts/ingest.py --dry-run    # documents, passages, tokens, estimated cost
 uv run python scripts/ingest.py              # refuses to spend over $1 without --approve-cost
 ```
-Runs are incremental: unchanged pages (same sha256) are skipped, edited pages are re-chunked and re-embedded, and pages deleted from disk are removed with their passages. Passages are cut from the raw file text exactly as the FAISS index was, and `--reuse-embeddings` (on by default) takes their vectors from `data/index/`, so the current corpus costs nothing to load. `--max-docs N` caps a run; the next run carries on. Embeddings are batched with retries and backoff. Each page's real title ("Aaron, Descendants of") and canonical URL (redirects followed for collections with `resolve_redirects: true`) are stored, and source links use them. The scripts write through Supabase's REST API when `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are in `.env`, otherwise through `DATABASE_URL` (`--store sql`).
+Runs are incremental: unchanged pages (same sha256) are skipped, edited pages are re-chunked and re-embedded, and pages deleted from disk are removed with their passages. Passages are cut from the raw file text exactly as the FAISS index was, and `--reuse-embeddings` (on by default) takes their vectors from `data/index/`, so the current corpus costs nothing to load. `--max-docs N` caps a run; the next run carries on. `--force` re-writes unchanged pages too. Embeddings are batched with retries and backoff. Each page's real title ("Aaron, Descendants of") and canonical URL (redirects followed for collections with `resolve_redirects: true`) are stored, and source links use them.
+
+How it writes:
+- **Directly to Postgres when `DATABASE_URL` is in `.env`** (the default; `--store sql`). Each batch of `--batch-docs` pages (100) is one transaction: the documents with their final sha256, then their passages streamed in by binary COPY. A crash rolls the batch back, and the next run redoes it.
+- **Through Supabase's REST API** (`--store rest`, or when there's no `DATABASE_URL`). Several times slower.
+- **Pages are read and embedded one batch at a time,** so memory stays flat however many there are. Reused embeddings are held in one float32 matrix (about 60 MB).
+- **Every batch logs its progress,** pages/min and an ETA.
+
+Measured from this repo's development machine (slow link to Supabase), re-writing the same pages with reused embeddings:
+
+| Run | REST | Postgres + COPY |
+|---|---|---|
+| 200 Topical Guide pages | 185 pages/min | 708 pages/min |
+| all 1,275 Bible Dictionary pages | | 878 pages/min (1,333 passages/min) |
+
+Gospel Topics pages are capped at 2 a second while their redirects are resolved.
+
+When a run has written anything, it asks the backend to rebuild its in-memory keyword index: `POST /admin/reindex` on `BACKEND_BASE_URL` (default `https://gospel-topics-rag.onrender.com`), with `APP_API_KEY` and the admin role. `--no-reindex` skips it; the backend's own 10-minute check (below) picks the change up anyway.
 
 **Adding a collection** (e.g. church history): put one `.txt` per page in a new folder under `data/raw/` (title on line 1, `Source: <url>` on line 2), add an entry to `data/collections.yaml`, add its label and URL pattern to `COLLECTIONS` in `src/backend/source_links.py`, then back up and ingest. With `RETRIEVER_BACKEND=pgvector` it's searchable immediately.
 
@@ -113,10 +130,24 @@ Runs are incremental: unchanged pages (same sha256) are skipped, edited pages ar
 | `pgvector` | Supabase (pgvector) | Postgres full text | none |
 | `pgvector_bm25` | Supabase (pgvector) | BM25 built in memory from the stored passages at startup; keyword-only hits below 0.30 similarity dropped | about 30 MB |
 
-On the 30-question retrieval eval (`uv run python scripts/eval_retrieval.py`, relevance lists in `tests/eval/questions.json`, results in `eval/retrieval_comparison.json`), `pgvector_bm25` was no worse than FAISS on any question and better on one; `pgvector` was worse on 9, because Postgres full-text ranking picks weaker keyword matches than BM25. With `pgvector_bm25`, newly ingested pages are found by semantic search at once and by keyword search after the next restart. `scripts/eval_baseline.py --backend ...` compares answers end to end.
+On the 30-question retrieval eval (`uv run python scripts/eval_retrieval.py`, relevance lists in `tests/eval/questions.json`, results in `eval/retrieval_comparison.json`), `pgvector_bm25` was no worse than FAISS on any question and better on one; `pgvector` was worse on 9, because Postgres full-text ranking picks weaker keyword matches than BM25. `scripts/eval_baseline.py --backend ...` compares answers end to end.
 
-### Planned cleanup
-After the pgvector backend has run stably for about a week: delete `data/index/*`, `scripts/build_local_index.py`, the FAISS/BM25 modules in `src/backend/retrieval/` (`local_index.py`, `vector.py`, `keyword.py`'s BM25 scorer, `index_files.py`, `hybrid.py`), the `faiss-cpu` and `rank_bm25` dependencies and `BM25_INDEX_SHA256`. Until then FAISS stays as the instant fallback: set `RETRIEVER_BACKEND=faiss` and redeploy.
+`pgvector_bm25`'s BM25 query leaves out collection names (built in, plus every name and label in `data/collections.yaml`) and generic verbs ("increase", "introduce", "help"...): they say where to look or how, not what about. On the eval that took it from 97 relevant / 29 off-topic sources to 99 / 26, worse on no question than either FAISS or the unfiltered version ("What does the Bible Dictionary say about grace?" no longer cites "Bible Dictionary: Introduction"). The FAISS backend's BM25 query is unchanged.
+
+**Keeping BM25 current without a restart:** newly ingested passages are found by semantic search at once. They reach the in-memory BM25 index when it's rebuilt:
+- after an ingest run (`POST /admin/reindex`, admin only), or
+- automatically, when a check every `BM25_REFRESH_SECONDS` (default 600; `0` turns it off) sees the store changed.
+
+The check is one small query: passage count, highest passage id, and latest `rag_documents.updated_at`. Ingestion replaces passages by delete and insert, and ids only grow, so any added, replaced or removed passage changes it. A trigger keeps `updated_at` current for title and URL edits. The new index is built beside the live one and swapped in with a single assignment, so queries never wait. `/health` shows `retriever.keyword_index.refreshed_at` and whether a rebuild is running.
+
+### Rollback and planned cleanup
+FAISS stays as the instant fallback: set `RETRIEVER_BACKEND=faiss` and redeploy. **FAISS rollback is only valid until Phase D data is ingested; remove FAISS after Phase D is stable.** The FAISS files hold only today's three collections, so after Phase D a rollback would silently drop the new material from answers.
+
+Removing FAISS means deleting:
+- `data/index/*` and `scripts/build_local_index.py`
+- the FAISS-only modules in `src/backend/retrieval/`: `local_index.py`, `vector.py`, `index_files.py` and `hybrid.py`'s `HybridRetriever` (`keyword.py`'s BM25 scorer stays: `pgvector_bm25` uses it)
+- the `faiss-cpu` dependency and `BM25_INDEX_SHA256`
+- `--reuse-embeddings` in `scripts/ingest.py`
 
 ## Local Development
 
@@ -164,7 +195,8 @@ Environment variables (Render dashboard → Environment; never commit values):
 | `ALLOWED_ORIGINS` | recommended | `https://gospel-topics-rag.vercel.app` (comma-separated for more; spaces and trailing slashes are ignored) |
 | `BM25_INDEX_SHA256` | recommended | SHA-256 of `data/index/bm25.pkl`; startup refuses to load a file that doesn't match |
 | `RATE_LIMIT_FAIL_CLOSED` | no | `true` returns 503 when the rate-limit database is down; default `false` answers anyway |
-| `RETRIEVER_BACKEND` | no | `faiss` (default, index files in memory), `pgvector` or `pgvector_bm25` (Supabase; need `DATABASE_URL` and an ingested store) |
+| `RETRIEVER_BACKEND` | no | `faiss` (default, index files in memory), `pgvector` or `pgvector_bm25` (Supabase; need `DATABASE_URL` and an ingested store). Production runs `pgvector_bm25` |
+| `BM25_REFRESH_SECONDS` | no | `pgvector_bm25` only: how often to check the store for changes and rebuild the keyword index (default `600`; `0` = only on `POST /admin/reindex`) |
 
 To get the value for `BM25_INDEX_SHA256` (update it whenever you rebuild the index):
 
@@ -174,7 +206,7 @@ uv run python -c "import hashlib; print(hashlib.sha256(open('data/index/bm25.pkl
 
 Use the session pooler rather than the transaction pooler (6543): Render runs one long-lived process, which is what session mode is for. The direct `db.<ref>.supabase.co` host needs IPv6 or Supabase's IPv4 add-on.
 
-Memory: with the FAISS + BM25 indexes loaded (10,160 chunks each), the process uses about 290 MB after startup and about 335 MB after answering queries, so a 512 MB instance is enough with `WEB_CONCURRENCY=1`. Each extra uvicorn worker loads its own copy of the indexes, so don't raise `WEB_CONCURRENCY` on a 512 MB instance.
+Memory: `/health` reports the process's resident memory as `memory_mb`. With the FAISS + BM25 indexes loaded (10,160 chunks each), the process used about 290 MB after startup and about 375 MB after answering queries. `pgvector_bm25` keeps only the BM25 index in memory; a rebuild briefly holds two. Either fits a 512 MB instance with `WEB_CONCURRENCY=1`. Each extra uvicorn worker loads its own copy of the indexes, so don't raise `WEB_CONCURRENCY` on a 512 MB instance.
 
 ### Frontend on Vercel
 - Root directory: `src/frontend` (framework preset: Next.js)
@@ -190,12 +222,13 @@ Memory: with the FAISS + BM25 indexes loaded (10,160 chunks each), the process u
 
 Admins: `/api/query` checks the signed-in user's verified emails against `ADMIN_EMAILS` and, for a match, sends `X-User-Role: admin` to the backend, which then skips the daily question limit (the 10/minute burst limit still applies). Any `X-User-Role` sent by the browser is dropped. Admin questions are still logged in `user_query_logs` with `is_admin = true`, and those rows never count toward a limit. Admins see an "Admin · unlimited" badge next to their avatar.
 
-The proxy waits up to 55 seconds for the backend. A sleeping Render instance can take about that long to boot and load the indexes. If the backend times out, is unreachable, or returns Render's 502/503/504 page, the user sees "Waking up the server, please try again in a moment."
+The query routes (`/api/query` and `/api/query/stream`) set `maxDuration = 300`, the most the Hobby plan allows with Fluid compute. They wait up to 150 seconds for the backend's first byte, enough to sit out a Render cold start. Once awake, the backend opens the stream with an SSE keep-alive comment straight away, and repeats it every 5 seconds while it routes and searches, so the stream is never silent. The other routes wait up to 55 seconds. If the backend times out, is unreachable, or returns Render's 502/503/504 page, the user sees "Waking up the server, please try again in a moment."
 
 ### Checking a deployment
 ```bash
 curl https://gospel-topics-rag.onrender.com/health
-# {"status":"ok","commit":"<short sha>","indexes_loaded":true,"db":"ok"}
+# {"status":"ok","commit":"<short sha>","indexes_loaded":true,"db":"ok",
+#  "retriever":{"backend":"pgvector_bm25","chunks":10160,"keyword_index":{...}},"memory_mb":...}
 ```
 - `commit` should match the latest commit on `main` (`git log -1 --format=%h`). If it doesn't, the new build hasn't gone live yet; check Render → Events.
 - `db` is `ok`, `disabled` (no `DATABASE_URL`), or `error` (database unreachable). `error` makes `status` read `degraded` but still returns HTTP 200, because questions are still answered and Render shouldn't restart the service.

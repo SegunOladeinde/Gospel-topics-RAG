@@ -288,6 +288,7 @@ async def test_pgvector_bm25_retriever_end_to_end():
 def test_load_retriever_builds_pgvector_bm25(monkeypatch):
     monkeypatch.setenv("RETRIEVER_BACKEND", "pgvector_bm25")
     monkeypatch.setattr(SqlTransport, "load_passages", lambda self: PASSAGES)
+    monkeypatch.setattr(SqlTransport, "signature", lambda self: (3, 3, None))
     retriever = load_retriever(MagicMock())
     assert isinstance(retriever, PgvectorBm25Retriever)
     assert retriever.min_similarity == backend.PGVECTOR_BM25_MIN_SIMILARITY == 0.30

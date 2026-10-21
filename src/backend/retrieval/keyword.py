@@ -64,19 +64,19 @@ _WORD = re.compile(r"[A-Za-z0-9]+(?:'[A-Za-z]+)?")
 _SUFFIXES = ("", ".", ",", "?", ";", ":")
 
 
-def content_words(question: str) -> list[str]:
+def content_words(question: str, extra_stopwords: frozenset[str] = frozenset()) -> list[str]:
     """The question's words minus stopwords, de-duplicated, in order."""
     seen: dict[str, None] = {}
     for word in _WORD.findall(question):
-        if word.lower() not in STOPWORDS:
+        if word.lower() not in STOPWORDS and word.lower() not in extra_stopwords:
             seen.setdefault(word.lower(), None)
     return list(seen)
 
 
-def query_tokens(question: str) -> list[str]:
+def query_tokens(question: str, extra_stopwords: frozenset[str] = frozenset()) -> list[str]:
     """BM25 tokens for the question: every content word in each case/punctuation form."""
     tokens: list[str] = []
-    for word in content_words(question):
+    for word in content_words(question, extra_stopwords):
         for form in dict.fromkeys((word, word.capitalize(), word.upper())):
             tokens.extend(form + suffix for suffix in _SUFFIXES)
     return tokens
@@ -85,11 +85,23 @@ def query_tokens(question: str) -> list[str]:
 class KeywordSearch:
     """Top-k BM25 matches on the question's content words (see module docstring)."""
 
-    def __init__(self, vectorizer: BM25Okapi, docs: list[Document], k: int = 4):
+    def __init__(
+        self,
+        vectorizer: BM25Okapi,
+        docs: list[Document],
+        k: int = 4,
+        drop_phrases: tuple[str, ...] = (),
+        drop_words: frozenset[str] = frozenset(),
+    ):
+        """drop_phrases / drop_words: also left out of the query (see
+        remove_phrases); the FAISS backend uses neither, pgvector_bm25 drops
+        collection names and GENERIC_VERBS."""
         if len(docs) != vectorizer.corpus_size:
             raise ValueError(f"BM25 index has {vectorizer.corpus_size} documents but {len(docs)} passages")
         self.docs = docs
         self.k = k
+        self.drop_phrases = drop_phrases
+        self.drop_words = drop_words
         self._idf = vectorizer.idf
         doc_len = np.asarray(vectorizer.doc_len, dtype=float)
         # The per-document part of BM25's denominator, and the numerator factor.
@@ -122,7 +134,9 @@ class KeywordSearch:
         return score
 
     def search(self, query: str) -> list[Document]:
-        tokens = query_tokens(query)
+        if self.drop_phrases:
+            query = remove_phrases(query, self.drop_phrases)
+        tokens = query_tokens(query, self.drop_words)
         if not tokens:
             return []
         scores = self.scores(tokens)
@@ -136,7 +150,8 @@ class KeywordSearch:
         return await asyncio.to_thread(self.search, query)
 
 
-# Extra filtering for the Postgres full-text query (pgvector backend). Naming
+# Extra filtering for the Postgres full-text query (pgvector backend) and the
+# BM25 query of pgvector_bm25. Naming
 # a collection ("what does the Bible Dictionary say about grace") says where
 # to look, not what about, and matched pages like "Bible Dictionary:
 # Introduction"; generic verbs ("increase my faith") matched "Topical Guide:
@@ -151,6 +166,25 @@ GENERIC_VERBS = frozenset(
     """.split()
 )
 _NOT_TERM = re.compile(r"[^a-z0-9]")
+
+
+def collection_phrases(names_and_labels: list[str] = ()) -> tuple[str, ...]:
+    """COLLECTION_PHRASES plus each collection's name and label from
+    data/collections.yaml ("church_history" -> "church history"), longest
+    first so "gospel topics" goes before "gospel topic"."""
+    phrases = set(COLLECTION_PHRASES)
+    for value in names_and_labels:
+        phrase = " ".join(value.lower().replace("_", " ").split())
+        if phrase:
+            phrases.add(phrase)
+    return tuple(sorted(phrases, key=lambda p: (-len(p), p)))
+
+
+def remove_phrases(question: str, phrases: tuple[str, ...]) -> str:
+    """The question with each phrase removed as whole words, case-insensitively."""
+    for phrase in phrases:
+        question = re.sub(rf"\b{re.escape(phrase)}\b", " ", question, flags=re.IGNORECASE)
+    return question
 
 
 def full_text_query(question: str) -> str:

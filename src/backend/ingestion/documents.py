@@ -3,6 +3,7 @@
 import hashlib
 import json
 from dataclasses import dataclass, replace
+from pathlib import Path
 
 from src.backend.ingestion.config import CollectionConfig
 
@@ -29,9 +30,42 @@ class SourceDocument:
     def with_url(self, url: str) -> "SourceDocument":
         return replace(self, url=url)
 
+    def load(self) -> "SourceDocument":
+        return self
+
+
+@dataclass(frozen=True)
+class DocumentRef:
+    """A page on disk known only by its sha256 until load() reads it again,
+    so planning a run over thousands of pages keeps only hashes in memory."""
+
+    config: CollectionConfig
+    slug: str
+    path: Path
+    sha256: str
+
+    @property
+    def collection(self) -> str:
+        return self.config.name
+
+    @property
+    def key(self) -> tuple[str, str]:
+        return (self.config.name, self.slug)
+
+    def load(self) -> SourceDocument:
+        return parse_document(self.config, self.slug, self.path.read_bytes())
+
 
 def _title_from_slug(slug: str) -> str:
     return " ".join(word.capitalize() for word in slug.split("-") if word)
+
+
+def document_sha256(config: CollectionConfig, raw: bytes) -> str:
+    """Of the raw file plus the chunking settings, so changing either re-ingests the page."""
+    settings = json.dumps(
+        {"size": config.chunk_size, "overlap": config.chunk_overlap, "version": CONTENT_VERSION}, sort_keys=True
+    )
+    return hashlib.sha256(raw + settings.encode()).hexdigest()
 
 
 def parse_document(config: CollectionConfig, slug: str, raw: bytes) -> SourceDocument:
@@ -47,9 +81,6 @@ def parse_document(config: CollectionConfig, slug: str, raw: bytes) -> SourceDoc
     if config.url_source == "source_line" and len(lines) > source_line and lines[source_line].startswith("Source:"):
         url = lines[source_line].removeprefix("Source:").strip() or url
 
-    settings = json.dumps(
-        {"size": config.chunk_size, "overlap": config.chunk_overlap, "version": CONTENT_VERSION}, sort_keys=True
-    )
     return SourceDocument(
         collection=config.name,
         slug=slug,
@@ -58,7 +89,7 @@ def parse_document(config: CollectionConfig, slug: str, raw: bytes) -> SourceDoc
         # Unchanged raw text: the same passages as the FAISS index (see
         # CONTENT_VERSION). The title is its first line anyway.
         text=content,
-        sha256=hashlib.sha256(raw + settings.encode()).hexdigest(),
+        sha256=document_sha256(config, raw),
     )
 
 
@@ -67,5 +98,16 @@ def load_documents(config: CollectionConfig) -> list[SourceDocument]:
         raise FileNotFoundError(f"{config.name}: raw_path {config.raw_path} doesn't exist")
     return [
         parse_document(config, path.stem, path.read_bytes())
+        for path in sorted(config.raw_path.glob("*.txt"))
+    ]
+
+
+def scan_documents(config: CollectionConfig) -> list[DocumentRef]:
+    """Every page in the collection as a DocumentRef: each file is read once
+    for its hash and not kept (load() reads it again when it's ingested)."""
+    if not config.raw_path.is_dir():
+        raise FileNotFoundError(f"{config.name}: raw_path {config.raw_path} doesn't exist")
+    return [
+        DocumentRef(config, path.stem, path, document_sha256(config, path.read_bytes()))
         for path in sorted(config.raw_path.glob("*.txt"))
     ]
