@@ -57,10 +57,19 @@ def test_long_assistant_message_accepted(client):
 
 
 def test_message_at_new_limit_accepted(client):
-    """A message of exactly 8 000 characters must be accepted."""
+    """A message of exactly 8 000 characters must be accepted.
+
+    That's the cap for replayed history, e.g. a long earlier answer. The
+    newest question has its own, lower limit (MAX_QUESTION_CHARS, see
+    tests/test_history_and_usage.py::TestQuestionLength).
+    """
     exactly_at_limit = "B" * 8_000
 
-    payload = {"messages": [{"role": "user", "content": exactly_at_limit}]}
+    payload = {"messages": [
+        {"role": "user", "content": "What is faith?"},
+        {"role": "assistant", "content": exactly_at_limit},
+        {"role": "user", "content": "Tell me more."},
+    ]}
 
     with patch.object(app.state, "retriever") as mock_retriever, \
          patch.object(app.state, "chat_model"):   # noqa: F841
