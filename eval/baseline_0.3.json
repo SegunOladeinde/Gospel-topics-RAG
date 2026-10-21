@@ -1,0 +1,400 @@
+{
+  "versions": {
+    "langchain": "0.3.30",
+    "langchain-core": "0.3.86",
+    "langchain-openai": "0.2.14",
+    "langchain-community": "0.3.31",
+    "langchain-text-splitters": "0.3.11",
+    "openai": "1.109.1"
+  },
+  "runs_per_question": 2,
+  "results": [
+    {
+      "id": "doctrine-baptism",
+      "kind": "doctrine",
+      "question": "What is baptism?",
+      "intent": "RAG_NEW_TOPIC",
+      "sources": [
+        "topical_guide/baptism",
+        "bible_dictionary/baptism",
+        "topics_and_questions/baptism",
+        "topics_and_questions/baptism-study-guide",
+        "bible_dictionary/confirmation",
+        "topical_guide/baptism-immersion"
+      ],
+      "answer_chars": 1293,
+      "answer_preview": "Baptism is an essential ordinance in the gospel of Jesus Christ, representing a person's commitment to follow Him. It involves immersion in water, which symboli",
+      "error": null,
+      "intents_all_runs": [
+        "RAG_NEW_TOPIC",
+        "RAG_NEW_TOPIC"
+      ],
+      "steps_ms_median": {
+        "intent": 1522,
+        "retrieval": 1036
+      },
+      "prepare_ms_median": 2560,
+      "ttft_ms_median": 3649,
+      "total_ms_median": 5856
+    },
+    {
+      "id": "doctrine-sacrament-purpose",
+      "kind": "doctrine",
+      "question": "What is the purpose of the sacrament?",
+      "intent": "RAG_NEW_TOPIC",
+      "sources": [
+        "topics_and_questions/sacrament-study-guide",
+        "topics_and_questions/sacrament",
+        "topics_and_questions/sacrament-meeting"
+      ],
+      "answer_chars": 1228,
+      "answer_preview": "The purpose of the sacrament is multifaceted and deeply significant for members of The Church of Jesus Christ of Latter-day Saints. Primarily, it serves as a pr",
+      "error": null,
+      "intents_all_runs": [
+        "RAG_NEW_TOPIC",
+        "RAG_NEW_TOPIC"
+      ],
+      "steps_ms_median": {
+        "intent": 1454,
+        "retrieval": 353
+      },
+      "prepare_ms_median": 1807,
+      "ttft_ms_median": 2660,
+      "total_ms_median": 4410
+    },
+    {
+      "id": "doctrine-moroni",
+      "kind": "doctrine",
+      "question": "Who was Moroni?",
+      "intent": "RAG_NEW_TOPIC",
+      "sources": [
+        "topics_and_questions/joseph-smiths-character",
+        "topics_and_questions/religion-vs-violence",
+        "topics_and_questions/abraham-book-of",
+        "topics_and_questions/book-of-mormon-and-dna-studies",
+        "topics_and_questions/restoration-of-the-church",
+        "topics_and_questions/scriptures",
+        "topics_and_questions/spiritual-gifts"
+      ],
+      "answer_chars": 1092,
+      "answer_preview": "Moroni was a significant figure in the early history of the Restoration of the gospel. He was an angel sent by the Lord who visited Joseph Smith on multiple occ",
+      "error": null,
+      "intents_all_runs": [
+        "RAG_NEW_TOPIC",
+        "RAG_NEW_TOPIC"
+      ],
+      "steps_ms_median": {
+        "intent": 1192,
+        "retrieval": 354
+      },
+      "prepare_ms_median": 1546,
+      "ttft_ms_median": 2722,
+      "total_ms_median": 5057
+    },
+    {
+      "id": "doctrine-after-death",
+      "kind": "doctrine",
+      "question": "What happens after we die?",
+      "intent": "RAG_NEW_TOPIC",
+      "sources": [
+        "topical_guide/life-after-death",
+        "topics_and_questions/spirit-world-study-guide",
+        "topics_and_questions/postmortality",
+        "topical_guide/die",
+        "topics_and_questions/heaven",
+        "topics_and_questions/grace",
+        "topical_guide/capital-punishment"
+      ],
+      "answer_chars": 1088,
+      "answer_preview": "After we die, our spirits go to the spirit world, where we await our resurrection. This is a place of learning, working, and for the righteous, a time of rest f",
+      "error": null,
+      "intents_all_runs": [
+        "RAG_NEW_TOPIC",
+        "RAG_NEW_TOPIC"
+      ],
+      "steps_ms_median": {
+        "intent": 956,
+        "retrieval": 417
+      },
+      "prepare_ms_median": 1373,
+      "ttft_ms_median": 2566,
+      "total_ms_median": 4120
+    },
+    {
+      "id": "doctrine-repentance-steps",
+      "kind": "doctrine",
+      "question": "List the steps of repentance",
+      "intent": "RAG_NEW_TOPIC",
+      "sources": [
+        "topics_and_questions/repentance-study-guide",
+        "topics_and_questions/repentance",
+        "bible_dictionary/repentance",
+        "topical_guide/repent"
+      ],
+      "answer_chars": 1068,
+      "answer_preview": "The steps of repentance include several important elements that guide us through the process of turning back to God. According to the Gospel Topics on Repentanc",
+      "error": null,
+      "intents_all_runs": [
+        "RAG_NEW_TOPIC",
+        "RAG_NEW_TOPIC"
+      ],
+      "steps_ms_median": {
+        "intent": 873,
+        "retrieval": 500
+      },
+      "prepare_ms_median": 1374,
+      "ttft_ms_median": 2445,
+      "total_ms_median": 4407
+    },
+    {
+      "id": "doctrine-temples",
+      "kind": "doctrine",
+      "question": "Why do we build temples?",
+      "intent": "RAG_NEW_TOPIC",
+      "sources": [
+        "topics_and_questions/temples",
+        "topics_and_questions/church-financial-administration",
+        "topics_and_questions/temples-study-guide",
+        "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
+      ],
+      "answer_chars": 1164,
+      "answer_preview": "Temples are built because they are literally the house of the Lord and serve as holy places of worship where individuals can make sacred covenants with God. The",
+      "error": null,
+      "intents_all_runs": [
+        "RAG_NEW_TOPIC",
+        "RAG_NEW_TOPIC"
+      ],
+      "steps_ms_median": {
+        "intent": 1530,
+        "retrieval": 612
+      },
+      "prepare_ms_median": 2142,
+      "ttft_ms_median": 3054,
+      "total_ms_median": 5170
+    },
+    {
+      "id": "followup-faith",
+      "kind": "followup",
+      "question": "How can I increase it?",
+      "intent": "RAG_FOLLOWUP",
+      "sources": [
+        "topics_and_questions/faith-in-jesus-christ-study-guide",
+        "topics_and_questions/faith-in-jesus-christ",
+        "bible_dictionary/faith"
+      ],
+      "answer_chars": 997,
+      "answer_preview": "Increasing your faith in Jesus Christ takes effort and intentionality. President Russell M. Nelson emphasized that while the Lord does not require perfect faith",
+      "error": null,
+      "intents_all_runs": [
+        "RAG_FOLLOWUP",
+        "RAG_FOLLOWUP"
+      ],
+      "steps_ms_median": {
+        "intent": 1058,
+        "retrieval": 398,
+        "rewrite": 1087
+      },
+      "prepare_ms_median": 2544,
+      "ttft_ms_median": 3745,
+      "total_ms_median": 5220
+    },
+    {
+      "id": "followup-tithing",
+      "kind": "followup",
+      "question": "Why ten percent?",
+      "intent": "RAG_FOLLOWUP",
+      "sources": [
+        "topics_and_questions/tithing-study-guide",
+        "topical_guide/tithing",
+        "topics_and_questions/church-financial-administration",
+        "topical_guide/tenth",
+        "topics_and_questions/tithing"
+      ],
+      "answer_chars": 1002,
+      "answer_preview": "Tithing is the practice of giving one-tenth of our income to the Lord, which is a commandment that has been established since ancient times and restored in mode",
+      "error": null,
+      "intents_all_runs": [
+        "RAG_FOLLOWUP",
+        "RAG_FOLLOWUP"
+      ],
+      "steps_ms_median": {
+        "intent": 876,
+        "retrieval": 442,
+        "rewrite": 1046
+      },
+      "prepare_ms_median": 2364,
+      "ttft_ms_median": 3298,
+      "total_ms_median": 4970
+    },
+    {
+      "id": "followup-sacrament-scriptures",
+      "kind": "followup",
+      "question": "Can you share scriptures about that?",
+      "intent": "RAG_FOLLOWUP",
+      "sources": [
+        "topics_and_questions/sacrament",
+        "topics_and_questions/sacrament-study-guide",
+        "topics_and_questions/atonement-of-jesus-christ",
+        "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
+      ],
+      "answer_chars": 938,
+      "answer_preview": "The sacrament is a sacred ordinance where Church members partake of bread and water to remember Jesus Christ's Atonement. It was instituted by Christ during the",
+      "error": null,
+      "intents_all_runs": [
+        "RAG_FOLLOWUP",
+        "RAG_FOLLOWUP"
+      ],
+      "steps_ms_median": {
+        "intent": 920,
+        "retrieval": 628,
+        "rewrite": 1050
+      },
+      "prepare_ms_median": 2598,
+      "ttft_ms_median": 3534,
+      "total_ms_median": 4890
+    },
+    {
+      "id": "chitchat-thanks",
+      "kind": "chitchat",
+      "question": "Thanks!",
+      "intent": "CHITCHAT",
+      "sources": [],
+      "answer_chars": 78,
+      "answer_preview": "You're very welcome! I'm glad to be here with you. How can I assist you today?",
+      "error": null,
+      "intents_all_runs": [
+        "CHITCHAT",
+        "CHITCHAT"
+      ],
+      "steps_ms_median": {
+        "intent": 0
+      },
+      "prepare_ms_median": 0,
+      "ttft_ms_median": 778,
+      "total_ms_median": 951
+    },
+    {
+      "id": "chitchat-hello",
+      "kind": "chitchat",
+      "question": "Hello there",
+      "intent": "CHITCHAT",
+      "sources": [],
+      "answer_chars": 59,
+      "answer_preview": "Hello! It's so nice to hear from you! How's your day going?",
+      "error": null,
+      "intents_all_runs": [
+        "CHITCHAT",
+        "CHITCHAT"
+      ],
+      "steps_ms_median": {
+        "intent": 0
+      },
+      "prepare_ms_median": 0,
+      "ttft_ms_median": 1502,
+      "total_ms_median": 2086
+    },
+    {
+      "id": "chitchat-praise",
+      "kind": "chitchat",
+      "question": "Great answer, thank you so much!",
+      "intent": "CHITCHAT",
+      "sources": [],
+      "answer_chars": 114,
+      "answer_preview": "You're very welcome! I'm glad you liked it. If you have any more questions or thoughts to share, feel free to ask!",
+      "error": null,
+      "intents_all_runs": [
+        "CHITCHAT",
+        "CHITCHAT"
+      ],
+      "steps_ms_median": {
+        "intent": 0
+      },
+      "prepare_ms_median": 0,
+      "ttft_ms_median": 870,
+      "total_ms_median": 1062
+    },
+    {
+      "id": "mixed-thanks-tithing",
+      "kind": "mixed",
+      "question": "Thanks! And what about tithing?",
+      "intent": "RAG_FOLLOWUP",
+      "sources": [
+        "topics_and_questions/tithing",
+        "topics_and_questions/tithing-study-guide",
+        "topical_guide/tithing",
+        "topics_and_questions/church-financial-administration",
+        "bible_dictionary/tithe"
+      ],
+      "answer_chars": 1415,
+      "answer_preview": "Tithing is a significant principle in the gospel, and it has deep roots both anciently and in our modern-day practice. It involves giving one-tenth of our incom",
+      "error": null,
+      "intents_all_runs": [
+        "RAG_FOLLOWUP",
+        "RAG_FOLLOWUP"
+      ],
+      "steps_ms_median": {
+        "intent": 980,
+        "retrieval": 714,
+        "rewrite": 930
+      },
+      "prepare_ms_median": 2624,
+      "ttft_ms_median": 3489,
+      "total_ms_median": 5646
+    },
+    {
+      "id": "mixed-grace-with-history",
+      "kind": "mixed",
+      "question": "Thanks, that helps. What does the Bible Dictionary say about grace?",
+      "intent": "RAG_FOLLOWUP",
+      "sources": [
+        "topics_and_questions/grace-study-guide",
+        "topics_and_questions/grace",
+        "bible_dictionary/grace",
+        "topics_and_questions/atonement-of-jesus-christ"
+      ],
+      "answer_chars": 834,
+      "answer_preview": "The Bible Dictionary explains that grace is primarily understood as the divine means of help or strength given through the mercy and love of Jesus Christ. It em",
+      "error": null,
+      "intents_all_runs": [
+        "RAG_FOLLOWUP",
+        "RAG_FOLLOWUP"
+      ],
+      "steps_ms_median": {
+        "intent": 890,
+        "retrieval": 622,
+        "rewrite": 1018
+      },
+      "prepare_ms_median": 2532,
+      "ttft_ms_median": 3382,
+      "total_ms_median": 5008
+    },
+    {
+      "id": "long-priesthood-authority",
+      "kind": "long",
+      "question": "Why do Latter-day Saints believe that baptism must be performed by someone holding proper priesthood authority, and how does that relate to the Restoration, the ministry of John the Baptist, and the covenant we make to take upon ourselves the name of Jesus Christ, always remember Him and keep His commandments so that we may always have His Spirit with us? I would also like to understand how this authority was lost after the Apostles died and why it needed to be restored rather than simply continued by other churches.",
+      "intent": "RAG_NEW_TOPIC",
+      "sources": [
+        "topics_and_questions/restoration-of-the-priesthood-study-guide",
+        "topics_and_questions/restoration-of-the-priesthood",
+        "topics_and_questions/baptism-study-guide",
+        "topics_and_questions/restoration-of-the-church-study-guide",
+        "topics_and_questions/priesthood-keys-study-guide",
+        "topics_and_questions/sabbath-day-study-guide"
+      ],
+      "answer_chars": 2036,
+      "answer_preview": "Latter-day Saints believe that baptism must be performed by someone holding proper priesthood authority because this authority is essential for the ordinance to",
+      "error": null,
+      "intents_all_runs": [
+        "RAG_NEW_TOPIC",
+        "RAG_NEW_TOPIC"
+      ],
+      "steps_ms_median": {
+        "intent": 1102,
+        "retrieval": 3064
+      },
+      "prepare_ms_median": 4167,
+      "ttft_ms_median": 5212,
+      "total_ms_median": 8574
+    }
+  ]
+}

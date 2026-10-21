@@ -1,0 +1,50 @@
+[
+  {"id": "doctrine-baptism", "kind": "doctrine", "question": "What is baptism?"},
+  {"id": "doctrine-sacrament-purpose", "kind": "doctrine", "question": "What is the purpose of the sacrament?"},
+  {"id": "doctrine-moroni", "kind": "doctrine", "question": "Who was Moroni?"},
+  {"id": "doctrine-after-death", "kind": "doctrine", "question": "What happens after we die?"},
+  {"id": "doctrine-repentance-steps", "kind": "doctrine", "question": "List the steps of repentance"},
+  {"id": "doctrine-temples", "kind": "doctrine", "question": "Why do we build temples?"},
+  {
+    "id": "followup-faith", "kind": "followup", "question": "How can I increase it?",
+    "history": [
+      {"role": "user", "content": "What is faith?"},
+      {"role": "assistant", "content": "Faith in Jesus Christ is a principle of action and power. The Bible Dictionary explains that faith is to hope for things which are not seen, which are true."}
+    ]
+  },
+  {
+    "id": "followup-tithing", "kind": "followup", "question": "Why ten percent?",
+    "history": [
+      {"role": "user", "content": "What is tithing?"},
+      {"role": "assistant", "content": "Tithing is giving one-tenth of our increase to the Lord. Gospel Topics notes that tithing funds are used to build temples and meetinghouses."}
+    ]
+  },
+  {
+    "id": "followup-sacrament-scriptures", "kind": "followup", "question": "Can you share scriptures about that?",
+    "history": [
+      {"role": "user", "content": "What is the sacrament?"},
+      {"role": "assistant", "content": "The sacrament is an ordinance in which we partake of bread and water in remembrance of the Savior's Atonement and renew our covenants."}
+    ]
+  },
+  {"id": "chitchat-thanks", "kind": "chitchat", "question": "Thanks!"},
+  {"id": "chitchat-hello", "kind": "chitchat", "question": "Hello there"},
+  {
+    "id": "chitchat-praise", "kind": "chitchat", "question": "Great answer, thank you so much!",
+    "history": [
+      {"role": "user", "content": "What is charity?"},
+      {"role": "assistant", "content": "Charity is the pure love of Christ."}
+    ]
+  },
+  {"id": "mixed-thanks-tithing", "kind": "mixed", "question": "Thanks! And what about tithing?"},
+  {
+    "id": "mixed-grace-with-history", "kind": "mixed", "question": "Thanks, that helps. What does the Bible Dictionary say about grace?",
+    "history": [
+      {"role": "user", "content": "What is the Atonement?"},
+      {"role": "assistant", "content": "The Atonement of Jesus Christ is the central event of the plan of salvation, through which we can be forgiven and resurrected."}
+    ]
+  },
+  {
+    "id": "long-priesthood-authority", "kind": "long",
+    "question": "Why do Latter-day Saints believe that baptism must be performed by someone holding proper priesthood authority, and how does that relate to the Restoration, the ministry of John the Baptist, and the covenant we make to take upon ourselves the name of Jesus Christ, always remember Him and keep His commandments so that we may always have His Spirit with us? I would also like to understand how this authority was lost after the Apostles died and why it needed to be restored rather than simply continued by other churches."
+  }
+]
