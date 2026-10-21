@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { auth } from "@clerk/nextjs/server";
 
+import { buildBackendHeaders } from "@/lib/admin";
+import { checkIsAdmin } from "@/lib/currentUserIsAdmin";
+
 // Server-only: this file runs on the Next.js server, never in the browser,
 // so BACKEND_URL and BACKEND_API_KEY are safe to read here. Neither must be
 // prefixed with NEXT_PUBLIC_, which would bundle it into client-side JS.
@@ -42,7 +45,7 @@ export async function POST(request: NextRequest) {
   }
 
   const { userId } = await auth();
-  const forwardedFor = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown-ip";
+  const isAdmin = await checkIsAdmin(userId);
 
   let body: unknown;
   try {
@@ -55,12 +58,11 @@ export async function POST(request: NextRequest) {
   try {
     backendResponse = await fetch(BACKEND_URL, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-API-Key": BACKEND_API_KEY,
-        "X-User-Id": userId || "",
-        "X-Forwarded-For": forwardedFor,
-      },
+      headers: buildBackendHeaders(request.headers, {
+        apiKey: BACKEND_API_KEY,
+        userId,
+        isAdmin,
+      }),
       body: JSON.stringify(body),
       signal: AbortSignal.timeout(BACKEND_TIMEOUT_MS),
     });
