@@ -286,6 +286,37 @@ class TestHistory:
         assert db.query(ChatMessage).filter_by(content="One too many").count() == 0
 
 
+class TestDeleteConversation:
+    def test_owner_can_delete(self, client, db):
+        keep = _ask(client, "Keep me", user_id="u40").json()["conversation_id"]
+        gone = _ask(client, "Delete me", user_id="u40").json()["conversation_id"]
+
+        r = client.delete(f"/api/v1/conversations/{gone}", headers=_headers(user_id="u40"))
+        assert r.status_code == 204
+        listed = client.get("/api/v1/conversations", headers=_headers(user_id="u40")).json()["conversations"]
+        assert [c["id"] for c in listed] == [keep]
+        assert db.query(ChatMessage).filter_by(conversation_id=gone).count() == 0
+        assert client.get(f"/api/v1/conversations/{gone}", headers=_headers(user_id="u40")).status_code == 404
+
+    def test_deleting_does_not_give_questions_back(self, client):
+        conversation_id = _ask(client, user_id="u41").json()["conversation_id"]
+        client.delete(f"/api/v1/conversations/{conversation_id}", headers=_headers(user_id="u41"))
+        usage = client.get("/api/v1/usage", headers=_headers(user_id="u41")).json()["usage"]
+        assert usage["used"] == 1
+
+    def test_cannot_delete_someone_elses(self, client):
+        theirs = _ask(client, user_id="owner3").json()["conversation_id"]
+        assert client.delete(f"/api/v1/conversations/{theirs}", headers=_headers(user_id="other")).status_code == 404
+        assert client.delete(f"/api/v1/conversations/{theirs}", headers=_headers(ip="9.9.9.6")).status_code == 404
+        assert client.get(f"/api/v1/conversations/{theirs}", headers=_headers(user_id="owner3")).status_code == 200
+
+    def test_unknown_id_is_404(self, client):
+        assert client.delete("/api/v1/conversations/nope", headers=_headers(user_id="u42")).status_code == 404
+
+    def test_requires_api_key(self, client):
+        assert client.delete("/api/v1/conversations/x", headers=_headers(user_id="u", api_key="bad")).status_code == 401
+
+
 @pytest.mark.parametrize(
     ("question", "title"),
     [

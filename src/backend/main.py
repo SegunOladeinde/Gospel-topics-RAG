@@ -52,7 +52,7 @@ from typing import Literal
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_ipaddr
@@ -63,6 +63,7 @@ from src.backend.database import UserQueryLog, init_db
 from src.backend.history import (
     ConversationDetail,
     ConversationSummary,
+    delete_conversation,
     get_conversation,
     list_conversations,
     save_turn,
@@ -1064,6 +1065,35 @@ async def conversation(
     if detail is None:
         raise HTTPException(status_code=404, detail="Conversation not found.")
     return detail
+
+
+@app.delete(
+    "/api/v1/conversations/{conversation_id}",
+    status_code=204,
+    dependencies=[Depends(verify_api_key)],
+)
+@limiter.limit("60/minute")
+async def remove_conversation(
+    request: Request,
+    conversation_id: str,
+    x_user_id: str | None = Header(default="", alias="X-User-Id"),
+    db=Depends(get_db),
+) -> Response:
+    """Delete one of the signed-in user's saved chats. 404 if it doesn't exist
+    or belongs to someone else. Question counts are unaffected: they come from
+    user_query_logs, not from saved chats."""
+    user_id = (x_user_id or "").strip()
+    if db is None or not user_id:
+        raise HTTPException(status_code=404, detail="Conversation not found.")
+    try:
+        deleted = delete_conversation(db, user_id, conversation_id)
+    except SQLAlchemyError as exc:
+        rollback_quietly(db)
+        logger.exception("Failed to delete conversation")
+        raise HTTPException(status_code=503, detail="Chat history is unavailable right now.") from exc
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Conversation not found.")
+    return Response(status_code=204)
 
 
 @app.post(
