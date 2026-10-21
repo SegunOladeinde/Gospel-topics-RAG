@@ -35,6 +35,14 @@ class Transport(Protocol):
     async def match(self, embedding: list[float], k: int, candidate_ids: list[int]) -> list[dict]: ...
     def count_chunks(self) -> int: ...
     def load_passages(self) -> list[dict]: ...
+    def signature(self) -> tuple: ...
+
+
+# What signature() returns: (passage count, highest passage id, latest document
+# update). Ingestion replaces a page's passages by deleting and re-inserting
+# them, and ids only ever grow, so any added or replaced passage raises the
+# highest id and any removed one lowers the count. The document timestamp
+# catches title/URL-only changes (a trigger keeps updated_at current).
 
 
 class SqlTransport:
@@ -85,6 +93,15 @@ class SqlTransport:
         with self.session_factory() as db:
             return [dict(row) for row in db.execute(self._PASSAGES).mappings().all()]
 
+    _SIGNATURE = text(
+        "SELECT count(*), coalesce(max(id), 0), (SELECT max(updated_at) FROM rag_documents) FROM rag_chunks"
+    )
+
+    def signature(self) -> tuple:
+        with self.session_factory() as db:
+            count, max_id, updated = db.execute(self._SIGNATURE).one()
+        return (count, max_id, updated.isoformat() if updated else None)
+
 
 class RestTransport:
     """Calls hybrid_search() through Supabase's REST API (rpc) with the service-role key."""
@@ -121,6 +138,17 @@ class RestTransport:
         )
         response.raise_for_status()
         return int(response.headers["content-range"].rsplit("/", 1)[1])
+
+    def signature(self) -> tuple:
+        with httpx.Client(headers=self.headers, timeout=30) as client:
+            newest = client.get(f"{self.base}/rag_chunks", params={"select": "id", "order": "id.desc", "limit": 1})
+            updated = client.get(
+                f"{self.base}/rag_documents", params={"select": "updated_at", "order": "updated_at.desc", "limit": 1}
+            )
+            newest.raise_for_status()
+            updated.raise_for_status()
+        rows, docs = newest.json(), updated.json()
+        return (self.count_chunks(), rows[0]["id"] if rows else 0, docs[0]["updated_at"] if docs else None)
 
     def load_passages(self, page: int = 1000) -> list[dict]:
         passages, start = [], 0
@@ -225,8 +253,10 @@ class PgvectorBm25Retriever:
     the semantic top-k plus the similarity of the BM25 hits, used to drop
     keyword-only hits that aren't about the question.
 
-    Passages ingested after startup are found by semantic search right away
-    and by keyword search after the next restart.
+    Passages ingested after startup are found by semantic search right away,
+    and by keyword search once rebuild_keyword_index() has run (POST
+    /admin/reindex, or the automatic check in refresh.py). The rebuild
+    happens beside the live index, which keeps answering until it's swapped.
     """
 
     name = "pgvector_bm25"
@@ -239,23 +269,64 @@ class PgvectorBm25Retriever:
         weights: tuple[float, float] = (0.5, 0.5),
         min_similarity: float | None = None,
         passages: list[dict] | None = None,
+        drop_phrases: tuple[str, ...] = (),
+        drop_words: frozenset[str] = frozenset(),
     ):
         self.transport = transport
         self.embeddings = embeddings
         self.k = k
         self.weights = weights
         self.min_similarity = min_similarity
-        rows = transport.load_passages() if passages is None else passages
+        self.drop_phrases = drop_phrases
+        self.drop_words = drop_words
+        self.signature = None
+        if passages is None:
+            # Taken before loading, so a change made during the load shows up
+            # as stale at the next check rather than being missed.
+            self.signature = self._current_signature()
+            passages = transport.load_passages()
+        # (KeywordSearch or None, passage count), replaced as one value so a
+        # query never sees one index's search with another's count.
+        self._index = self._build_index(passages)
+
+    def _build_index(self, rows: list[dict]) -> tuple[KeywordSearch | None, int]:
         docs = [_document(row) for row in rows]
-        vectorizer = BM25Okapi([doc.page_content.split() for doc in docs]) if docs else None
-        self.keyword = KeywordSearch(vectorizer, docs, k=k) if docs else None
-        self._chunk_total = len(docs)
+        if not docs:
+            return None, 0
+        vectorizer = BM25Okapi([doc.page_content.split() for doc in docs])
+        search = KeywordSearch(vectorizer, docs, k=self.k, drop_phrases=self.drop_phrases, drop_words=self.drop_words)
+        return search, len(docs)
+
+    def _current_signature(self) -> tuple | None:
+        signature = getattr(self.transport, "signature", None)
+        return signature() if signature else None
+
+    @property
+    def keyword(self) -> KeywordSearch | None:
+        return self._index[0]
+
+    def is_stale(self) -> bool:
+        """Whether rag_chunks / rag_documents changed since the index was built (one small query)."""
+        return self._current_signature() != self.signature
+
+    def rebuild_keyword_index(self) -> int:
+        """Reload the passages and swap in a new BM25 index; returns the passage count.
+
+        Blocking (run it in a thread). Queries keep using the old index until
+        the single assignment at the end, so none waits or sees half an index.
+        """
+        signature = self._current_signature()
+        index = self._build_index(self.transport.load_passages())
+        self._index = index
+        self.signature = signature
+        return index[1]
 
     async def search(self, query: str) -> tuple[list[Document], list[Document], dict[int, float]]:
         """The semantic hits, keyword hits and similarities before fusion (for evals)."""
+        keyword = self.keyword  # read once: a rebuild may swap it meanwhile
         embedding, keyword_docs = await asyncio.gather(
             self.embeddings.aembed_query(query),
-            self.keyword.ainvoke(query) if self.keyword else asyncio.sleep(0, result=[]),
+            keyword.ainvoke(query) if keyword else asyncio.sleep(0, result=[]),
         )
         rows = await self.transport.match(embedding, self.k, [d.metadata["chunk_id"] for d in keyword_docs])
         semantic = [_document(r) for r in sorted(
@@ -268,4 +339,5 @@ class PgvectorBm25Retriever:
         return fuse_with_cutoff(semantic, keyword_docs, similarity, self.weights, self.min_similarity)
 
     def chunk_counts(self) -> dict[str, int]:
-        return {"vector": self._chunk_total, "keyword": self._chunk_total}
+        total = self._index[1]
+        return {"vector": total, "keyword": total}

@@ -26,6 +26,7 @@ def test_root_describes_the_service(client):
 
 def test_health_without_database(client, monkeypatch):
     monkeypatch.setenv("RENDER_GIT_COMMIT", "0123456789abcdef0123456789abcdef01234567")
+    monkeypatch.setattr(backend, "process_memory_mb", lambda: 123.4)
     response = client.get("/health")
     assert response.status_code == 200
     assert response.json() == {
@@ -35,7 +36,14 @@ def test_health_without_database(client, monkeypatch):
         "db": "disabled",
         # The test stub retriever has no real chunk count.
         "retriever": {"backend": "faiss", "chunks": None},
+        "memory_mb": 123.4,
     }
+
+
+def test_process_memory_mb_is_a_plausible_rss_or_none():
+    mb = backend.process_memory_mb()
+    # None only where /proc doesn't exist (Windows); CI and Render are Linux.
+    assert mb is None or 10 < mb < 100_000
 
 
 def test_health_commit_unknown_outside_render(client, monkeypatch):

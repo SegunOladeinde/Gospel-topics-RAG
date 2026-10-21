@@ -49,6 +49,24 @@ CREATE INDEX IF NOT EXISTS rag_chunks_document ON public.rag_chunks (document_id
 ALTER TABLE public.rag_documents ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.rag_chunks ENABLE ROW LEVEL SECURITY;
 
+-- Keep updated_at current on every update, whoever writes the row (REST
+-- upserts didn't set it). The app's BM25 refresh check compares it, with the
+-- passage count and highest passage id, to spot changes to the store.
+CREATE OR REPLACE FUNCTION public.rag_documents_touch()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SET search_path = ''
+AS $$
+BEGIN
+    NEW.updated_at := now();
+    RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE TRIGGER rag_documents_touch
+    BEFORE UPDATE ON public.rag_documents
+    FOR EACH ROW EXECUTE FUNCTION public.rag_documents_touch();
+
 -- Semantic + full-text search fused by weighted reciprocal rank, exactly like
 -- the FAISS/BM25 HybridRetriever: each passage scores
 -- sum(weight / (rrf_k + rank)) over the two top-match_count lists.

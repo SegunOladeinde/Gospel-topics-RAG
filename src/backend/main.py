@@ -77,6 +77,8 @@ from src.backend.retrieval import (
     SqlTransport,
     load_local_retriever,
 )
+from src.backend.retrieval.keyword import GENERIC_VERBS, collection_phrases
+from src.backend.retrieval.refresh import KeywordIndexRefresher
 from src.backend.source_links import SourceLink, source_link, source_link_for
 from src.backend.usage import Usage, get_usage
 from dataclasses import dataclass, field
@@ -315,6 +317,34 @@ RETRIEVER_BACKENDS = ("faiss", "pgvector", "pgvector_bm25")
 # started dropping relevant pages.
 PGVECTOR_BM25_MIN_SIMILARITY = 0.30
 
+# pgvector_bm25: how often to check whether the store changed and the
+# in-memory BM25 index needs rebuilding (src/backend/retrieval/refresh.py).
+# BM25_REFRESH_SECONDS=0 turns the check off (POST /admin/reindex still works).
+DEFAULT_BM25_REFRESH_SECONDS = 600
+
+
+def bm25_refresh_seconds() -> float:
+    raw = os.getenv("BM25_REFRESH_SECONDS", "").strip()
+    try:
+        return max(float(raw), 0.0) if raw else DEFAULT_BM25_REFRESH_SECONDS
+    except ValueError:
+        logger.warning("BM25_REFRESH_SECONDS=%r isn't a number; using %ds.", raw, DEFAULT_BM25_REFRESH_SECONDS)
+        return DEFAULT_BM25_REFRESH_SECONDS
+
+
+def keyword_drop_phrases() -> tuple[str, ...]:
+    """Collection names left out of pgvector_bm25's BM25 query: the built-in
+    ones plus every collection's name and label in data/collections.yaml, so
+    a collection added later is covered without a code change."""
+    from src.backend.ingestion.config import load_config
+
+    try:
+        collections = load_config().collections
+    except Exception:  # noqa: BLE001 - the built-in names still apply
+        logger.warning("Couldn't read data/collections.yaml; using the built-in collection names.", exc_info=True)
+        collections = []
+    return collection_phrases([value for c in collections for value in (c.name, c.label)])
+
 
 def retriever_backend() -> str:
     backend = os.getenv("RETRIEVER_BACKEND", "faiss").strip().lower() or "faiss"
@@ -352,8 +382,17 @@ def load_retriever(session_factory=None) -> Retriever:
                 f"RETRIEVER_BACKEND={backend} needs DATABASE_URL (or SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY)."
             )
         if backend == "pgvector_bm25":
+            # Its BM25 query also drops collection names ("what does the Bible
+            # Dictionary say about grace") and generic verbs ("increase"):
+            # they say where to look or how, not what about. Checked on the
+            # 30-question eval (scripts/eval_retrieval.py): no question worse.
             retriever = PgvectorBm25Retriever(
-                transport, embeddings, k=CHUNKS_PER_RETRIEVER, min_similarity=PGVECTOR_BM25_MIN_SIMILARITY
+                transport,
+                embeddings,
+                k=CHUNKS_PER_RETRIEVER,
+                min_similarity=PGVECTOR_BM25_MIN_SIMILARITY,
+                drop_phrases=keyword_drop_phrases(),
+                drop_words=GENERIC_VERBS,
             )
         else:
             retriever = PgvectorRetriever(transport, embeddings, k=CHUNKS_PER_RETRIEVER)
@@ -376,6 +415,8 @@ OPTIONAL_ENV_VARS = (
     "ALLOWED_ORIGINS",
     "BM25_INDEX_SHA256",
     "RATE_LIMIT_FAIL_CLOSED",
+    "RETRIEVER_BACKEND",
+    "BM25_REFRESH_SECONDS",
 )
 
 
@@ -446,12 +487,20 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     )
     app.state.retriever_backend = backend
     log_index_counts(app.state.retriever)
+    # pgvector_bm25 keeps a BM25 index in memory: rebuild it when the store
+    # changes (automatic check, or POST /admin/reindex) instead of restarting.
+    app.state.keyword_refresher = None
+    if isinstance(app.state.retriever, PgvectorBm25Retriever):
+        app.state.keyword_refresher = KeywordIndexRefresher(app.state.retriever, bm25_refresh_seconds())
+        app.state.keyword_refresher.start()
     app.state.chat_model = ChatOpenAI(model=CHAT_MODEL, temperature=0)
     logger.info("Startup complete: retrieval is ready for queries.")
 
     yield  # <-- the app runs here, handling requests, until it shuts down
 
     logger.info("Shutting down: releasing in-memory indexes.")
+    if app.state.keyword_refresher is not None:
+        await app.state.keyword_refresher.stop()
 
 
 def get_retriever(request: Request) -> Retriever:
@@ -915,7 +964,27 @@ def retriever_summary(state) -> dict | None:
         counts = index_chunk_counts(retriever) or {}
     except Exception:  # noqa: BLE001 - health must never fail on this
         counts = {}
-    return {"backend": getattr(state, "retriever_backend", None), "chunks": counts.get("vector")}
+    summary = {"backend": getattr(state, "retriever_backend", None), "chunks": counts.get("vector")}
+    refresher = getattr(state, "keyword_refresher", None)
+    if refresher is not None:
+        summary["keyword_index"] = {
+            "rebuilding": refresher.rebuilding,
+            "refreshed_at": refresher.refreshed_at.isoformat(timespec="seconds") if refresher.refreshed_at else None,
+        }
+    return summary
+
+
+def process_memory_mb() -> float | None:
+    """This process's resident memory (RSS) in MB, from /proc on Linux (Render);
+    None where /proc isn't available (e.g. Windows)."""
+    try:
+        with open("/proc/self/status", encoding="ascii") as status:
+            for line in status:
+                if line.startswith("VmRSS:"):
+                    return round(int(line.split()[1]) / 1024, 1)  # reported in kB
+    except (OSError, ValueError, IndexError):
+        pass
+    return None
 
 
 def current_commit() -> str:
@@ -976,6 +1045,7 @@ async def health(request: Request) -> JSONResponse:
             "indexes_loaded": indexes_loaded,
             "db": db_status,
             "retriever": retriever_summary(state),
+            "memory_mb": process_memory_mb(),
         },
     )
 
@@ -1357,6 +1427,44 @@ async def query(
     return record_answer(db, caller, payload, str(response.content), prepared.sources, prepared.links)
 
 
+@app.post("/admin/reindex", status_code=202, dependencies=[Depends(verify_api_key)])
+@limiter.limit("6/minute")
+async def admin_reindex(
+    request: Request,
+    x_user_id: str | None = Header(default="", alias="X-User-Id"),
+    x_forwarded_for: str | None = Header(default="", alias="X-Forwarded-For"),
+    x_user_role: str | None = Header(default="", alias="X-User-Role"),
+) -> dict:
+    """Rebuild pgvector_bm25's in-memory keyword index from the store, in the
+    background (queries keep using the current index until it's swapped).
+    Admins only: APP_API_KEY plus X-User-Role: admin with a user id.
+    scripts/ingest.py calls this after a run. /health shows when it finished
+    (retriever.keyword_index.refreshed_at)."""
+    caller = resolve_caller(request, x_user_id, x_forwarded_for, x_user_role)
+    if not caller.is_admin:
+        raise HTTPException(status_code=403, detail="Admins only.")
+    refresher: KeywordIndexRefresher | None = getattr(request.app.state, "keyword_refresher", None)
+    if refresher is None:
+        raise HTTPException(
+            status_code=409,
+            detail=f"RETRIEVER_BACKEND={getattr(request.app.state, 'retriever_backend', None)} "
+            "has no in-memory keyword index to rebuild.",
+        )
+    started = refresher.start_rebuild()
+    logger.info("Keyword index rebuild requested by an admin (%s).", "started" if started else "already running")
+    return {
+        "status": "started" if started else "already running",
+        "chunks": (index_chunk_counts(request.app.state.retriever) or {}).get("vector"),
+    }
+
+
+# While the answer is being prepared (routing + retrieval) the stream sends an
+# SSE comment this often, and once straight away, so the Vercel function and
+# any proxy see bytes immediately and never wait on a silent connection.
+STREAM_KEEPALIVE_SECONDS = 5.0
+SSE_KEEPALIVE = ": keep-alive\n\n"
+
+
 def sse_event(event: str, data: dict) -> str:
     """One server-sent event: `event: <name>` plus a JSON `data:` line."""
     return f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
@@ -1390,8 +1498,11 @@ async def query_stream(
         event: done   data: <QueryResponse JSON>  sources, conversation_id, usage
         event: error  data: {"detail": "..."}     generation failed mid-answer
 
-    Refusals (bad key, too long, out of questions, retrieval failure) come
-    back as ordinary JSON errors before any streaming starts.
+    Refusals (bad key, too long, out of questions) come back as ordinary
+    JSON errors before any streaming starts. After that the response starts
+    at once with an SSE comment (": keep-alive", repeated every few seconds
+    while routing and retrieval run), so the first byte never waits for the
+    answer; a retrieval failure then arrives as an error event.
 
     The turn is logged and saved only after the answer is complete. If the
     client stops the stream early, the question still counts (the model was
@@ -1404,9 +1515,29 @@ async def query_stream(
         return refusal
 
     question = payload.messages[-1].content
-    prepared = await prepare_answer(question, payload.messages[:-1], retriever, chat_model)
 
     async def events():
+        yield SSE_KEEPALIVE
+        preparing = asyncio.create_task(prepare_answer(question, payload.messages[:-1], retriever, chat_model))
+        try:
+            while True:
+                done, _ = await asyncio.wait({preparing}, timeout=STREAM_KEEPALIVE_SECONDS)
+                if done:
+                    break
+                yield SSE_KEEPALIVE
+            prepared = preparing.result()
+        except HTTPException as exc:
+            yield sse_event("error", {"detail": exc.detail})
+            return
+        except Exception:  # noqa: BLE001 - headers are sent; report it in the stream
+            logger.exception("Preparing the answer failed for question=%r", question)
+            yield sse_event("error", {"detail": ANSWER_FAILED_DETAIL})
+            return
+        finally:
+            # The client went away while we were preparing.
+            if not preparing.done():
+                preparing.cancel()
+
         if prepared.fixed_answer is not None:
             yield sse_event("token", {"text": prepared.fixed_answer})
             response = record_answer(db, caller, payload, prepared.fixed_answer, prepared.sources, prepared.links)
