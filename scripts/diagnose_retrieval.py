@@ -21,7 +21,7 @@ from dotenv import load_dotenv  # noqa: E402
 
 load_dotenv(PROJECT_ROOT / ".env")
 
-from src.backend.keyword_retriever import content_words, query_tokens  # noqa: E402
+from src.backend.retrieval.keyword import content_words, query_tokens  # noqa: E402
 from src.backend.main import collect_unique_sources, describe_source, load_retriever  # noqa: E402
 
 SAMPLE_QUESTIONS = [
@@ -40,23 +40,22 @@ SAMPLE_QUESTIONS = [
 
 async def main() -> None:
     questions = sys.argv[1:] or SAMPLE_QUESTIONS
-    ensemble = load_retriever()
-    faiss_retriever, keyword = ensemble.retrievers
-    vectorstore = faiss_retriever.vectorstore
-    print(f"keyword retriever: {type(keyword).__name__}, k={keyword.k}, weights={ensemble.weights}\n")
+    retriever = load_retriever()
+    vector, keyword = retriever.vector, retriever.keyword
+    print(f"k={keyword.k}, fusion weights={retriever.weights}\n")
 
     for question in questions:
         print(f"=== {question!r}  content words: {content_words(question)}")
 
         tokens = set(query_tokens(question))
-        for doc in keyword.invoke(question):
+        for doc in keyword.search(question):
             matched = sorted(tokens & set(doc.page_content.split()))  # the index's own tokenizer
             print(f"  BM25  {describe_source(doc):<55} matched={matched}")
 
-        for doc, score in vectorstore.similarity_search_with_relevance_scores(question, k=keyword.k):
-            print(f"  FAISS {describe_source(doc):<55} relevance={score:.3f}")
+        for doc, distance in await vector.search_with_distances(question):
+            print(f"  FAISS {describe_source(doc):<55} relevance={vector.relevance(distance):.3f}")
 
-        documents = await ensemble.ainvoke(question)
+        documents = await retriever.ainvoke(question)
         print(f"  -> sources: {collect_unique_sources(documents)}\n")
 
 

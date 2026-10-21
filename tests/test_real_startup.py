@@ -12,10 +12,10 @@ import logging
 
 import pytest
 from fastapi.testclient import TestClient
-from langchain.retrievers import EnsembleRetriever
 
 import src.backend.main as backend
-from src.backend.keyword_retriever import KeywordBM25Retriever
+from src.backend.retrieval import HybridRetriever, Retriever
+from src.backend.retrieval.keyword import KeywordSearch
 from src.backend.main import BM25_INDEX_PATH, INDEX_DIR, app, index_chunk_counts
 
 
@@ -36,16 +36,17 @@ def test_real_startup_loads_both_indexes(monkeypatch, real_startup):
 
         assert health.status_code == 200
         assert health.json()["indexes_loaded"] is True
-        assert isinstance(retriever, EnsembleRetriever)
-        faiss_retriever, keyword = retriever.retrievers
-        assert isinstance(keyword, KeywordBM25Retriever)
+        assert isinstance(retriever, HybridRetriever)
+        assert isinstance(retriever, Retriever)
+        keyword = retriever.keyword
+        assert isinstance(keyword, KeywordSearch)
 
         counts = index_chunk_counts(retriever)
-        assert counts["faiss"] > 0
-        assert counts["faiss"] == counts["bm25"] == keyword.doc_count
+        assert counts["vector"] > 0
+        assert counts["vector"] == counts["keyword"] == keyword.size
 
         # Keyword search needs no embeddings call, so it can run here.
-        hits = keyword.invoke("What is baptism?")
+        hits = keyword.search("What is baptism?")
         assert hits and all("baptism" in doc.page_content.lower() for doc in hits)
 
 

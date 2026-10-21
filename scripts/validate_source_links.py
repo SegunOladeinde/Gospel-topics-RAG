@@ -20,7 +20,6 @@ Usage:
 """
 
 import argparse
-import pickle
 import random
 import sys
 import time
@@ -34,6 +33,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.backend.main import BM25_INDEX_PATH, describe_source  # noqa: E402
+from src.backend.retrieval.index_files import load_keyword_index  # noqa: E402
 from src.backend.source_links import COLLECTIONS, source_link  # noqa: E402
 
 RAW_DIR = PROJECT_ROOT / "data" / "raw"
@@ -42,9 +42,8 @@ USER_AGENT = "gospel-topics-rag source link validator"
 
 def load_source_ids() -> list[str]:
     """Every unique source id the API can return, i.e. one per indexed file."""
-    with open(BM25_INDEX_PATH, "rb") as bm25_file:
-        retriever = pickle.load(bm25_file)
-    return sorted({describe_source(document) for document in retriever.docs})
+    _, docs = load_keyword_index(BM25_INDEX_PATH)
+    return sorted({describe_source(document) for document in docs})
 
 
 def stored_url(source_id: str) -> str | None:

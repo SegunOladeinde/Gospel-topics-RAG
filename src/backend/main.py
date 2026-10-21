@@ -42,7 +42,6 @@ import json
 import logging
 import logging.config
 import os
-import pickle
 import re
 from collections import deque
 from collections.abc import AsyncIterator, Iterator
@@ -69,7 +68,7 @@ from src.backend.history import (
     list_conversations,
     save_turn,
 )
-from src.backend.keyword_retriever import KeywordBM25Retriever
+from src.backend.retrieval import Retriever, load_local_retriever
 from src.backend.source_links import SourceLink, source_link
 from src.backend.usage import Usage, get_usage
 from dataclasses import dataclass
@@ -111,13 +110,9 @@ if not os.getenv("OPENAI_API_KEY"):
     )
     raise RuntimeError("Missing required environment variable: OPENAI_API_KEY")
 
-from langchain.retrievers import EnsembleRetriever
-from langchain_community.retrievers import BM25Retriever
-from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_core.prompts import PromptTemplate
-from langchain_core.retrievers import BaseRetriever
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from pydantic import BaseModel, Field, computed_field
 
@@ -315,56 +310,25 @@ def _verify_bm25_hash(path: Path) -> None:
     logger.info("BM25 index integrity check passed.")
 
 
-def load_retriever() -> BaseRetriever:
-    """Load the FAISS and BM25 indexes from disk and combine them.
+def load_retriever() -> Retriever:
+    """Load the passage indexes from data/index/ (see src/backend/retrieval).
 
-    FAISS finds chunks that are *semantically* similar to the question
-    (e.g. it can match "sacred garments" to "temple clothing" even without
-    shared keywords). BM25 finds chunks that share *exact words* with the
-    question, which is great for names, titles, and specific terms that
-    embeddings sometimes blur together.
-
-    ``EnsembleRetriever`` runs both searches and merges/re-ranks their
-    results, giving us the best of both approaches for every query.
+    Semantic search over FAISS finds passages that *mean* the same as the
+    question (it can match "sacred garments" to "temple clothing" without
+    shared words); keyword search over BM25 finds exact names and terms that
+    embeddings can blur. Both run for every question and their rankings are
+    fused.
     """
     if not INDEX_DIR.exists():
         raise RuntimeError(
             f"Index directory not found at {INDEX_DIR}. "
             "Run `uv run scripts/ingest.py` first to build the indexes."
         )
-
-    # The FAISS index only stores vectors + text; it needs an embeddings
-    # object at load time so it can embed *new* incoming questions using the
-    # same model that was used to embed the stored chunks.
-    embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL, timeout=10.0)
-    vectorstore = FAISS.load_local(
-        str(INDEX_DIR),
-        embeddings,
-        # This flag is required by newer versions of LangChain before they
-        # will unpickle a FAISS index. It's safe here because this index
-        # was built by our own trusted scripts/ingest.py, not downloaded from the
-        # internet.
-        allow_dangerous_deserialization=True,
-    )
-    faiss_retriever = vectorstore.as_retriever(
-        search_kwargs={"k": CHUNKS_PER_RETRIEVER}
-    )
-
-    # The BM25 index was saved as a plain pickle file in scripts/ingest.py, so
-    # we load it back the same way.
     _verify_bm25_hash(BM25_INDEX_PATH)
-    with open(BM25_INDEX_PATH, "rb") as bm25_file:
-        bm25_index: BM25Retriever = pickle.load(bm25_file)
-    # Query it on content words only, and only keep real matches; see
-    # src/backend/keyword_retriever.py for why.
-    bm25_retriever = KeywordBM25Retriever(bm25=bm25_index, k=CHUNKS_PER_RETRIEVER)
-
-    # `weights` controls how much each retriever's ranking counts towards
-    # the final merged ranking. 0.5/0.5 means "trust them equally".
-    return EnsembleRetriever(
-        retrievers=[faiss_retriever, bm25_retriever],
-        weights=[0.5, 0.5],
-    )
+    # The embeddings client is created once here and reused for every
+    # question (it keeps its HTTP connection pool).
+    embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL, timeout=10.0)
+    return load_local_retriever(INDEX_DIR, embeddings, k=CHUNKS_PER_RETRIEVER)
 
 
 REQUIRED_ENV_VARS = ("OPENAI_API_KEY", "APP_API_KEY")
@@ -395,18 +359,14 @@ def log_startup_config() -> None:
             logger.warning("Required env var %s is not set.", name)
 
 
-def index_chunk_counts(retriever: BaseRetriever) -> dict[str, int] | None:
-    """Chunk counts of the loaded FAISS and BM25 indexes, for the startup log."""
-    if not isinstance(retriever, EnsembleRetriever):
-        return None
-    faiss_retriever, keyword_retriever = retriever.retrievers
-    return {
-        "faiss": faiss_retriever.vectorstore.index.ntotal,
-        "bm25": keyword_retriever.doc_count,
-    }
+def index_chunk_counts(retriever: Retriever) -> dict[str, int] | None:
+    """Passages per index ({"vector": ..., "keyword": ...}), for the startup log."""
+    if not isinstance(retriever, Retriever):
+        return None  # e.g. a test stub
+    return retriever.chunk_counts()
 
 
-def log_index_counts(retriever: BaseRetriever) -> None:
+def log_index_counts(retriever: Retriever) -> None:
     """Log the loaded chunk counts. Diagnostics only: any error is logged as
     a warning and startup carries on, since the indexes themselves loaded."""
     try:
@@ -415,9 +375,9 @@ def log_index_counts(retriever: BaseRetriever) -> None:
         logger.warning("Could not count the loaded index chunks.", exc_info=True)
         return
     if counts:
-        logger.info("Indexes loaded: FAISS %d chunks, BM25 %d chunks.", counts["faiss"], counts["bm25"])
-        if counts["faiss"] != counts["bm25"]:
-            logger.warning("FAISS and BM25 chunk counts differ -- the indexes may be out of sync.")
+        logger.info("Indexes loaded: %d vector chunks, %d keyword chunks.", counts["vector"], counts["keyword"])
+        if counts["vector"] != counts["keyword"]:
+            logger.warning("Vector and keyword chunk counts differ -- the indexes may be out of sync.")
 
 
 @asynccontextmanager
@@ -450,7 +410,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     logger.info("Shutting down: releasing in-memory indexes.")
 
 
-def get_retriever(request: Request) -> BaseRetriever:
+def get_retriever(request: Request) -> Retriever:
     return request.app.state.retriever
 
 
@@ -1170,7 +1130,7 @@ def admit_question(payload: QueryRequest, caller: Caller, db) -> JSONResponse | 
 async def prepare_answer(
     question: str,
     history: list[Message],
-    retriever: BaseRetriever,
+    retriever: Retriever,
     chat_model: ChatOpenAI,
 ) -> PreparedAnswer:
     """Everything up to generating the answer: route, retrieve, build the prompt.
@@ -1287,7 +1247,7 @@ async def query(
     x_user_id: str | None = Header(default="", alias="X-User-Id"),
     x_forwarded_for: str | None = Header(default="", alias="X-Forwarded-For"),
     x_user_role: str | None = Header(default="", alias="X-User-Role"),
-    retriever: BaseRetriever = Depends(get_retriever),
+    retriever: Retriever = Depends(get_retriever),
     chat_model: ChatOpenAI = Depends(get_chat_model),
     db = Depends(get_db),
 ) -> QueryResponse:
@@ -1343,7 +1303,7 @@ async def query_stream(
     x_user_id: str | None = Header(default="", alias="X-User-Id"),
     x_forwarded_for: str | None = Header(default="", alias="X-Forwarded-For"),
     x_user_role: str | None = Header(default="", alias="X-User-Role"),
-    retriever: BaseRetriever = Depends(get_retriever),
+    retriever: Retriever = Depends(get_retriever),
     chat_model: ChatOpenAI = Depends(get_chat_model),
     # scope="request" keeps the session open until the stream has finished,
     # so the turn can be saved after the last token.
