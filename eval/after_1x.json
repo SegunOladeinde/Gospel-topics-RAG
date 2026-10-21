@@ -1,0 +1,419 @@
+{
+  "versions": {
+    "langchain": null,
+    "langchain-core": "1.6.12",
+    "langchain-openai": "1.7.2",
+    "langchain-community": null,
+    "langchain-text-splitters": "1.1.3",
+    "openai": "3.35.1"
+  },
+  "runs_per_question": 2,
+  "results": [
+    {
+      "id": "doctrine-baptism",
+      "kind": "doctrine",
+      "question": "What is baptism?",
+      "intent": "RAG_NEW_TOPIC",
+      "sources": [
+        "topical_guide/baptism",
+        "bible_dictionary/baptism",
+        "topics_and_questions/baptism",
+        "topics_and_questions/baptism-study-guide",
+        "bible_dictionary/confirmation",
+        "topical_guide/baptism-immersion"
+      ],
+      "answer_chars": 1239,
+      "answer_preview": "Baptism is an essential ordinance in the gospel of Jesus Christ, representing a person's commitment to follow Him. It involves immersion in water, which symboli",
+      "error": null,
+      "intents_all_runs": [
+        "RAG_NEW_TOPIC",
+        "RAG_NEW_TOPIC"
+      ],
+      "steps_ms_median": {
+        "prepare_ms": 749,
+        "retrieval": 748,
+        "retrieval_wait_ms": 748,
+        "route_ms": 0
+      },
+      "prepare_ms_median": 750,
+      "ttft_ms_median": 2564,
+      "total_ms_median": 4958
+    },
+    {
+      "id": "doctrine-sacrament-purpose",
+      "kind": "doctrine",
+      "question": "What is the purpose of the sacrament?",
+      "intent": "RAG_NEW_TOPIC",
+      "sources": [
+        "topics_and_questions/sacrament-study-guide",
+        "topics_and_questions/sacrament",
+        "topics_and_questions/sacrament-meeting"
+      ],
+      "answer_chars": 1123,
+      "answer_preview": "The purpose of the sacrament is multifaceted and deeply significant for Church members. First and foremost, it serves as a priesthood ordinance where members pa",
+      "error": null,
+      "intents_all_runs": [
+        "RAG_NEW_TOPIC",
+        "RAG_NEW_TOPIC"
+      ],
+      "steps_ms_median": {
+        "prepare_ms": 490,
+        "retrieval": 490,
+        "retrieval_wait_ms": 490,
+        "route_ms": 0
+      },
+      "prepare_ms_median": 490,
+      "ttft_ms_median": 1566,
+      "total_ms_median": 3272
+    },
+    {
+      "id": "doctrine-moroni",
+      "kind": "doctrine",
+      "question": "Who was Moroni?",
+      "intent": "RAG_NEW_TOPIC",
+      "sources": [
+        "topics_and_questions/joseph-smiths-character",
+        "topics_and_questions/religion-vs-violence",
+        "topics_and_questions/abraham-book-of",
+        "topics_and_questions/book-of-mormon-and-dna-studies",
+        "topics_and_questions/restoration-of-the-church",
+        "topics_and_questions/scriptures",
+        "topics_and_questions/spiritual-gifts"
+      ],
+      "answer_chars": 1244,
+      "answer_preview": "Moroni was a significant figure in the early history of the Restoration of the gospel. He was an angel sent by the Lord who visited Joseph Smith on multiple occ",
+      "error": null,
+      "intents_all_runs": [
+        "RAG_NEW_TOPIC",
+        "RAG_NEW_TOPIC"
+      ],
+      "steps_ms_median": {
+        "prepare_ms": 699,
+        "retrieval": 698,
+        "retrieval_wait_ms": 698,
+        "route_ms": 0
+      },
+      "prepare_ms_median": 699,
+      "ttft_ms_median": 1694,
+      "total_ms_median": 3619
+    },
+    {
+      "id": "doctrine-after-death",
+      "kind": "doctrine",
+      "question": "What happens after we die?",
+      "intent": "RAG_NEW_TOPIC",
+      "sources": [
+        "topical_guide/life-after-death",
+        "topics_and_questions/spirit-world-study-guide",
+        "topics_and_questions/postmortality",
+        "topical_guide/die",
+        "topics_and_questions/heaven",
+        "topics_and_questions/grace",
+        "topical_guide/capital-punishment"
+      ],
+      "answer_chars": 1132,
+      "answer_preview": "After we die, our spirits go to the spirit world, where we await our resurrection. This is a place where spirits dwell, and it serves as a time for waiting, wor",
+      "error": null,
+      "intents_all_runs": [
+        "RAG_NEW_TOPIC",
+        "RAG_NEW_TOPIC"
+      ],
+      "steps_ms_median": {
+        "prepare_ms": 344,
+        "retrieval": 344,
+        "retrieval_wait_ms": 344,
+        "route_ms": 0
+      },
+      "prepare_ms_median": 344,
+      "ttft_ms_median": 1732,
+      "total_ms_median": 3412
+    },
+    {
+      "id": "doctrine-repentance-steps",
+      "kind": "doctrine",
+      "question": "List the steps of repentance",
+      "intent": "RAG_NEW_TOPIC",
+      "sources": [
+        "topics_and_questions/repentance-study-guide",
+        "topics_and_questions/repentance",
+        "bible_dictionary/repentance",
+        "topical_guide/repent"
+      ],
+      "answer_chars": 1009,
+      "answer_preview": "The steps of repentance include several important elements that guide us through the process of turning back to God. According to the Gospel Topics on Repentanc",
+      "error": null,
+      "intents_all_runs": [
+        "RAG_NEW_TOPIC",
+        "RAG_NEW_TOPIC"
+      ],
+      "steps_ms_median": {
+        "prepare_ms": 499,
+        "retrieval": 498,
+        "retrieval_wait_ms": 498,
+        "route_ms": 0
+      },
+      "prepare_ms_median": 500,
+      "ttft_ms_median": 1434,
+      "total_ms_median": 5079
+    },
+    {
+      "id": "doctrine-temples",
+      "kind": "doctrine",
+      "question": "Why do we build temples?",
+      "intent": "RAG_NEW_TOPIC",
+      "sources": [
+        "topics_and_questions/temples",
+        "topics_and_questions/church-financial-administration",
+        "topics_and_questions/temples-study-guide",
+        "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
+      ],
+      "answer_chars": 1250,
+      "answer_preview": "Temples are built because they are literally the house of the Lord and serve as holy places of worship where individuals can make sacred covenants with God. Thi",
+      "error": null,
+      "intents_all_runs": [
+        "RAG_NEW_TOPIC",
+        "RAG_NEW_TOPIC"
+      ],
+      "steps_ms_median": {
+        "prepare_ms": 365,
+        "retrieval": 365,
+        "retrieval_wait_ms": 365,
+        "route_ms": 0
+      },
+      "prepare_ms_median": 371,
+      "ttft_ms_median": 1230,
+      "total_ms_median": 3016
+    },
+    {
+      "id": "followup-faith",
+      "kind": "followup",
+      "question": "How can I increase it?",
+      "intent": "RAG_FOLLOWUP",
+      "sources": [
+        "topics_and_questions/faith-in-jesus-christ-study-guide",
+        "topics_and_questions/faith-in-jesus-christ",
+        "bible_dictionary/faith"
+      ],
+      "answer_chars": 1111,
+      "answer_preview": "Increasing your faith in Jesus Christ involves intentional effort and action. President Russell M. Nelson emphasized that while the Lord doesn’t require perfect",
+      "error": null,
+      "intents_all_runs": [
+        "RAG_FOLLOWUP",
+        "RAG_FOLLOWUP"
+      ],
+      "steps_ms_median": {
+        "prepare_ms": 1490,
+        "retrieval": 702,
+        "retrieval_wait_ms": 362,
+        "route_ms": 1128
+      },
+      "prepare_ms_median": 1490,
+      "ttft_ms_median": 2406,
+      "total_ms_median": 4162
+    },
+    {
+      "id": "followup-tithing",
+      "kind": "followup",
+      "question": "Why ten percent?",
+      "intent": "RAG_FOLLOWUP",
+      "sources": [
+        "topics_and_questions/tithing-study-guide",
+        "topical_guide/tithing",
+        "topics_and_questions/church-financial-administration",
+        "topics_and_questions/tithing",
+        "topical_guide/tenth"
+      ],
+      "answer_chars": 1309,
+      "answer_preview": "The principle of giving ten percent, or tithing, is rooted in the teachings found in both the Bible and the Book of Mormon. The Bible indicates that God’s peopl",
+      "error": null,
+      "intents_all_runs": [
+        "RAG_FOLLOWUP",
+        "RAG_FOLLOWUP"
+      ],
+      "steps_ms_median": {
+        "prepare_ms": 1988,
+        "retrieval": 726,
+        "retrieval_wait_ms": 392,
+        "route_ms": 1596
+      },
+      "prepare_ms_median": 1988,
+      "ttft_ms_median": 2972,
+      "total_ms_median": 4846
+    },
+    {
+      "id": "followup-sacrament-scriptures",
+      "kind": "followup",
+      "question": "Can you share scriptures about that?",
+      "intent": "RAG_FOLLOWUP",
+      "sources": [
+        "topics_and_questions/sacrament",
+        "topical_guide/sacrament",
+        "topics_and_questions/sacrament-study-guide",
+        "topics_and_questions/missionary-work-study-guide",
+        "topics_and_questions/sacrament-meeting"
+      ],
+      "answer_chars": 1194,
+      "answer_preview": "Certainly! The sacrament is deeply rooted in scripture. For instance, during the Last Supper, Jesus took bread and said, \"Take, eat; this is my body,\" and then ",
+      "error": null,
+      "intents_all_runs": [
+        "RAG_FOLLOWUP",
+        "RAG_FOLLOWUP"
+      ],
+      "steps_ms_median": {
+        "prepare_ms": 1614,
+        "retrieval": 752,
+        "retrieval_wait_ms": 332,
+        "route_ms": 1282
+      },
+      "prepare_ms_median": 1614,
+      "ttft_ms_median": 2488,
+      "total_ms_median": 7180
+    },
+    {
+      "id": "chitchat-thanks",
+      "kind": "chitchat",
+      "question": "Thanks!",
+      "intent": "CHITCHAT",
+      "sources": [],
+      "answer_chars": 78,
+      "answer_preview": "You're very welcome! I'm glad to be here with you. How can I assist you today?",
+      "error": null,
+      "intents_all_runs": [
+        "CHITCHAT",
+        "CHITCHAT"
+      ],
+      "steps_ms_median": {
+        "route_ms": 0
+      },
+      "prepare_ms_median": 0,
+      "ttft_ms_median": 768,
+      "total_ms_median": 962
+    },
+    {
+      "id": "chitchat-hello",
+      "kind": "chitchat",
+      "question": "Hello there",
+      "intent": "CHITCHAT",
+      "sources": [],
+      "answer_chars": 59,
+      "answer_preview": "Hello! It's so nice to hear from you! How's your day going?",
+      "error": null,
+      "intents_all_runs": [
+        "CHITCHAT",
+        "CHITCHAT"
+      ],
+      "steps_ms_median": {
+        "route_ms": 0
+      },
+      "prepare_ms_median": 0,
+      "ttft_ms_median": 842,
+      "total_ms_median": 1044
+    },
+    {
+      "id": "chitchat-praise",
+      "kind": "chitchat",
+      "question": "Great answer, thank you so much!",
+      "intent": "CHITCHAT",
+      "sources": [],
+      "answer_chars": 114,
+      "answer_preview": "You're very welcome! I'm glad you liked it. If you have any more questions or thoughts to share, I'm here for you!",
+      "error": null,
+      "intents_all_runs": [
+        "CHITCHAT",
+        "CHITCHAT"
+      ],
+      "steps_ms_median": {
+        "route_ms": 0
+      },
+      "prepare_ms_median": 0,
+      "ttft_ms_median": 746,
+      "total_ms_median": 983
+    },
+    {
+      "id": "mixed-thanks-tithing",
+      "kind": "mixed",
+      "question": "Thanks! And what about tithing?",
+      "intent": "RAG_NEW_TOPIC",
+      "sources": [
+        "topics_and_questions/tithing",
+        "topics_and_questions/church-financial-administration",
+        "topical_guide/tithing",
+        "topics_and_questions/tithing-study-guide"
+      ],
+      "answer_chars": 1507,
+      "answer_preview": "Tithing is a significant principle in the gospel, and it has deep roots both anciently and in our modern-day practice. Essentially, tithing involves giving one-",
+      "error": null,
+      "intents_all_runs": [
+        "RAG_NEW_TOPIC",
+        "RAG_NEW_TOPIC"
+      ],
+      "steps_ms_median": {
+        "prepare_ms": 572,
+        "retrieval": 572,
+        "retrieval_wait_ms": 572,
+        "route_ms": 0
+      },
+      "prepare_ms_median": 573,
+      "ttft_ms_median": 1664,
+      "total_ms_median": 3994
+    },
+    {
+      "id": "mixed-grace-with-history",
+      "kind": "mixed",
+      "question": "Thanks, that helps. What does the Bible Dictionary say about grace?",
+      "intent": "RAG_FOLLOWUP",
+      "sources": [
+        "topics_and_questions/grace-study-guide",
+        "topical_guide/grace",
+        "bible_dictionary/introduction",
+        "bible_dictionary/grace"
+      ],
+      "answer_chars": 785,
+      "answer_preview": "The Bible Dictionary explains that grace is a divine means of help or strength given through the mercy and love of Jesus Christ. It emphasizes that it is throug",
+      "error": null,
+      "intents_all_runs": [
+        "RAG_FOLLOWUP",
+        "RAG_FOLLOWUP"
+      ],
+      "steps_ms_median": {
+        "prepare_ms": 1100,
+        "retrieval": 397,
+        "retrieval_wait_ms": 0,
+        "route_ms": 1100
+      },
+      "prepare_ms_median": 1100,
+      "ttft_ms_median": 1961,
+      "total_ms_median": 3278
+    },
+    {
+      "id": "long-priesthood-authority",
+      "kind": "long",
+      "question": "Why do Latter-day Saints believe that baptism must be performed by someone holding proper priesthood authority, and how does that relate to the Restoration, the ministry of John the Baptist, and the covenant we make to take upon ourselves the name of Jesus Christ, always remember Him and keep His commandments so that we may always have His Spirit with us? I would also like to understand how this authority was lost after the Apostles died and why it needed to be restored rather than simply continued by other churches.",
+      "intent": "RAG_NEW_TOPIC",
+      "sources": [
+        "topics_and_questions/restoration-of-the-priesthood-study-guide",
+        "topics_and_questions/restoration-of-the-priesthood",
+        "topics_and_questions/baptism-study-guide",
+        "topics_and_questions/restoration-of-the-church-study-guide",
+        "topics_and_questions/priesthood-keys-study-guide",
+        "topics_and_questions/sabbath-day-study-guide"
+      ],
+      "answer_chars": 2018,
+      "answer_preview": "Latter-day Saints believe that baptism must be performed by someone holding proper priesthood authority because this authority is essential for the ordinance to",
+      "error": null,
+      "intents_all_runs": [
+        "RAG_NEW_TOPIC",
+        "RAG_NEW_TOPIC"
+      ],
+      "steps_ms_median": {
+        "prepare_ms": 526,
+        "retrieval": 525,
+        "retrieval_wait_ms": 525,
+        "route_ms": 0
+      },
+      "prepare_ms_median": 526,
+      "ttft_ms_median": 1384,
+      "total_ms_median": 4865
+    }
+  ]
+}
