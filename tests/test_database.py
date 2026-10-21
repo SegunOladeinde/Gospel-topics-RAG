@@ -20,6 +20,7 @@ from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
 
 from src.backend.database import (
+    ChatConversation,
     UserQueryLog,
     add_missing_columns,
     engine_kwargs,
@@ -27,6 +28,7 @@ from src.backend.database import (
     init_db,
     normalize_database_url,
 )
+from src.backend.history import get_conversation, save_turn
 from src.backend.main import RATE_LIMIT_UNAVAILABLE_DETAIL, app, get_db
 
 VALID_KEY = "test-key"
@@ -230,5 +232,39 @@ def test_postgres_init_db_and_guest_rate_limit(monkeypatch):
     finally:
         with session_factory() as db:
             db.query(UserQueryLog).filter(UserQueryLog.user_identifier == guest_ip).delete()
+            db.commit()
+        engine.dispose()
+
+
+@pytest.mark.postgres
+@pytest.mark.skipif(
+    not os.getenv("TEST_DATABASE_URL"),
+    reason="set TEST_DATABASE_URL to run against a real Postgres",
+)
+def test_postgres_chat_history_tables_and_row_level_security(monkeypatch):
+    """The Postgres-only parts of init_db(): chat tables, is_admin, RLS."""
+    monkeypatch.setenv("DATABASE_URL", os.environ["TEST_DATABASE_URL"])
+    session_factory = init_db()
+    engine = session_factory.kw["bind"]
+    user_id = f"pytest-{uuid.uuid4().hex}"
+    try:
+        tables = set(inspect(engine).get_table_names())
+        assert {"user_query_logs", "chat_conversations", "chat_messages"} <= tables
+        assert "is_admin" in {c["name"] for c in inspect(engine).get_columns("user_query_logs")}
+        with engine.connect() as connection:
+            rls = dict(connection.execute(text(
+                "SELECT relname, relrowsecurity FROM pg_class "
+                "WHERE relname IN ('user_query_logs', 'chat_conversations', 'chat_messages')"
+            )).all())
+        assert rls == {"user_query_logs": True, "chat_conversations": True, "chat_messages": True}
+
+        with session_factory() as db:
+            conversation_id = save_turn(db, user_id, None, "What is faith?", "An answer.", ["topical_guide/faith"])
+            detail = get_conversation(db, user_id, conversation_id)
+        assert [m.role for m in detail.messages] == ["user", "assistant"]
+        assert detail.messages[1].sources == ["topical_guide/faith"]
+    finally:
+        with session_factory() as db:
+            db.query(ChatConversation).filter(ChatConversation.user_id == user_id).delete()
             db.commit()
         engine.dispose()
