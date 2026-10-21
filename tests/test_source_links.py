@@ -97,3 +97,22 @@ def test_query_response_includes_source_links():
         },
         {"id": "mystery/x", "label": "mystery/x", "url": None},
     ]
+
+
+def test_prompt_passages_are_labelled_with_readable_names():
+    """The model sees "Topical Guide: Faith", so its citations read naturally."""
+    from langchain_core.documents import Document
+
+    from src.backend.main import format_context
+
+    text = format_context([Document(page_content="Faith is...", metadata={"source": "topical_guide", "topic": "faith"})])
+    assert text.startswith("[Topical Guide: Faith]\n")
+    assert "topical_guide/faith" not in text
+
+
+def test_system_prompt_forbids_mentioning_the_context():
+    from src.backend.main import SYSTEM_PROMPT
+
+    assert "never mention" in SYSTEM_PROMPT
+    for phrase in ('"context"', '"documents"', '"sources provided"'):
+        assert phrase in SYSTEM_PROMPT

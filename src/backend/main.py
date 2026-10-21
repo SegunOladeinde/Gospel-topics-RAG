@@ -175,9 +175,15 @@ SYSTEM_PROMPT = (
     "who has studied LDS scriptures and Gospel Topics deeply. "
     "When the user asks follow-up questions, acknowledge what was said "
     "before and build naturally on the conversation. "
-    "Always ground your answers strictly in the context passages provided "
-    "in each message; if the context does not cover the question, say so "
-    "honestly rather than speculating. "
+    "Base every answer strictly on the reference passages that come with "
+    "each question, and don't add doctrine they don't support. If they "
+    "don't cover the question, say honestly that you don't have enough "
+    "to answer it well, rather than speculating. "
+    "Write as if you simply know the material: never mention the passages "
+    "themselves, the \"context\", \"documents\", \"sources provided\", or "
+    "\"the text above\". Instead, cite naturally by name when it helps, "
+    "e.g. \"The Bible Dictionary explains...\", \"In the Topical Guide "
+    "under Faith...\", or \"Gospel Topics notes...\". "
     "Occasionally (not every message) remind the user that personal "
     "prayer and the Holy Spirit are the ultimate witnesses of truth, "
     "and note that you are not an official resource of "
@@ -810,8 +816,10 @@ def format_context(documents: list[Document]) -> str:
     """
     blocks = []
     for document in documents:
-        source_label = describe_source(document)
-        blocks.append(f"[Source: {source_label}]\n{document.page_content}")
+        # The readable label ("Topical Guide: Faith"), so a natural citation
+        # names the source the way the UI's chips do, not "topical_guide/faith".
+        source_label = source_link(describe_source(document)).label
+        blocks.append(f"[{source_label}]\n{document.page_content}")
     return "\n\n---\n\n".join(blocks)
 
 
@@ -1279,10 +1287,12 @@ async def query(
     # Step 3 — Answer generation (shared by RAG_FOLLOWUP and RAG_NEW_TOPIC)
     # =========================================================================
     context_text = format_context(documents)
+    # The labels here are for the model only; the system prompt tells it
+    # never to refer to "passages" or "context" in its answer.
     user_prompt = (
-        f"Context:\n{context_text}\n\n"
+        f"Reference passages:\n{context_text}\n\n"
         f"Question: {question}\n\n"
-        "Answer the question using only the context above."
+        "Answer from these passages only, citing them naturally by name."
     )
     rag_messages = [
         SystemMessage(content=SYSTEM_PROMPT),
