@@ -57,6 +57,20 @@ def _make_stub_chat_model() -> MagicMock:
 # Session-scoped patch — runs once for the entire test session
 # ---------------------------------------------------------------------------
 
+_REAL: dict = {}
+
+
+@pytest.fixture
+def real_startup(monkeypatch):
+    """Undo the session-wide stubs for one test: the real load_retriever (and
+    so the real data/index files) and the real ChatOpenAI class. Creating
+    either makes no network call; nothing here talks to OpenAI."""
+    import src.backend.main as backend
+
+    monkeypatch.setattr(backend, "load_retriever", _REAL["load_retriever"])
+    monkeypatch.setattr(backend, "ChatOpenAI", _REAL["ChatOpenAI"])
+
+
 @pytest.fixture(autouse=True, scope="session")
 def _patch_lifespan_dependencies():
     """Intercept load_retriever and ChatOpenAI before lifespan fires.
@@ -67,6 +81,11 @@ def _patch_lifespan_dependencies():
     ``scope="session"`` means the patch is applied once and kept for the
     whole test run — avoiding repeated disk-check failures on every function.
     """
+    import src.backend.main as backend
+
+    # Kept for tests/test_real_startup.py, which runs startup for real.
+    _REAL["load_retriever"] = backend.load_retriever
+    _REAL["ChatOpenAI"] = backend.ChatOpenAI
     with (
         patch(
             "src.backend.main.load_retriever",
