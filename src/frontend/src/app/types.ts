@@ -12,3 +12,11 @@ export interface Message {
   sources?: string[];
   sourceLinks?: SourceLink[];
 }
+
+// One entry in the sidebar. saved=false for chats that only live in this tab
+// (guests, or a deployment without a database).
+export interface ConversationSummary {
+  id: string;
+  title: string;
+  saved: boolean;
+}

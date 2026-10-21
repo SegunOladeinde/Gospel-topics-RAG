@@ -3,11 +3,12 @@ import { useEffect, useRef } from "react";
 import { MessageBubble } from "./MessageBubble";
 import { SignInButton } from "@clerk/nextjs";
 import type { Message } from "../types";
+import { limitMessage, type ChatError } from "@/lib/usage";
 
 interface Props {
     messages: Message[];
     isLoading: boolean;
-    error: string | null;
+    error: ChatError | null;
 }
 
 function ThinkingBubble() {
@@ -48,9 +49,9 @@ export function ChatFeed({ messages, isLoading, error }: Props) {
           border-red-200/80 bg-red-50/80 text-red-700
           dark:bg-red-500/10 dark:border-red-500/20 dark:backdrop-blur-xl dark:text-red-400">
                     <span className="relative z-10 font-medium">
-                        {error === "GUEST_LIMIT_REACHED" ? (
+                        {error.code === "GUEST_LIMIT_REACHED" ? (
                             <div className="flex flex-col gap-3">
-                                <div>You have reached the guest limit of 1 question. To continue asking questions about the Gospel, please sign in.</div>
+                                <div>{limitMessage(error)}</div>
                                 <div>
                                     <SignInButton mode="modal">
                                         <button className="rounded-lg bg-[#7c6cfc] px-4 py-2 text-sm font-medium text-white transition-all hover:bg-[#9b8dff] hover:scale-[1.03] active:scale-95 shadow-sm">
@@ -59,10 +60,10 @@ export function ChatFeed({ messages, isLoading, error }: Props) {
                                     </SignInButton>
                                 </div>
                             </div>
-                        ) : error === "USER_LIMIT_REACHED" ? (
-                            "You have reached your daily limit of 7 questions. Please wait 24 hours before asking more."
+                        ) : error.code === "USER_LIMIT_REACHED" ? (
+                            limitMessage(error)
                         ) : (
-                            `⚠ ${error}`
+                            `⚠ ${error.message}`
                         )}
                     </span>
                 </div>
