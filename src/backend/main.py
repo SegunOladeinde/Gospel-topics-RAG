@@ -144,6 +144,14 @@ CHAT_MODEL = "gpt-4o-mini"
 # Deliberately kept separate from CHAT_MODEL so we can swap it independently.
 REWRITE_MODEL = "gpt-4o-mini"
 
+# Longest question we'll answer. The UI caps its input at the same length;
+# this is the server-side guarantee. (Message.content allows more because
+# replayed assistant answers can be longer.)
+MAX_QUESTION_CHARS = 2000
+QUESTION_TOO_LONG_DETAIL = (
+    f"That question is a bit long. Please keep it under {MAX_QUESTION_CHARS:,} characters."
+)
+
 # How many chunks each retriever should fetch before we merge and hand them
 # to the LLM. More chunks = more context, but also a bigger/slower prompt.
 CHUNKS_PER_RETRIEVER = 4
@@ -1158,6 +1166,10 @@ async def query(
        persona, with the full history in view.
     4. Return the answer along with which source documents were used.
     """
+    # Before the limit check, so an over-long question doesn't use one up.
+    if len(payload.messages[-1].content) > MAX_QUESTION_CHARS:
+        raise HTTPException(status_code=400, detail=QUESTION_TOO_LONG_DETAIL)
+
     caller = resolve_caller(request, x_user_id, x_forwarded_for, x_user_role)
 
     def _finish(answer: str, sources: list[str]) -> QueryResponse:
