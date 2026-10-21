@@ -1,6 +1,7 @@
 "use client";
 import ReactMarkdown from "react-markdown";
 import type { Message, SourceLink } from "../types";
+import { CopyButton } from "./CopyButton";
 
 interface Props {
     message: Message;
@@ -81,6 +82,12 @@ export function MessageBubble({ message }: Props) {
                                 </span>
                             )
                         )}
+                    </div>
+                )}
+
+                {!isUser && (
+                    <div className="relative z-10 mt-3 -mb-1.5 -mr-2 flex justify-end">
+                        <CopyButton text={message.content} />
                     </div>
                 )}
             </div>
