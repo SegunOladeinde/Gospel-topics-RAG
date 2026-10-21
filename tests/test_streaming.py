@@ -92,7 +92,7 @@ def _stream(client, question="What is faith?", *, user_id="", ip="", docs=(FAITH
         headers["X-User-Id"] = user_id
     if ip:
         headers["X-Forwarded-For"] = ip
-    with patch.object(backend, "classify_intent", new=AsyncMock(return_value="RAG_NEW_TOPIC")), \
+    with patch.object(backend, "route_question", new=AsyncMock(return_value=backend.RouteDecision("RAG_NEW_TOPIC", "test question"))), \
          patch.object(app.state, "retriever") as retriever, \
          patch.object(app.state, "chat_model", model or _model()):
         retriever.ainvoke = AsyncMock(return_value=list(docs))
@@ -180,7 +180,7 @@ async def test_stopping_early_counts_the_question_but_saves_nothing(db):
     })
     retriever = MagicMock()
     retriever.ainvoke = AsyncMock(return_value=[FAITH_DOC])
-    with patch.object(backend, "classify_intent", new=AsyncMock(return_value="RAG_NEW_TOPIC")):
+    with patch.object(backend, "route_question", new=AsyncMock(return_value=backend.RouteDecision("RAG_NEW_TOPIC", "test question"))):
         response = await backend.query_stream(
             request=request,
             payload=QueryRequest(messages=[{"role": "user", "content": "What is faith?"}]),
