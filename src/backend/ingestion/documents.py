@@ -7,7 +7,10 @@ from dataclasses import dataclass, replace
 from src.backend.ingestion.config import CollectionConfig
 
 # Bump to force every document to re-ingest when chunking/content rules change.
-CONTENT_VERSION = 1
+# 2: passages are cut from the raw file text unchanged (title and Source line
+# included), exactly like the FAISS index, so both backends search the same
+# passages and the FAISS embeddings can be reused.
+CONTENT_VERSION = 2
 
 
 @dataclass(frozen=True)
@@ -16,7 +19,7 @@ class SourceDocument:
     slug: str
     title: str
     url: str
-    text: str  # title + page text, what gets chunked
+    text: str  # the raw file text, what gets chunked
     sha256: str  # of the raw file plus the chunking settings
 
     @property
@@ -32,17 +35,17 @@ def _title_from_slug(slug: str) -> str:
 
 
 def parse_document(config: CollectionConfig, slug: str, raw: bytes) -> SourceDocument:
-    lines = raw.decode("utf-8").splitlines()
+    # Universal newlines, as Path.read_text does (the FAISS index was built
+    # from read_text, and some files have Windows line endings).
+    content = raw.decode("utf-8").replace("\r\n", "\n").replace("\r", "\n")
+    lines = content.splitlines()
     title = lines[0].strip() if config.title_source == "first_line" and lines and lines[0].strip() else ""
     title = title or _title_from_slug(slug)
 
-    body_start = 1 if config.title_source == "first_line" else 0
+    source_line = 1 if config.title_source == "first_line" else 0
     url = config.url_pattern.format(slug=slug)
-    if len(lines) > body_start and lines[body_start].startswith("Source:"):
-        if config.url_source == "source_line":
-            url = lines[body_start].removeprefix("Source:").strip() or url
-        body_start += 1
-    body = "\n".join(lines[body_start:]).strip()
+    if config.url_source == "source_line" and len(lines) > source_line and lines[source_line].startswith("Source:"):
+        url = lines[source_line].removeprefix("Source:").strip() or url
 
     settings = json.dumps(
         {"size": config.chunk_size, "overlap": config.chunk_overlap, "version": CONTENT_VERSION}, sort_keys=True
@@ -52,9 +55,9 @@ def parse_document(config: CollectionConfig, slug: str, raw: bytes) -> SourceDoc
         slug=slug,
         title=title,
         url=url,
-        # The title leads the text so the first passage says what it's about
-        # (the "Source:" line is dropped: a URL isn't useful to search).
-        text=f"{title}\n\n{body}" if body else title,
+        # Unchanged raw text: the same passages as the FAISS index (see
+        # CONTENT_VERSION). The title is its first line anyway.
+        text=content,
         sha256=hashlib.sha256(raw + settings.encode()).hexdigest(),
     )
 

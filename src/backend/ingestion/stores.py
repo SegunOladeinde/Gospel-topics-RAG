@@ -6,9 +6,11 @@ only have SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY. Both write the same
 rag_documents / rag_chunks rows (sql/004_rag_store.sql).
 """
 
+import time
 from collections.abc import Sequence
 
 import httpx
+import numpy as np
 from sqlalchemy import text
 
 from src.backend.ingestion.documents import SourceDocument
@@ -16,8 +18,14 @@ from src.backend.ingestion.pipeline import DocKey, StoredDocument
 
 
 def vector_literal(vector: Sequence[float]) -> str:
-    """pgvector's text format, e.g. "[0.1,0.2]" (works for vector and halfvec)."""
-    return "[" + ",".join(f"{x:.8g}" for x in vector) + "]"
+    """pgvector's text format for a halfvec column, e.g. "[0.1235,-0.0423]".
+
+    Each value is written as the shortest decimal that reads back as the same
+    float16, which is all halfvec keeps: about half the bytes of 8 significant
+    digits, and uploads are the slow part of an ingestion run.
+    """
+    halves = np.asarray(vector, dtype=np.float16)
+    return "[" + ",".join(np.format_float_positional(x, unique=True, trim="-") for x in halves) + "]"
 
 
 def _document_row(doc: SourceDocument, sha256: str, chunk_count: int) -> dict:
@@ -44,22 +52,26 @@ class SqlRagStore:
         return {(r.collection, r.slug): StoredDocument(r.id, r.content_sha256) for r in rows}
 
     def upsert_documents(self, documents, sha256, chunk_counts) -> dict[DocKey, int]:
-        ids = {}
+        # One statement per batch (arrays unnested), not one per document:
+        # far fewer round trips on a slow link.
+        rows = [_document_row(doc, sha256[doc.key], chunk_counts.get(doc.key, 0)) for doc in documents]
+        columns = {name: [row[name] for row in rows] for name in rows[0]} if rows else {}
+        if not rows:
+            return {}
         with self.session_factory() as db:
-            for doc in documents:
-                row = _document_row(doc, sha256[doc.key], chunk_counts.get(doc.key, 0))
-                ids[doc.key] = db.execute(
-                    text(
-                        "INSERT INTO rag_documents (collection, slug, title, url, content_sha256, chunk_count) "
-                        "VALUES (:collection, :slug, :title, :url, :content_sha256, :chunk_count) "
-                        "ON CONFLICT (collection, slug) DO UPDATE SET title = EXCLUDED.title, url = EXCLUDED.url, "
-                        "content_sha256 = EXCLUDED.content_sha256, chunk_count = EXCLUDED.chunk_count, "
-                        "updated_at = now() RETURNING id"
-                    ),
-                    row,
-                ).scalar_one()
+            returned = db.execute(
+                text(
+                    "INSERT INTO rag_documents (collection, slug, title, url, content_sha256, chunk_count) "
+                    "SELECT * FROM unnest(CAST(:collection AS TEXT[]), CAST(:slug AS TEXT[]), CAST(:title AS TEXT[]), "
+                    "CAST(:url AS TEXT[]), CAST(:content_sha256 AS TEXT[]), CAST(:chunk_count AS INTEGER[])) "
+                    "ON CONFLICT (collection, slug) DO UPDATE SET title = EXCLUDED.title, url = EXCLUDED.url, "
+                    "content_sha256 = EXCLUDED.content_sha256, chunk_count = EXCLUDED.chunk_count, "
+                    "updated_at = now() RETURNING id, collection, slug"
+                ),
+                columns,
+            ).all()
             db.commit()
-        return ids
+        return {(r.collection, r.slug): r.id for r in returned}
 
     def replace_chunks(self, document_ids, rows) -> None:
         with self.session_factory() as db:
@@ -88,10 +100,26 @@ class RestRagStore:
         self.client = client or httpx.Client(timeout=120)
         self.headers = {"apikey": service_key, "Authorization": f"Bearer {service_key}"}
 
-    def _request(self, method: str, path: str, **kwargs) -> httpx.Response:
-        response = self.client.request(method, f"{self.base}/{path}", headers=self.headers | kwargs.pop("headers", {}), **kwargs)
-        response.raise_for_status()
-        return response
+    def _request(self, method: str, path: str, attempts: int = 5, **kwargs) -> httpx.Response:
+        """One REST call, retried with backoff on dropped connections, timeouts,
+        429 and 5xx (all seen from Supabase during long runs). Every write here
+        is idempotent (upserts, delete-then-insert per batch), so retrying is safe."""
+        headers = self.headers | kwargs.pop("headers", {})
+        for attempt in range(1, attempts + 1):
+            try:
+                response = self.client.request(method, f"{self.base}/{path}", headers=headers, **kwargs)
+                if response.status_code != 429 and response.status_code < 500:
+                    response.raise_for_status()
+                    return response
+                error: Exception = httpx.HTTPStatusError(
+                    f"{response.status_code} from Supabase", request=response.request, response=response
+                )
+            except (httpx.TransportError, httpx.TimeoutException) as exc:
+                error = exc
+            if attempt == attempts:
+                raise error
+            time.sleep(min(2**attempt, 30))
+        raise AssertionError("unreachable")
 
     def existing_documents(self, collections: Sequence[str]) -> dict[DocKey, StoredDocument]:
         found, start, page = {}, 0, 1000

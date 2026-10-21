@@ -118,8 +118,8 @@ def test_parse_takes_the_real_title_and_url(tmp_path):
     doc = parse_document(cfg, "aaron-descendants-of", raw)
     assert doc.title == "Aaron, Descendants of"
     assert doc.url.endswith("/tg/aaron-descendants-of?lang=eng")
-    assert doc.text == "Aaron, Descendants of\n\nSee also Aaron."  # Source line dropped
-    assert "Source:" not in doc.text
+    # The passages are cut from the raw text unchanged, like the FAISS index.
+    assert doc.text == raw.decode("utf-8")
 
 
 def test_parse_falls_back_to_the_url_pattern_and_slug_title(tmp_path):
@@ -225,7 +225,7 @@ def test_passage_rows_carry_collection_and_order(tmp_path):
     rows = next(iter(store.chunks.values()))
     assert [r["chunk_index"] for r in rows] == list(range(len(rows)))
     assert {r["collection"] for r in rows} == {"topical_guide"}
-    assert rows[0]["content"].startswith("Faith")
+    assert rows[0]["content"].startswith("Faith\nSource:")
 
 
 def test_redirects_are_resolved_only_where_configured(tmp_path):
@@ -286,3 +286,57 @@ def test_count_tokens_uses_the_tokenizer():
         assert REAL_COUNT_TOKENS(["hello world"], "cl100k_base") == 2
     except Exception as exc:  # noqa: BLE001 - tiktoken downloads its table on first use
         pytest.skip(f"tiktoken tokenizer unavailable offline: {exc}")
+
+
+def test_windows_line_endings_are_normalised_like_read_text(tmp_path):
+    """The FAISS index was built from read_text (universal newlines); match it."""
+    cfg = collection(tmp_path)
+    unix = parse_document(cfg, "faith", b"Faith\nSource: https://www.churchofjesuschrist.org/x\n\nText.")
+    windows = parse_document(cfg, "faith", b"Faith\r\nSource: https://www.churchofjesuschrist.org/x\r\n\r\nText.")
+    assert windows.text == unix.text
+    assert windows.url == unix.url
+
+
+def test_rest_store_retries_dropped_connections(monkeypatch):
+    import httpx
+
+    from src.backend.ingestion import stores
+
+    monkeypatch.setattr(stores.time, "sleep", lambda s: None)
+    calls = {"n": 0}
+
+    def handler(request):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise httpx.RemoteProtocolError("Server disconnected without sending a response.")
+        if calls["n"] == 2:
+            return httpx.Response(503)
+        return httpx.Response(200, json=[])
+
+    store = stores.RestRagStore("https://example.supabase.co", "k",
+                                client=httpx.Client(transport=httpx.MockTransport(handler)))
+    assert store.existing_documents(["topical_guide"]) == {}
+    assert calls["n"] == 3
+
+
+def test_rest_store_does_not_retry_client_errors(monkeypatch):
+    import httpx
+
+    from src.backend.ingestion import stores
+
+    monkeypatch.setattr(stores.time, "sleep", lambda s: None)
+    store = stores.RestRagStore("https://example.supabase.co", "k",
+                                client=httpx.Client(transport=httpx.MockTransport(lambda r: httpx.Response(400))))
+    with pytest.raises(httpx.HTTPStatusError):
+        store.existing_documents(["topical_guide"])
+
+
+def test_max_documents_caps_a_run_and_the_next_run_continues(tmp_path):
+    cfg = collection(tmp_path)
+    for slug in ("a", "b", "c"):
+        write(cfg, slug, slug.upper(), f"About {slug}.")
+    store = FakeStore()
+    first = run_ingestion(ingest_config(cfg), docs_for(cfg), store, FakeEmbedder(), dry_run=False, max_documents=2)
+    assert first.new == 2 and len(store.documents) == 2
+    second = run_ingestion(ingest_config(cfg), docs_for(cfg), store, FakeEmbedder(), dry_run=False, max_documents=2)
+    assert (second.new, second.unchanged) == (1, 2) and len(store.documents) == 3

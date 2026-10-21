@@ -46,7 +46,7 @@ def engine_kwargs(url: str) -> dict:
         "pool_recycle": 1800,
         # Give up on an unreachable database after 5s instead of the OS TCP
         # timeout, so /health and the rate-limit check can't hang on it.
-        "connect_args": {"connect_timeout": 5},
+        "connect_args": {"connect_timeout": int(os.getenv("DB_CONNECT_TIMEOUT", "5"))},
     }
     if make_url(url).port == SUPABASE_TRANSACTION_POOLER_PORT:
         # The transaction pooler hands each transaction to whichever server

@@ -54,6 +54,18 @@ def make_store(kind: str):
     sys.exit("Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY, or DATABASE_URL, in .env")
 
 
+def load_known_embeddings() -> dict[str, list[float]]:
+    """Passage text -> embedding, from the FAISS index (same model, same passages)."""
+    from src.backend.retrieval.index_files import load_vector_index
+
+    index_dir = PROJECT_ROOT / "data" / "index"
+    if not (index_dir / "index.faiss").exists():
+        return {}
+    index, docs = load_vector_index(index_dir)
+    vectors = index.reconstruct_n(0, index.ntotal)
+    return {doc.page_content: vector.tolist() for doc, vector in zip(docs, vectors)}
+
+
 class RedirectResolver:
     """Follows a page's redirects (at most 2 requests a second) to store its final URL.
 
@@ -92,6 +104,10 @@ def main() -> None:
     parser.add_argument("--collection", action="append", help="only this collection (repeatable)")
     parser.add_argument("--max-cost", type=float, default=1.0, help="refuse a real run estimated above this (USD)")
     parser.add_argument("--approve-cost", action="store_true", help="allow a real run above --max-cost")
+    parser.add_argument("--reuse-embeddings", action=argparse.BooleanOptionalAction, default=True,
+                        help="take embeddings for identical passages from data/index/ (default on)")
+    parser.add_argument("--max-docs", type=int, default=None,
+                        help="ingest at most this many new/changed documents per run (resume with the next run)")
     parser.add_argument("--store", choices=["auto", "rest", "sql"], default="auto",
                         help="auto = REST if the Supabase keys are set, else DATABASE_URL")
     args = parser.parse_args()
@@ -108,7 +124,11 @@ def main() -> None:
     store_name, store = make_store(args.store)
     print(f"store: {store_name}; collections: {', '.join(c.name for c in config.collections)}")
 
-    report = run_ingestion(config, documents, store, embed=None, dry_run=True)
+    known = load_known_embeddings() if args.reuse_embeddings else {}
+    if known:
+        print(f"reusing embeddings for {len(known):,} passages from data/index/")
+    report = run_ingestion(config, documents, store, embed=None, dry_run=True,
+                           already_embedded=known.__contains__, max_documents=args.max_docs)
     print(
         f"documents on disk: {report.documents_on_disk} | new {report.new}, changed {report.changed}, "
         f"unchanged {report.unchanged}, removed {report.removed}\n"
@@ -127,11 +147,18 @@ def main() -> None:
     from langchain_openai import OpenAIEmbeddings
 
     embeddings = OpenAIEmbeddings(model=config.embedding_model, max_retries=2)
+
+    def embed(texts: list[str]) -> list[list[float]]:
+        missing = [t for t in texts if t not in known]
+        fresh = dict(zip(missing, embeddings.embed_documents(missing))) if missing else {}
+        return [known[t] if t in known else fresh[t] for t in texts]
+
     with httpx.Client(follow_redirects=True, timeout=20, headers={"User-Agent": "gospel-topics-rag ingest"}) as client:
         resolver = RedirectResolver(client)
         started = time.monotonic()
-        report = run_ingestion(config, documents, store, embed=embeddings.embed_documents,
-                               dry_run=False, resolve_url=resolver)
+        report = run_ingestion(config, documents, store, embed=embed, dry_run=False,
+                               resolve_url=resolver, already_embedded=known.__contains__,
+                               max_documents=args.max_docs)
     print({k: v for k, v in asdict(report).items()})
     print(f"done in {time.monotonic() - started:.0f}s; pages whose URL moved: {resolver.moved}")
 

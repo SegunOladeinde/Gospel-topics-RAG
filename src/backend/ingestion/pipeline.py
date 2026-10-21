@@ -143,12 +143,22 @@ def run_ingestion(
     dry_run: bool,
     resolve_url: Callable[[SourceDocument], str] | None = None,
     write_batch_docs: int = 100,
+    already_embedded: Callable[[str], bool] | None = None,
+    max_documents: int | None = None,
 ) -> RunReport:
     configs = {c.name: c for c in config.collections}
     stored = store.existing_documents([c.name for c in config.collections])
     plan = plan_run(documents, stored)
+    # Optionally cap one run (removals are always done in full); the next run
+    # carries on with the rest, since finished documents count as unchanged.
+    if max_documents is not None:
+        limited = plan.to_ingest[:max_documents]
+        plan.new = [d for d in plan.new if d in limited]
+        plan.changed = [d for d in plan.changed if d in limited]
     chunks = chunk_documents(plan.to_ingest, configs)
-    tokens = count_tokens([c.content for c in chunks], config.tokenizer) if chunks else 0
+    # Passages whose embedding is already known (reused) cost nothing.
+    to_pay = [c.content for c in chunks if not (already_embedded and already_embedded(c.content))]
+    tokens = count_tokens(to_pay, config.tokenizer) if to_pay else 0
     report = RunReport(
         documents_on_disk=len(documents),
         new=len(plan.new),
