@@ -8,7 +8,7 @@ interface Props {
 
 export function ChatHeader({ onToggleSidebar, collapsedView }: Props) {
     return (
-        <header className="sticky top-0 z-10 flex min-h-[56px] items-center gap-3 px-4 py-3
+        <header className="sticky top-0 z-10 flex min-h-[56px] items-center gap-2 py-3 pl-3 pr-[150px] sm:gap-3 sm:pl-4 sm:pr-[200px] md:pr-[220px]
       border-b border-white/60 bg-white/30 backdrop-blur-xl shadow-[0_4px_24px_rgb(0,0,0,0.02)]
       dark:bg-white/[0.02] dark:backdrop-blur-2xl dark:border-white/[0.05]">
 
@@ -39,12 +39,12 @@ export function ChatHeader({ onToggleSidebar, collapsedView }: Props) {
             )}
 
             {/* ── Logo / title ── always visible so mobile header isn't bare */}
-            <div className={`flex items-center gap-2.5 transition-opacity duration-300 ${collapsedView || collapsedView === undefined ? "opacity-100" : "opacity-0 hidden"}`}>
-                <div className="flex h-6 w-6 items-center justify-center rounded-md bg-[#7c6cfc]/15">
+            <div className={`flex min-w-0 items-center gap-2 sm:gap-2.5 transition-opacity duration-300 ${collapsedView || collapsedView === undefined ? "opacity-100" : "opacity-0 hidden"}`}>
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[#7c6cfc]/15">
                     <BookOpen size={13} className="text-[#7c6cfc]" />
                 </div>
-                <div className="flex flex-col leading-tight">
-                    <span className="text-sm font-semibold text-slate-800 dark:text-neutral-100">
+                <div className="flex min-w-0 flex-col leading-tight">
+                    <span className="truncate text-sm font-semibold text-slate-800 dark:text-neutral-100">
                         Gospel RAG
                     </span>
                 </div>
