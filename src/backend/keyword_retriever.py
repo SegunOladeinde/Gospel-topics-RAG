@@ -76,3 +76,8 @@ class KeywordBM25Retriever(BaseRetriever):
         scores = self.bm25.vectorizer.get_scores(tokens)
         ranked = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)
         return [self.bm25.docs[i] for i in ranked[: self.k] if scores[i] > 0]
+
+    @property
+    def doc_count(self) -> int:
+        """Number of chunks in the underlying BM25 index (for the startup log)."""
+        return len(self.bm25.docs)
