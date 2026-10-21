@@ -7,9 +7,11 @@ interface Props {
     onChange: (val: string) => void;
     onSubmit: (question: string) => void;
     isLoading: boolean;
+    // Remaining-questions text under the box; null shows nothing.
+    usageText?: string | null;
 }
 
-export function ChatInput({ value, onChange, onSubmit, isLoading }: Props) {
+export function ChatInput({ value, onChange, onSubmit, isLoading, usageText }: Props) {
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const trimmed = value.trim();
@@ -44,6 +46,14 @@ export function ChatInput({ value, onChange, onSubmit, isLoading }: Props) {
                     <Send size={15} className="-ml-0.5" />
                 </button>
             </form>
+            {usageText && (
+                <p
+                    aria-live="polite"
+                    className="mx-auto mt-2 w-full max-w-full md:max-w-2xl lg:max-w-3xl px-1 text-center text-xs text-slate-500 dark:text-neutral-500"
+                >
+                    {usageText}
+                </p>
+            )}
         </div>
     );
 }

@@ -1,6 +1,7 @@
 "use client";
 import { BookOpen, MessageSquarePlus, X, ChevronLeft } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
+import type { ConversationSummary } from "../types";
 
 interface Props {
     isOpen: boolean;
@@ -8,12 +9,16 @@ interface Props {
     onToggleCollapse: () => void;
     onClose: () => void;
     onNewChat: () => void;
-    firstMessage?: string;
+    conversations: ConversationSummary[];
+    activeConversationId: string | null;
+    onSelectConversation: (id: string) => void;
+    isSignedIn: boolean;
     isMobile: boolean;
 }
 
 export function Sidebar({
-    isOpen, isCollapsed, onToggleCollapse, onClose, onNewChat, firstMessage, isMobile
+    isOpen, isCollapsed, onToggleCollapse, onClose, onNewChat,
+    conversations, activeConversationId, onSelectConversation, isSignedIn, isMobile
 }: Props) {
 
     const widthClass = (!isMobile && isCollapsed) ? "w-[68px]" : "w-64";
@@ -68,12 +73,38 @@ export function Sidebar({
 
             <nav className={`flex-1 overflow-y-auto px-3 py-2 transition-opacity duration-200 ${isCollapsed ? "opacity-0 invisible" : "opacity-100 visible"}`}>
                 <p className="mb-2 px-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-neutral-500">Recent</p>
-                {firstMessage ? (
-                    <div className="rounded-lg px-2.5 py-2 text-sm text-slate-700 transition-colors hover:bg-white/50 dark:text-neutral-300 dark:hover:bg-white/[0.05]">
-                        <p className="truncate">{firstMessage}</p>
-                    </div>
+                {conversations.length > 0 ? (
+                    <ul className="space-y-0.5">
+                        {conversations.map((conversation) => {
+                            const isActive = conversation.id === activeConversationId;
+                            return (
+                                <li key={conversation.id}>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            onSelectConversation(conversation.id);
+                                            if (isMobile) onClose();
+                                        }}
+                                        aria-current={isActive ? "page" : undefined}
+                                        title={conversation.title}
+                                        className={`w-full rounded-lg px-2.5 py-2 text-left text-sm transition-colors
+                                            ${isActive
+                                                ? "bg-white/60 text-slate-900 dark:bg-white/[0.08] dark:text-white"
+                                                : "text-slate-700 hover:bg-white/50 dark:text-neutral-300 dark:hover:bg-white/[0.05]"}`}
+                                    >
+                                        <p className="truncate">{conversation.title}</p>
+                                    </button>
+                                </li>
+                            );
+                        })}
+                    </ul>
                 ) : (
                     <p className="px-2.5 text-sm text-slate-500 dark:text-neutral-600">No conversations yet</p>
+                )}
+                {!isSignedIn && (
+                    <p className="mt-3 px-2.5 text-[11px] leading-relaxed text-slate-500 dark:text-neutral-500">
+                        Sign in to save your chats.
+                    </p>
                 )}
             </nav>
 

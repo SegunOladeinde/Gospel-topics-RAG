@@ -7,6 +7,7 @@ import { ChatHeader } from "./components/ChatHeader";
 import { BentoWelcomeGrid } from "./components/BentoWelcomeGrid";
 import { ChatFeed } from "./components/ChatFeed";
 import { ChatInput } from "./components/ChatInput";
+import { usageLabel } from "@/lib/usage";
 
 const MOBILE_BREAKPOINT = "(max-width: 767px)";
 
@@ -25,8 +26,10 @@ function useIsMobile() {
 }
 
 export default function Home() {
-  const { messages, input, setInput, isLoading, error, sendQuestion, handleNewChat } =
-    useChat();
+  const {
+    messages, input, setInput, isLoading, isLoadingConversation, error, usage,
+    conversations, conversationId, isSignedIn, sendQuestion, handleNewChat, selectConversation,
+  } = useChat();
 
   const isMobile = useIsMobile();
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -45,7 +48,6 @@ export default function Home() {
   };
 
   const closeMobileSidebar = () => setIsMobileSidebarOpen(false);
-  const firstUserMessage = messages.find((m) => m.role === "user")?.content;
 
   return (
     <div className="flex h-dvh w-full overflow-hidden">
@@ -65,7 +67,10 @@ export default function Home() {
         isCollapsed={!isMobile && isSidebarCollapsed}
         onToggleCollapse={toggleSidebar}
         onNewChat={handleNewChat}
-        firstMessage={firstUserMessage}
+        conversations={conversations}
+        activeConversationId={conversationId}
+        onSelectConversation={selectConversation}
+        isSignedIn={isSignedIn}
         isMobile={isMobile}
       />
 
@@ -76,10 +81,14 @@ export default function Home() {
         {isMobile && <ChatHeader onToggleSidebar={toggleSidebar} />}
 
         <div className="flex-1 overflow-y-auto">
-          {messages.length === 0 ? (
+          {messages.length === 0 && !isLoadingConversation && !error ? (
             <BentoWelcomeGrid onSelect={sendQuestion} disabled={isLoading} />
           ) : (
-            <ChatFeed messages={messages} isLoading={isLoading} error={error} />
+            <ChatFeed
+              messages={messages}
+              isLoading={isLoading || isLoadingConversation}
+              error={error}
+            />
           )}
         </div>
 
@@ -87,7 +96,8 @@ export default function Home() {
           value={input}
           onChange={setInput}
           onSubmit={sendQuestion}
-          isLoading={isLoading}
+          isLoading={isLoading || isLoadingConversation}
+          usageText={usageLabel(usage)}
         />
       </main>
     </div>

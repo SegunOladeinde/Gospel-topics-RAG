@@ -54,6 +54,17 @@ On startup the backend creates the `user_query_logs` table if it doesn't exist. 
 
 The backend also adds the `is_admin` column at startup if it's missing; [`sql/002_add_is_admin_to_user_query_logs.sql`](sql/002_add_is_admin_to_user_query_logs.sql) does the same by hand.
 
+Signed-in users' chats are saved in `chat_conversations` and `chat_messages`, created at startup like the other table (or by hand with [`sql/003_create_chat_history.sql`](sql/003_create_chat_history.sql)). On Postgres the backend turns on row-level security for all three tables at startup. Guests' chats are never stored.
+
+### Limits and history at a glance
+| Who | Questions | Resets | Chat history |
+|---|---|---|---|
+| Guest (by IP) | 1 in total | never; signing in gives 7 a day | this browser tab only |
+| Signed in | 7 in any rolling 24 hours | a question frees up 24 hours after it was asked | saved, listed in the sidebar |
+| Admin (`ADMIN_EMAILS`) | unlimited | n/a | saved |
+
+`GET /api/v1/usage` returns the caller's allowance (`limit`, `used`, `remaining`, `reset_at`), and every answer includes the updated `usage`. A limit-reached 429 keeps its `detail` code (`GUEST_LIMIT_REACHED` / `USER_LIMIT_REACHED`) and adds `reset_at` and `usage`. `GET /api/v1/conversations` and `GET /api/v1/conversations/{id}` return the signed-in user's saved chats; a chat that belongs to someone else is a 404. All of them need the API key, so the browser reaches them through the Next.js routes `/api/usage` and `/api/conversations`.
+
 To run the Postgres integration test against a real database:
 
 ```bash

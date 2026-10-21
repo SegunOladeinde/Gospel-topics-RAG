@@ -60,8 +60,16 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response as StarletteResponse
 
 from src.backend.database import UserQueryLog, init_db
+from src.backend.history import (
+    ConversationDetail,
+    ConversationSummary,
+    get_conversation,
+    list_conversations,
+    save_turn,
+)
 from src.backend.source_links import SourceLink, source_link
-from datetime import datetime, timedelta, timezone
+from src.backend.usage import Usage, get_usage
+from dataclasses import dataclass
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
@@ -556,6 +564,11 @@ class QueryRequest(BaseModel):
         max_length=20,
         description="Full conversation history, oldest first. Last entry is the new question.",
     )
+    conversation_id: str | None = Field(
+        default=None,
+        max_length=64,
+        description="Saved conversation to append this turn to (signed-in users). Omit to start a new one.",
+    )
 
 
 class QueryResponse(BaseModel):
@@ -565,6 +578,15 @@ class QueryResponse(BaseModel):
     sources: list[str] = Field(
         default_factory=list,
         description="Names of the source documents the answer was grounded in.",
+    )
+
+    conversation_id: str | None = Field(
+        default=None,
+        description="The saved conversation this turn was added to; None for guests or without a database.",
+    )
+    usage: Usage | None = Field(
+        default=None,
+        description="The caller's question allowance after this question; None without a database.",
     )
 
     @computed_field(description="Each source with a readable label and its churchofjesuschrist.org URL.")
@@ -844,6 +866,131 @@ async def health(request: Request) -> JSONResponse:
     )
 
 
+@dataclass(frozen=True)
+class Caller:
+    """Who is asking, as vouched for by the Next.js server (see verify_api_key).
+
+    identifier is the Clerk user id for signed-in users and the client IP for
+    guests. is_admin comes from X-User-Role: admin, which the Next.js server
+    only sets for verified ADMIN_EMAILS; guests can never be admins.
+    """
+
+    identifier: str
+    is_guest: bool
+    is_admin: bool
+
+
+def resolve_caller(
+    request: Request, x_user_id: str | None, x_forwarded_for: str | None, x_user_role: str | None
+) -> Caller:
+    client_ip = request.client.host if request.client else "unknown"
+    if x_forwarded_for and x_forwarded_for != "unknown-ip":
+        client_ip = x_forwarded_for.split(",")[0].strip()
+    user_id = (x_user_id or "").strip()
+    is_guest = not user_id
+    return Caller(
+        identifier=client_ip if is_guest else user_id,
+        is_guest=is_guest,
+        is_admin=not is_guest and (x_user_role or "").strip().lower() == "admin",
+    )
+
+
+def limit_reached_response(usage: Usage) -> JSONResponse:
+    """429 with the same detail codes as before, plus when to try again."""
+    return JSONResponse(
+        status_code=429,
+        content={
+            "detail": "GUEST_LIMIT_REACHED" if usage.is_guest else "USER_LIMIT_REACHED",
+            "reset_at": usage.reset_at.isoformat() if usage.reset_at else None,
+            "usage": usage.model_dump(mode="json"),
+        },
+    )
+
+
+class UsageResponse(BaseModel):
+    usage: Usage | None = Field(description="None when there's no database, so no limits are enforced.")
+
+
+class ConversationListResponse(BaseModel):
+    conversations: list[ConversationSummary]
+
+
+@app.get("/api/v1/usage", response_model=UsageResponse, dependencies=[Depends(verify_api_key)])
+@limiter.limit("60/minute")
+async def usage(
+    request: Request,
+    x_user_id: str | None = Header(default="", alias="X-User-Id"),
+    x_forwarded_for: str | None = Header(default="", alias="X-Forwarded-For"),
+    x_user_role: str | None = Header(default="", alias="X-User-Role"),
+    db=Depends(get_db),
+) -> UsageResponse:
+    """How many questions the caller has left (for the remaining-questions
+    indicator). Same counting as the /api/v1/query limit check."""
+    if db is None:
+        return UsageResponse(usage=None)
+    caller = resolve_caller(request, x_user_id, x_forwarded_for, x_user_role)
+    try:
+        return UsageResponse(
+            usage=get_usage(db, caller.identifier, is_guest=caller.is_guest, is_admin=caller.is_admin)
+        )
+    except SQLAlchemyError:
+        rollback_quietly(db)
+        logger.exception("Failed to read usage")
+        return UsageResponse(usage=None)
+
+
+@app.get(
+    "/api/v1/conversations",
+    response_model=ConversationListResponse,
+    dependencies=[Depends(verify_api_key)],
+)
+@limiter.limit("60/minute")
+async def conversations(
+    request: Request,
+    x_user_id: str | None = Header(default="", alias="X-User-Id"),
+    db=Depends(get_db),
+) -> ConversationListResponse:
+    """The signed-in user's saved chats, most recently active first. Guests
+    (and deployments without a database) get an empty list."""
+    user_id = (x_user_id or "").strip()
+    if db is None or not user_id:
+        return ConversationListResponse(conversations=[])
+    try:
+        return ConversationListResponse(conversations=list_conversations(db, user_id))
+    except SQLAlchemyError as exc:
+        rollback_quietly(db)
+        logger.exception("Failed to list conversations")
+        raise HTTPException(status_code=503, detail="Chat history is unavailable right now.") from exc
+
+
+@app.get(
+    "/api/v1/conversations/{conversation_id}",
+    response_model=ConversationDetail,
+    dependencies=[Depends(verify_api_key)],
+)
+@limiter.limit("60/minute")
+async def conversation(
+    request: Request,
+    conversation_id: str,
+    x_user_id: str | None = Header(default="", alias="X-User-Id"),
+    db=Depends(get_db),
+) -> ConversationDetail:
+    """One of the signed-in user's saved chats with all its messages. 404 if
+    it doesn't exist or belongs to someone else (indistinguishable on purpose)."""
+    user_id = (x_user_id or "").strip()
+    if db is None or not user_id:
+        raise HTTPException(status_code=404, detail="Conversation not found.")
+    try:
+        detail = get_conversation(db, user_id, conversation_id)
+    except SQLAlchemyError as exc:
+        rollback_quietly(db)
+        logger.exception("Failed to load conversation")
+        raise HTTPException(status_code=503, detail="Chat history is unavailable right now.") from exc
+    if detail is None:
+        raise HTTPException(status_code=404, detail="Conversation not found.")
+    return detail
+
+
 @app.post(
     "/api/v1/query",
     response_model=QueryResponse,
@@ -881,63 +1028,54 @@ async def query(
        persona, with the full history in view.
     4. Return the answer along with which source documents were used.
     """
-    def _log_query():
-        """Insert a UserQueryLog entry if a DB session is available."""
-        if db is None:
-            return
-        try:
-            log_entry = UserQueryLog(
-                user_identifier=identifier,
-                is_guest=is_guest,
-                is_admin=is_admin,
-            )
-            db.add(log_entry)
-            db.commit()
-        except Exception as log_exc:
-            rollback_quietly(db)
-            logger.error("Failed to insert UserQueryLog", exc_info=log_exc)
+    caller = resolve_caller(request, x_user_id, x_forwarded_for, x_user_role)
+
+    def _finish(answer: str, sources: list[str]) -> QueryResponse:
+        """Log the query, save the turn to the user's history, and build the
+        response with their updated allowance. DB failures are logged, never
+        raised: the user already has their answer."""
+        conversation_id = None
+        usage = None
+        if db is not None:
+            try:
+                db.add(UserQueryLog(
+                    user_identifier=caller.identifier,
+                    is_guest=caller.is_guest,
+                    is_admin=caller.is_admin,
+                ))
+                db.commit()
+            except Exception as log_exc:  # noqa: BLE001
+                rollback_quietly(db)
+                logger.error("Failed to insert UserQueryLog", exc_info=log_exc)
+            if not caller.is_guest:
+                try:
+                    conversation_id = save_turn(
+                        db, caller.identifier, payload.conversation_id, question, answer, sources
+                    )
+                except SQLAlchemyError:
+                    rollback_quietly(db)
+                    logger.exception("Failed to save the chat turn")
+            try:
+                usage = get_usage(db, caller.identifier, is_guest=caller.is_guest, is_admin=caller.is_admin)
+            except SQLAlchemyError:
+                rollback_quietly(db)
+                logger.exception("Failed to read usage after answering")
+        return QueryResponse(answer=answer, sources=sources, conversation_id=conversation_id, usage=usage)
 
     if db is not None:
-        client_ip = request.client.host if request.client else "unknown"
-        if not x_forwarded_for and x_forwarded_for != "unknown-ip":
-            pass # Use client IP
-        if x_forwarded_for and x_forwarded_for != "unknown-ip":
-            client_ip = x_forwarded_for.split(",")[0].strip()
-            
-        user_id = x_user_id.strip()
-        is_guest = not bool(user_id)
-        identifier = client_ip if is_guest else user_id
-        is_admin = not is_guest and (x_user_role or "").strip().lower() == "admin"
-
-        # Rate limits logic
         try:
-            if is_admin:
-                pass  # Admins have no question limit; their queries are still logged.
-            elif is_guest:
-                count = db.query(UserQueryLog).filter(
-                    UserQueryLog.user_identifier == identifier,
-                    UserQueryLog.is_guest == True
-                ).count()
-                if count >= 1:
-                    raise HTTPException(status_code=429, detail="GUEST_LIMIT_REACHED")
-            else:
-                time_threshold = datetime.now(timezone.utc) - timedelta(hours=24)
-                count = db.query(UserQueryLog).filter(
-                    UserQueryLog.user_identifier == identifier,
-                    UserQueryLog.is_guest == False,
-                    UserQueryLog.is_admin == False,
-                    UserQueryLog.created_at >= time_threshold
-                ).count()
-                if count >= 7:
-                    raise HTTPException(status_code=429, detail="USER_LIMIT_REACHED")
+            usage = get_usage(db, caller.identifier, is_guest=caller.is_guest, is_admin=caller.is_admin)
         except SQLAlchemyError:
             # A database outage shouldn't take the whole Q&A service down
             # with it, so by default the question is answered unmetered
             # (fail-open). RATE_LIMIT_FAIL_CLOSED=true refuses it instead.
-            logger.exception("Rate-limit check failed for %s", "guest" if is_guest else "user")
+            logger.exception("Rate-limit check failed for %s", "guest" if caller.is_guest else "user")
             rollback_quietly(db)
             if rate_limit_fail_closed():
                 raise HTTPException(status_code=503, detail=RATE_LIMIT_UNAVAILABLE_DETAIL)
+        else:
+            if usage.remaining == 0:
+                return limit_reached_response(usage)
 
     question = payload.messages[-1].content
     history = payload.messages[:-1]
@@ -976,8 +1114,7 @@ async def query(
                 status_code=502,
                 detail="Failed to generate an answer. Please try again shortly.",
             ) from exc
-        _log_query()
-        return QueryResponse(answer=str(response.content), sources=[])
+        return _finish(str(response.content), [])
 
     # =========================================================================
     # Branch B — RAG_FOLLOWUP
@@ -1010,13 +1147,10 @@ async def query(
 
     if not documents:
         # No relevant material found — do not let the model hallucinate.
-        _log_query()
-        return QueryResponse(
-            answer=(
-                "I couldn't find anything in the available LDS source "
-                "material to answer that question."
-            ),
-            sources=[],
+        return _finish(
+            "I couldn't find anything in the available LDS source "
+            "material to answer that question.",
+            [],
         )
 
     # =========================================================================
@@ -1044,8 +1178,4 @@ async def query(
             detail="Failed to generate an answer. Please try again shortly.",
         ) from exc
 
-    _log_query()
-    return QueryResponse(
-        answer=str(response.content),
-        sources=collect_unique_sources(documents),
-    )
+    return _finish(str(response.content), collect_unique_sources(documents))
