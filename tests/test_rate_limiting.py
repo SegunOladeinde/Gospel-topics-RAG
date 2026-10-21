@@ -98,16 +98,18 @@ def _patch_rag():
     )
 
 
-def _send_query(client, *, user_id: str = "", forwarded_for: str = ""):
+def _send_query(client, *, user_id: str = "", forwarded_for: str = "", role: str = "", api_key: str = VALID_KEY):
     """Helper that sends a single POST to /api/v1/query with the given
     identity headers and fully mocked RAG pipeline."""
     import src.backend.main as backend
 
-    headers = _auth()
+    headers = {"X-API-Key": api_key}
     if user_id:
         headers["X-User-Id"] = user_id
     if forwarded_for:
         headers["X-Forwarded-For"] = forwarded_for
+    if role:
+        headers["X-User-Role"] = role
 
     payload = {"messages": [{"role": "user", "content": "What is faith?"}]}
 
@@ -299,3 +301,61 @@ class TestQueryLogInsertion:
             user_identifier="10.0.0.200"
         ).count()
         assert count == 1  # only the first successful request was logged
+
+
+# =====================================================================
+# Admin bypass (X-User-Role: admin, set by the Next.js server)
+# =====================================================================
+
+class TestAdminBypass:
+    """Admins skip the daily limit; everyone else keeps it."""
+
+    def test_admin_is_not_limited(self, client):
+        for i in range(12):
+            r = _send_query(client, user_id="admin_001", role="admin")
+            assert r.status_code == 200, f"Admin request {i+1} was limited"
+
+    def test_admin_queries_are_logged_with_flag(self, client, db_session):
+        _send_query(client, user_id="admin_002", role="admin")
+        entry = db_session.query(UserQueryLog).filter_by(user_identifier="admin_002").one()
+        assert entry.is_admin is True
+        assert entry.is_guest is False
+
+    def test_non_admin_user_is_still_limited(self, client, db_session):
+        for _ in range(7):
+            assert _send_query(client, user_id="user_100").status_code == 200
+        eighth = _send_query(client, user_id="user_100")
+        assert eighth.status_code == 429
+        assert eighth.json()["detail"] == "USER_LIMIT_REACHED"
+        assert db_session.query(UserQueryLog).filter_by(is_admin=True).count() == 0
+
+    @pytest.mark.parametrize(
+        ("role", "is_admin"),
+        [("Admin ", True), ("user", False), ("administrator", False), ("true", False)],
+    )
+    def test_only_the_admin_role_bypasses(self, client, role, is_admin):
+        user_id = f"user_role_{role.strip()}"
+        for _ in range(7):
+            _send_query(client, user_id=user_id, role=role)
+        eighth = _send_query(client, user_id=user_id, role=role)
+        assert (eighth.status_code == 200) is is_admin
+
+    def test_guest_cannot_be_admin(self, client):
+        """A role header without a signed-in user id never lifts the guest limit."""
+        _send_query(client, forwarded_for="10.9.9.9", role="admin")
+        second = _send_query(client, forwarded_for="10.9.9.9", role="admin")
+        assert second.status_code == 429
+        assert second.json()["detail"] == "GUEST_LIMIT_REACHED"
+
+    def test_role_header_without_valid_api_key_is_rejected(self, client):
+        r = _send_query(client, user_id="admin_003", role="admin", api_key="wrong-key")
+        assert r.status_code == 401
+
+    def test_admin_queries_do_not_use_up_the_daily_quota(self, client):
+        """If someone stops being an admin, their admin-era queries don't count."""
+        for _ in range(10):
+            _send_query(client, user_id="former_admin", role="admin")
+        for i in range(7):
+            r = _send_query(client, user_id="former_admin")
+            assert r.status_code == 200, f"Request {i+1} after losing admin was limited"
+        assert _send_query(client, user_id="former_admin").status_code == 429

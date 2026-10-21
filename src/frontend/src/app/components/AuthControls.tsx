@@ -14,7 +14,41 @@
  * CLERK_SECRET_KEY is never referenced here.
  */
 "use client";
-import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
+import { useEffect, useState } from "react";
+import { Show, SignInButton, SignUpButton, UserButton, useAuth } from "@clerk/nextjs";
+
+// Asks the server whether the signed-in user is an admin (ADMIN_EMAILS is
+// server-only). Display only: /api/query re-checks on every question.
+function AdminBadge() {
+    const { userId } = useAuth();
+    // Remember which user the answer was for, so a stale answer never shows
+    // after switching accounts.
+    const [adminUserId, setAdminUserId] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (!userId) return;
+        let cancelled = false;
+        fetch("/api/me")
+            .then((res) => (res.ok ? res.json() : null))
+            .then((data: { isAdmin?: boolean } | null) => {
+                if (!cancelled) setAdminUserId(data?.isAdmin ? userId : null);
+            })
+            .catch(() => {});
+        return () => {
+            cancelled = true;
+        };
+    }, [userId]);
+
+    if (!userId || adminUserId !== userId) return null;
+    return (
+        <span
+            className="rounded-lg border border-[#7c6cfc]/30 bg-[#7c6cfc]/10 backdrop-blur-md px-2.5 py-1 text-xs font-medium text-[#7c6cfc]
+              dark:text-[#a599ff] dark:border-[#7c6cfc]/40 dark:bg-[#7c6cfc]/20"
+        >
+            Admin · unlimited
+        </span>
+    );
+}
 
 export function AuthControls() {
     return (
@@ -48,6 +82,7 @@ export function AuthControls() {
 
             {/* Authenticated state — avatar opens Clerk's account portal */}
             <Show when="signed-in">
+                <AdminBadge />
                 <UserButton
                     appearance={{
                         elements: {

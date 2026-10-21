@@ -2,7 +2,7 @@ import logging
 import os
 from functools import lru_cache
 
-from sqlalchemy import create_engine, Column, String, Boolean, DateTime, Index
+from sqlalchemy import create_engine, Column, String, Boolean, DateTime, Index, false, inspect, text
 from sqlalchemy.engine import make_url
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import declarative_base, sessionmaker
@@ -83,7 +83,8 @@ class UserQueryLog(Base):
     __tablename__ = "user_query_logs"
     # Covers both rate-limit queries in main.py: guests filter on
     # (user_identifier, is_guest), signed-in users add created_at >= cutoff.
-    # Keep in sync with sql/001_create_user_query_logs.sql.
+    # Keep in sync with sql/001_create_user_query_logs.sql and
+    # sql/002_add_is_admin_to_user_query_logs.sql.
     __table_args__ = (
         Index("ix_user_query_logs_rate_limit", "user_identifier", "is_guest", "created_at"),
     )
@@ -92,6 +93,25 @@ class UserQueryLog(Base):
     user_identifier = Column(String, index=True, nullable=False)
     is_guest = Column(Boolean, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    # Admin queries are logged for visibility but never count toward a limit.
+    is_admin = Column(Boolean, nullable=False, default=False, server_default=false())
+
+
+def add_missing_columns(engine) -> None:
+    """Add columns introduced after user_query_logs was first created.
+
+    create_all() never alters a table that already exists, so a database set
+    up before a column was added needs it added here. Mirrors
+    sql/002_add_is_admin_to_user_query_logs.sql.
+    """
+    columns = {column["name"] for column in inspect(engine).get_columns("user_query_logs")}
+    if "is_admin" in columns:
+        return
+    with engine.begin() as connection:
+        connection.execute(
+            text("ALTER TABLE user_query_logs ADD COLUMN is_admin BOOLEAN NOT NULL DEFAULT false")
+        )
+    logger.info("Added is_admin column to user_query_logs.")
 
 
 def init_db() -> sessionmaker | None:
@@ -116,6 +136,7 @@ def init_db() -> sessionmaker | None:
         return None
     try:
         Base.metadata.create_all(bind=session_factory.kw["bind"])
+        add_missing_columns(session_factory.kw["bind"])
         logger.info("Database ready: user_query_logs table exists.")
     except SQLAlchemyError:
         logger.exception(

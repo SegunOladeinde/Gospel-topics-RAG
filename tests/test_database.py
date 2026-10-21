@@ -15,12 +15,13 @@ from unittest.mock import MagicMock
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import inspect
+from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
 
 from src.backend.database import (
     UserQueryLog,
+    add_missing_columns,
     engine_kwargs,
     get_session_factory,
     init_db,
@@ -112,6 +113,30 @@ def test_init_db_creates_table_and_is_idempotent(monkeypatch, tmp_path):
         assert "user_query_logs" in inspector.get_table_names()
         index_names = {ix["name"] for ix in inspector.get_indexes("user_query_logs")}
         assert "ix_user_query_logs_rate_limit" in index_names
+    finally:
+        engine.dispose()
+
+
+def test_init_db_adds_is_admin_to_an_existing_table(monkeypatch, tmp_path):
+    """A table created before is_admin existed gets the column at startup."""
+    db_path = tmp_path / "old.db"
+    old_engine = create_engine(f"sqlite:///{db_path}")
+    with old_engine.begin() as connection:
+        connection.execute(text(
+            "CREATE TABLE user_query_logs (id VARCHAR PRIMARY KEY, "
+            "user_identifier VARCHAR NOT NULL, is_guest BOOLEAN NOT NULL, created_at TIMESTAMP)"
+        ))
+        connection.execute(text("INSERT INTO user_query_logs VALUES ('a', 'u1', 0, NULL)"))
+    old_engine.dispose()
+
+    monkeypatch.setenv("DATABASE_URL", f"sqlite:///{db_path}")
+    engine = init_db().kw["bind"]
+    try:
+        columns = {c["name"] for c in inspect(engine).get_columns("user_query_logs")}
+        assert "is_admin" in columns
+        with engine.connect() as connection:
+            assert connection.execute(text("SELECT is_admin FROM user_query_logs")).scalar() in (0, False)
+        add_missing_columns(engine)  # idempotent
     finally:
         engine.dispose()
 

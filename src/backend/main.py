@@ -855,6 +855,7 @@ async def query(
     payload: QueryRequest,
     x_user_id: str | None = Header(default="", alias="X-User-Id"),
     x_forwarded_for: str | None = Header(default="", alias="X-Forwarded-For"),
+    x_user_role: str | None = Header(default="", alias="X-User-Role"),
     retriever: BaseRetriever = Depends(get_retriever),
     chat_model: ChatOpenAI = Depends(get_chat_model),
     db = Depends(get_db),
@@ -864,6 +865,12 @@ async def query(
 
     Requires a valid X-API-Key header (see verify_api_key) and is capped at
     10 requests/minute per client IP (see the `limiter` set up above).
+
+    X-User-Role: admin skips the daily question limit. It's only honoured
+    because verify_api_key has already passed: the key lives on the Next.js
+    server, which sets the header itself after checking the signed-in user's
+    verified emails against ADMIN_EMAILS, and never forwards one from the
+    browser. Guests can't be admins.
 
     Flow:
     1. Use the combined FAISS + BM25 retriever to fetch the most relevant
@@ -882,6 +889,7 @@ async def query(
             log_entry = UserQueryLog(
                 user_identifier=identifier,
                 is_guest=is_guest,
+                is_admin=is_admin,
             )
             db.add(log_entry)
             db.commit()
@@ -899,10 +907,13 @@ async def query(
         user_id = x_user_id.strip()
         is_guest = not bool(user_id)
         identifier = client_ip if is_guest else user_id
+        is_admin = not is_guest and (x_user_role or "").strip().lower() == "admin"
 
         # Rate limits logic
         try:
-            if is_guest:
+            if is_admin:
+                pass  # Admins have no question limit; their queries are still logged.
+            elif is_guest:
                 count = db.query(UserQueryLog).filter(
                     UserQueryLog.user_identifier == identifier,
                     UserQueryLog.is_guest == True
@@ -914,6 +925,7 @@ async def query(
                 count = db.query(UserQueryLog).filter(
                     UserQueryLog.user_identifier == identifier,
                     UserQueryLog.is_guest == False,
+                    UserQueryLog.is_admin == False,
                     UserQueryLog.created_at >= time_threshold
                 ).count()
                 if count >= 7:
