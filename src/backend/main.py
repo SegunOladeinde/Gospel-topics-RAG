@@ -75,7 +75,6 @@ from src.backend.retrieval import (
     RestTransport,
     Retriever,
     SqlTransport,
-    load_local_retriever,
 )
 from src.backend.retrieval.keyword import GENERIC_VERBS, collection_phrases
 from src.backend.retrieval.refresh import KeywordIndexRefresher
@@ -406,6 +405,9 @@ def load_retriever(session_factory=None) -> Retriever:
             "Run `uv run scripts/build_local_index.py` first to build the indexes."
         )
     _verify_bm25_hash(BM25_INDEX_PATH)
+    # Imported here so the pgvector backends never load faiss.
+    from src.backend.retrieval.local_index import load_local_retriever
+
     return load_local_retriever(INDEX_DIR, embeddings, k=CHUNKS_PER_RETRIEVER)
 
 

@@ -202,13 +202,16 @@ def test_real_startup_with_the_pgvector_bm25_backend(monkeypatch, real_startup, 
 
     with TestClient(app) as client:
         health = client.get("/health").json()
-        keyword_hits = app.state.retriever.keyword.search("immersion ordinance")
+        keyword_ids = app.state.retriever.keyword.search_ids("immersion ordinance")
     with database() as db:
         total = db.execute(text("SELECT count(*) FROM rag_chunks")).scalar()
 
     assert {k: health["retriever"][k] for k in ("backend", "chunks")} == {"backend": "pgvector_bm25", "chunks": total}
     assert health["retriever"]["keyword_index"] == {"rebuilding": False, "refreshed_at": None}
-    assert any(d.metadata["topic"] == "baptism" for d in keyword_hits)
+    with database() as db:
+        topics = db.execute(text("SELECT d.slug FROM rag_chunks c JOIN rag_documents d ON d.id = c.document_id "
+                                 "WHERE c.id = ANY(:ids)"), {"ids": keyword_ids}).scalars().all()
+    assert "baptism" in topics
 
 
 def test_copy_batches_store_the_same_vectors_as_halfvec(database, collection):

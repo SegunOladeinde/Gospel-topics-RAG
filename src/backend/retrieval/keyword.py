@@ -25,10 +25,13 @@ long question with many words went from seconds to milliseconds.
 import asyncio
 import re
 from collections import defaultdict
+from typing import TYPE_CHECKING
 
 import numpy as np
 from langchain_core.documents import Document
-from rank_bm25 import BM25Okapi
+
+if TYPE_CHECKING:  # only the FAISS backend builds one; don't import it otherwise
+    from rank_bm25 import BM25Okapi
 
 # Common English function words.
 FUNCTION_WORDS = frozenset(
@@ -87,7 +90,7 @@ class KeywordSearch:
 
     def __init__(
         self,
-        vectorizer: BM25Okapi,
+        vectorizer: "BM25Okapi",
         docs: list[Document],
         k: int = 4,
         drop_phrases: tuple[str, ...] = (),

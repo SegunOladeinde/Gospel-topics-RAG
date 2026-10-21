@@ -13,6 +13,9 @@ Two ways to reach the function, with identical results:
 """
 
 import asyncio
+import ctypes
+import gc
+from collections.abc import Iterable, Iterator
 from typing import Protocol
 
 import httpx
@@ -20,10 +23,9 @@ from langchain_core.documents import Document
 from langchain_core.embeddings import Embeddings
 from sqlalchemy import text
 
-from rank_bm25 import BM25Okapi
-
 from src.backend.retrieval.hybrid import reciprocal_rank_fusion
-from src.backend.retrieval.keyword import KeywordSearch, full_text_query
+from src.backend.retrieval.keyword import full_text_query
+from src.backend.retrieval.sparse_bm25 import SparseBm25
 
 
 def _vector_literal(vector: list[float]) -> str:
@@ -35,6 +37,7 @@ class Transport(Protocol):
     async def match(self, embedding: list[float], k: int, candidate_ids: list[int]) -> list[dict]: ...
     def count_chunks(self) -> int: ...
     def load_passages(self) -> list[dict]: ...
+    def iter_passages(self) -> Iterator[tuple[int, str]]: ...
     def signature(self) -> tuple: ...
 
 
@@ -93,6 +96,16 @@ class SqlTransport:
         with self.session_factory() as db:
             return [dict(row) for row in db.execute(self._PASSAGES).mappings().all()]
 
+    _PASSAGE_TEXT = text("SELECT id, content FROM rag_chunks ORDER BY id")
+
+    def iter_passages(self, batch: int = 2000) -> Iterator[tuple[int, str]]:
+        """(chunk id, text) in id order, streamed batch by batch (server-side
+        cursor), so the passages are never all in memory at once."""
+        with self.session_factory() as db:
+            result = db.execute(self._PASSAGE_TEXT.execution_options(yield_per=batch))
+            for chunk_id, content in result:
+                yield chunk_id, content
+
     _SIGNATURE = text(
         "SELECT count(*), coalesce(max(id), 0), (SELECT max(updated_at) FROM rag_documents) FROM rag_chunks"
     )
@@ -149,6 +162,24 @@ class RestTransport:
             updated.raise_for_status()
         rows, docs = newest.json(), updated.json()
         return (self.count_chunks(), rows[0]["id"] if rows else 0, docs[0]["updated_at"] if docs else None)
+
+    def iter_passages(self, page: int = 1000) -> Iterator[tuple[int, str]]:
+        """(chunk id, text) in id order, a page at a time."""
+        start = 0
+        with httpx.Client(headers=self.headers, timeout=60) as client:
+            while True:
+                response = client.get(
+                    f"{self.base}/rag_chunks",
+                    params={"select": "id,content", "order": "id"},
+                    headers={"Range": f"{start}-{start + page - 1}"},
+                )
+                response.raise_for_status()
+                rows = response.json()
+                for row in rows:
+                    yield row["id"], row["content"]
+                if len(rows) < page:
+                    return
+                start += page
 
     def load_passages(self, page: int = 1000) -> list[dict]:
         passages, start = [], 0
@@ -214,6 +245,17 @@ def _document(row: dict) -> Document:
     )
 
 
+def release_memory() -> None:
+    """Hand freed memory back to the OS after a big build: collect garbage, then
+    ask glibc to trim its heaps (Linux; elsewhere just the gc). Without the
+    trim, the memory a build used stays in the process's RSS."""
+    gc.collect()
+    try:
+        ctypes.CDLL("libc.so.6").malloc_trim(0)
+    except (OSError, AttributeError):
+        pass
+
+
 def fuse_with_cutoff(
     semantic: list[Document],
     keyword: list[Document],
@@ -243,20 +285,23 @@ def fuse_with_cutoff(
 class PgvectorBm25Retriever:
     """Semantic search in Supabase (pgvector) + BM25 keyword search in memory.
 
-    BM25 is built at startup from the passage text in rag_chunks (the same
-    scorer and query rules as the FAISS backend's keyword search, about 30 MB
-    of RAM), because Postgres full-text ranking chose noticeably worse
+    BM25 is built at startup from the passage text in rag_chunks, streamed
+    from the database, into a SparseBm25 (sparse_bm25.py: the same scores and
+    query rules as the FAISS backend's keyword search in about 10 MB, holding
+    chunk ids only). Postgres full-text ranking chose noticeably worse
     keyword matches: on the 30-question eval it was worse than FAISS on 9
     questions, this backend on none (eval/retrieval_comparison.json). The
     store holds exactly the FAISS passages (scripts/ingest.py), so without
-    the cutoff the two backends return the same sources. Each question makes one database call (match_chunks):
-    the semantic top-k plus the similarity of the BM25 hits, used to drop
-    keyword-only hits that aren't about the question.
+    the cutoff the two backends return the same sources. Each question makes
+    one database call (match_chunks): the semantic top-k plus the BM25 hits'
+    text, metadata and similarity, used to drop keyword-only hits that
+    aren't about the question.
 
     Passages ingested after startup are found by semantic search right away,
     and by keyword search once rebuild_keyword_index() has run (POST
     /admin/reindex, or the automatic check in refresh.py). The rebuild
-    happens beside the live index, which keeps answering until it's swapped.
+    happens beside the live index, which keeps answering until it's swapped;
+    the live index is small, so the two together stay small.
     """
 
     name = "pgvector_bm25"
@@ -284,26 +329,28 @@ class PgvectorBm25Retriever:
             # Taken before loading, so a change made during the load shows up
             # as stale at the next check rather than being missed.
             self.signature = self._current_signature()
-            passages = transport.load_passages()
-        # (KeywordSearch or None, passage count), replaced as one value so a
-        # query never sees one index's search with another's count.
-        self._index = self._build_index(passages)
+            self._index = self._build_index(self._stream_passages())
+        else:
+            self._index = self._build_index((row["chunk_id"], row["content"]) for row in passages)
 
-    def _build_index(self, rows: list[dict]) -> tuple[KeywordSearch | None, int]:
-        docs = [_document(row) for row in rows]
-        if not docs:
-            return None, 0
-        vectorizer = BM25Okapi([doc.page_content.split() for doc in docs])
-        search = KeywordSearch(vectorizer, docs, k=self.k, drop_phrases=self.drop_phrases, drop_words=self.drop_words)
-        return search, len(docs)
+    def _stream_passages(self) -> Iterable[tuple[int, str]]:
+        stream = getattr(self.transport, "iter_passages", None)
+        if stream:
+            return stream()
+        return ((row["chunk_id"], row["content"]) for row in self.transport.load_passages())
+
+    def _build_index(self, passages: Iterable[tuple[int, str]]) -> SparseBm25 | None:
+        index = SparseBm25.build(passages, k=self.k, drop_phrases=self.drop_phrases, drop_words=self.drop_words)
+        release_memory()
+        return index if index.size else None
 
     def _current_signature(self) -> tuple | None:
         signature = getattr(self.transport, "signature", None)
         return signature() if signature else None
 
     @property
-    def keyword(self) -> KeywordSearch | None:
-        return self._index[0]
+    def keyword(self) -> SparseBm25 | None:
+        return self._index
 
     def is_stale(self) -> bool:
         """Whether rag_chunks / rag_documents changed since the index was built (one small query)."""
@@ -316,21 +363,26 @@ class PgvectorBm25Retriever:
         the single assignment at the end, so none waits or sees half an index.
         """
         signature = self._current_signature()
-        index = self._build_index(self.transport.load_passages())
-        self._index = index
+        index = self._build_index(self._stream_passages())
+        self._index = index  # one assignment: the swap
         self.signature = signature
-        return index[1]
+        release_memory()  # the old index, now unreferenced
+        return index.size if index else 0
 
     async def search(self, query: str) -> tuple[list[Document], list[Document], dict[int, float]]:
         """The semantic hits, keyword hits and similarities before fusion (for evals)."""
         keyword = self.keyword  # read once: a rebuild may swap it meanwhile
-        embedding, keyword_docs = await asyncio.gather(
+        embedding, keyword_ids = await asyncio.gather(
             self.embeddings.aembed_query(query),
-            keyword.ainvoke(query) if keyword else asyncio.sleep(0, result=[]),
+            keyword.ainvoke_ids(query) if keyword else asyncio.sleep(0, result=[]),
         )
-        rows = await self.transport.match(embedding, self.k, [d.metadata["chunk_id"] for d in keyword_docs])
+        # The keyword hits' text and metadata come back with the semantic
+        # search; a passage deleted since the index was built is just skipped.
+        rows = await self.transport.match(embedding, self.k, keyword_ids)
+        by_id = {r["chunk_id"]: r for r in rows}
         semantic = [_document(r) for r in sorted(
             (r for r in rows if r.get("semantic_rank")), key=lambda r: r["semantic_rank"])]
+        keyword_docs = [_document(by_id[i]) for i in keyword_ids if i in by_id]
         similarity = {r["chunk_id"]: r["similarity"] for r in rows}
         return semantic, keyword_docs, similarity
 
@@ -339,5 +391,6 @@ class PgvectorBm25Retriever:
         return fuse_with_cutoff(semantic, keyword_docs, similarity, self.weights, self.min_similarity)
 
     def chunk_counts(self) -> dict[str, int]:
-        total = self._index[1]
+        index = self._index
+        total = index.size if index else 0
         return {"vector": total, "keyword": total}
