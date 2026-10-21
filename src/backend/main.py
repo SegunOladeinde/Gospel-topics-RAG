@@ -384,11 +384,25 @@ def index_chunk_counts(retriever: BaseRetriever) -> dict[str, int] | None:
     """Chunk counts of the loaded FAISS and BM25 indexes, for the startup log."""
     if not isinstance(retriever, EnsembleRetriever):
         return None
-    faiss_retriever, bm25_retriever = retriever.retrievers
+    faiss_retriever, keyword_retriever = retriever.retrievers
     return {
         "faiss": faiss_retriever.vectorstore.index.ntotal,
-        "bm25": len(bm25_retriever.docs),
+        "bm25": keyword_retriever.doc_count,
     }
+
+
+def log_index_counts(retriever: BaseRetriever) -> None:
+    """Log the loaded chunk counts. Diagnostics only: any error is logged as
+    a warning and startup carries on, since the indexes themselves loaded."""
+    try:
+        counts = index_chunk_counts(retriever)
+    except Exception:  # noqa: BLE001 - never fail startup over a log line
+        logger.warning("Could not count the loaded index chunks.", exc_info=True)
+        return
+    if counts:
+        logger.info("Indexes loaded: FAISS %d chunks, BM25 %d chunks.", counts["faiss"], counts["bm25"])
+        if counts["faiss"] != counts["bm25"]:
+            logger.warning("FAISS and BM25 chunk counts differ -- the indexes may be out of sync.")
 
 
 @asynccontextmanager
@@ -409,11 +423,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # global dict to keep in sync with the app's lifecycle. Populated once,
     # here, and only ever read from inside request handlers afterward.
     app.state.retriever = await asyncio.to_thread(load_retriever)  # Issue #4: never block the event loop
-    counts = index_chunk_counts(app.state.retriever)
-    if counts:
-        logger.info("Indexes loaded: FAISS %d chunks, BM25 %d chunks.", counts["faiss"], counts["bm25"])
-        if counts["faiss"] != counts["bm25"]:
-            logger.warning("FAISS and BM25 chunk counts differ -- the indexes may be out of sync.")
+    log_index_counts(app.state.retriever)
     app.state.chat_model = ChatOpenAI(model=CHAT_MODEL, temperature=0)
     # Creates user_query_logs if missing. None when DATABASE_URL is unset or
     # invalid, which disables rate limiting.
