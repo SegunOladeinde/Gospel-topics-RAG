@@ -52,6 +52,8 @@ RATE_LIMIT_FAIL_CLOSED="false"
 ### Database setup (rate limiting)
 On startup the backend creates the `user_query_logs` table if it doesn't exist. To create it yourself instead, or to add the indexes to a table that already exists, run [`sql/001_create_user_query_logs.sql`](sql/001_create_user_query_logs.sql) once in the Supabase SQL editor. The script is safe to re-run, and it also turns on row-level security so Supabase's public API keys can't read the table.
 
+The backend also adds the `is_admin` column at startup if it's missing; [`sql/002_add_is_admin_to_user_query_logs.sql`](sql/002_add_is_admin_to_user_query_logs.sql) does the same by hand.
+
 To run the Postgres integration test against a real database:
 
 ```bash
@@ -126,6 +128,9 @@ Memory: with the FAISS + BM25 indexes loaded (10,160 chunks each), the process u
 | `BACKEND_API_KEY` | same value as `APP_API_KEY` on Render |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk publishable key (`pk_live_…` for production) |
 | `CLERK_SECRET_KEY` | Clerk secret key (`sk_live_…` for production) |
+| `ADMIN_EMAILS` | Optional. Comma-separated emails (case-insensitive, spaces ignored) whose users get unlimited questions, e.g. `you@example.com,other@example.com`. Only **verified** Clerk email addresses count. Unset or empty means nobody is an admin |
+
+Admins: `/api/query` checks the signed-in user's verified emails against `ADMIN_EMAILS` and, for a match, sends `X-User-Role: admin` to the backend, which then skips the daily question limit (the 10/minute burst limit still applies). Any `X-User-Role` sent by the browser is dropped. Admin questions are still logged in `user_query_logs` with `is_admin = true`, and those rows never count toward a limit. Admins see an "Admin · unlimited" badge next to their avatar.
 
 The proxy waits up to 55 seconds for the backend. A sleeping Render instance can take about that long to boot and load the indexes. If the backend times out, is unreachable, or returns Render's 502/503/504 page, the user sees "Waking up the server, please try again in a moment."
 
