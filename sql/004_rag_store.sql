@@ -57,6 +57,12 @@ ALTER TABLE public.rag_chunks ENABLE ROW LEVEL SECURITY;
 -- already stripped of stopwords, instruction words, collection names and
 -- generic verbs by the caller (src/backend/retrieval/keyword.py). Empty means
 -- semantic search only.
+--
+-- Full-text ranking weights each word by its IDF (how rare it is among the
+-- passages, counted live through the GIN index) times ts_rank. Plain
+-- ts_rank/ts_rank_cd treat every word alike, so for "why is tithing ten
+-- percent" short pages titled "Ten" outranked the tithing pages; BM25 (the
+-- FAISS backend's keyword search) avoided that with IDF too.
 CREATE OR REPLACE FUNCTION public.hybrid_search(
     query_embedding  extensions.halfvec(1536),
     query_text       TEXT,
@@ -87,17 +93,34 @@ AS $$
         ORDER BY c.embedding <=> query_embedding
         LIMIT match_count
     ),
-    parsed AS (
-        SELECT CASE WHEN coalesce(btrim(query_text), '') = '' THEN NULL
-                    ELSE to_tsquery('english', query_text) END AS q
+    terms AS (
+        -- The query's words as stemmed lexemes ("tithing" -> "tith").
+        SELECT DISTINCT l.lexeme
+        FROM unnest(tsvector_to_array(to_tsvector('english', replace(coalesce(query_text, ''), '|', ' ')))) AS l (lexeme)
+    ),
+    weights AS (
+        SELECT t.lexeme, ln((n.total - d.df + 0.5) / (d.df + 0.5) + 1) AS idf
+        FROM terms t
+        CROSS JOIN (
+            SELECT count(*)::float AS total FROM rag_chunks
+            WHERE collections IS NULL OR collection = ANY (collections)
+        ) n
+        CROSS JOIN LATERAL (
+            SELECT count(*)::float AS df FROM rag_chunks c
+            WHERE c.tsv @@ to_tsquery('simple', t.lexeme)
+              AND (collections IS NULL OR c.collection = ANY (collections))
+        ) d
     ),
     full_text AS (
-        SELECT c.id, row_number() OVER (ORDER BY ts_rank_cd(c.tsv, p.q) DESC, c.id)::int AS rank
-        FROM rag_chunks c, parsed p
-        WHERE p.q IS NOT NULL
-          AND c.tsv @@ p.q
-          AND (collections IS NULL OR c.collection = ANY (collections))
-        ORDER BY ts_rank_cd(c.tsv, p.q) DESC, c.id
+        SELECT s.id, row_number() OVER (ORDER BY s.score DESC, s.id)::int AS rank
+        FROM (
+            SELECT c.id, sum(w.idf * ts_rank(c.tsv, to_tsquery('simple', w.lexeme))) AS score
+            FROM weights w
+            JOIN rag_chunks c ON c.tsv @@ to_tsquery('simple', w.lexeme)
+            WHERE collections IS NULL OR c.collection = ANY (collections)
+            GROUP BY c.id
+        ) s
+        ORDER BY s.score DESC, s.id
         LIMIT match_count
     )
     SELECT c.id, c.content, d.collection, d.slug, d.title, d.url,
