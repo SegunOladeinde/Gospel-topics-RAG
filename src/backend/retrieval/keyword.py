@@ -134,3 +134,38 @@ class KeywordSearch:
     async def ainvoke(self, query: str) -> list[Document]:
         # CPU work; keep it off the event loop.
         return await asyncio.to_thread(self.search, query)
+
+
+# Extra filtering for the Postgres full-text query (pgvector backend). Naming
+# a collection ("what does the Bible Dictionary say about grace") says where
+# to look, not what about, and matched pages like "Bible Dictionary:
+# Introduction"; generic verbs ("increase my faith") matched "Topical Guide:
+# Increase". Collection names are removed as whole phrases, so a question
+# about "the Bible" still searches for it.
+COLLECTION_PHRASES = ("bible dictionary", "topical guide", "gospel topics", "gospel topic", "study guide")
+GENERIC_VERBS = frozenset(
+    """
+    increase increases increasing introduce introduces introduced introduction improve improves
+    help helps get gets gain gains make makes become becomes find finds use uses share shares
+    want wants need needs feel feels say says said talk talks teach teaches taught
+    """.split()
+)
+_NOT_TERM = re.compile(r"[^a-z0-9]")
+
+
+def full_text_query(question: str) -> str:
+    """An OR query of the question's content words for to_tsquery, e.g. "grace | works".
+
+    Postgres stems and lowercases the words itself (to_tsquery('english',
+    ...)), so unlike BM25 no spelling variants are needed. Only [a-z0-9]
+    survive, so the result is always valid tsquery syntax. "" if nothing's left.
+    """
+    text = question.lower()
+    for phrase in COLLECTION_PHRASES:
+        text = re.sub(rf"\b{phrase}\b", " ", text)
+    terms: dict[str, None] = {}
+    for word in content_words(text):
+        term = _NOT_TERM.sub("", word.split("'")[0])
+        if term and term not in GENERIC_VERBS and term not in STOPWORDS:
+            terms.setdefault(term, None)
+    return " | ".join(terms)

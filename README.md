@@ -81,6 +81,43 @@ Everything that finds passages lives in `src/backend/retrieval/`, behind one sma
 ### Evaluating changes
 `uv run python scripts/eval_baseline.py eval/<name>.json` runs the 15 questions in `tests/eval/questions.json` through the real pipeline (real indexes and OpenAI calls, a few cents) and records each one's intent, sources, answer length and step timings (routing, retrieval, time to first token). Compare a run against `eval/after_1x.json` after changing models, prompts or retrieval.
 
+## Data platform (Supabase)
+
+Passage search can run from Supabase Postgres instead of the FAISS/BM25 files, so nothing large is loaded into Render's memory and new collections become searchable without a redeploy.
+
+| Piece | Where |
+|---|---|
+| Raw pages backup | private Storage bucket `raw-data`, written by `scripts/backup_raw.py` with a `manifest.json` (path, sha256, size per file). Re-runs upload only changed files |
+| Passage store | `rag_documents` (one row per page: collection, slug, real title, canonical URL, sha256) and `rag_chunks` (passage text, `halfvec(1536)` embedding with an HNSW cosine index, generated `tsvector` with a GIN index). Schema: [`sql/004_rag_store.sql`](sql/004_rag_store.sql), also applied by `init_db()` on startup. RLS on, no public policies |
+| Search | `hybrid_search(query_embedding, query_text, k, collections)`: semantic and IDF-weighted full-text top-k fused by reciprocal rank. `match_chunks(query_embedding, k, candidate_ids)`: semantic top-k plus the similarity of given passages (used with in-memory BM25). Only `postgres` and `service_role` may call them |
+| Ingestion | `scripts/ingest.py`, configured by [`data/collections.yaml`](data/collections.yaml) |
+
+`halfvec` was chosen over `vector`: text-embedding-3-small vectors survive the float16 round trip exactly (identical top-20 neighbours for every eval question) at half the storage.
+
+### Ingesting
+```bash
+uv run python scripts/backup_raw.py          # back up data/raw/ first (only changes upload)
+uv run python scripts/ingest.py --dry-run    # documents, passages, tokens, estimated cost
+uv run python scripts/ingest.py              # refuses to spend over $1 without --approve-cost
+```
+Runs are incremental: unchanged pages (same sha256) are skipped, edited pages are re-chunked and re-embedded, and pages deleted from disk are removed with their passages. Passages are cut from the raw file text exactly as the FAISS index was, and `--reuse-embeddings` (on by default) takes their vectors from `data/index/`, so the current corpus costs nothing to load. `--max-docs N` caps a run; the next run carries on. Embeddings are batched with retries and backoff. Each page's real title ("Aaron, Descendants of") and canonical URL (redirects followed for collections with `resolve_redirects: true`) are stored, and source links use them. The scripts write through Supabase's REST API when `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are in `.env`, otherwise through `DATABASE_URL` (`--store sql`).
+
+**Adding a collection** (e.g. church history): put one `.txt` per page in a new folder under `data/raw/` (title on line 1, `Source: <url>` on line 2), add an entry to `data/collections.yaml`, add its label and URL pattern to `COLLECTIONS` in `src/backend/source_links.py`, then back up and ingest. With `RETRIEVER_BACKEND=pgvector` it's searchable immediately.
+
+### Switching backends
+`RETRIEVER_BACKEND` on Render, `/health` shows the active one and its passage count under `retriever`:
+
+| Value | Semantic search | Keyword search | RAM for retrieval |
+|---|---|---|---|
+| `faiss` (default) | FAISS file in memory | BM25 file in memory | all indexes |
+| `pgvector` | Supabase (pgvector) | Postgres full text | none |
+| `pgvector_bm25` | Supabase (pgvector) | BM25 built in memory from the stored passages at startup; keyword-only hits below 0.30 similarity dropped | about 30 MB |
+
+On the 30-question retrieval eval (`uv run python scripts/eval_retrieval.py`, relevance lists in `tests/eval/questions.json`, results in `eval/retrieval_comparison.json`), `pgvector_bm25` was no worse than FAISS on any question and better on one; `pgvector` was worse on 9, because Postgres full-text ranking picks weaker keyword matches than BM25. With `pgvector_bm25`, newly ingested pages are found by semantic search at once and by keyword search after the next restart. `scripts/eval_baseline.py --backend ...` compares answers end to end.
+
+### Planned cleanup
+After the pgvector backend has run stably for about a week: delete `data/index/*`, `scripts/build_local_index.py`, the FAISS/BM25 modules in `src/backend/retrieval/` (`local_index.py`, `vector.py`, `keyword.py`'s BM25 scorer, `index_files.py`, `hybrid.py`), the `faiss-cpu` and `rank_bm25` dependencies and `BM25_INDEX_SHA256`. Until then FAISS stays as the instant fallback: set `RETRIEVER_BACKEND=faiss` and redeploy.
+
 ## Local Development
 
 ### 1. Start the FastAPI Backend
@@ -127,6 +164,7 @@ Environment variables (Render dashboard → Environment; never commit values):
 | `ALLOWED_ORIGINS` | recommended | `https://gospel-topics-rag.vercel.app` (comma-separated for more; spaces and trailing slashes are ignored) |
 | `BM25_INDEX_SHA256` | recommended | SHA-256 of `data/index/bm25.pkl`; startup refuses to load a file that doesn't match |
 | `RATE_LIMIT_FAIL_CLOSED` | no | `true` returns 503 when the rate-limit database is down; default `false` answers anyway |
+| `RETRIEVER_BACKEND` | no | `faiss` (default, index files in memory), `pgvector` or `pgvector_bm25` (Supabase; need `DATABASE_URL` and an ingested store) |
 
 To get the value for `BM25_INDEX_SHA256` (update it whenever you rebuild the index):
 

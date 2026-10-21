@@ -69,8 +69,15 @@ from src.backend.history import (
     list_conversations,
     save_turn,
 )
-from src.backend.retrieval import Retriever, load_local_retriever
-from src.backend.source_links import SourceLink, source_link
+from src.backend.retrieval import (
+    PgvectorBm25Retriever,
+    PgvectorRetriever,
+    RestTransport,
+    Retriever,
+    SqlTransport,
+    load_local_retriever,
+)
+from src.backend.source_links import SourceLink, source_link, source_link_for
 from src.backend.usage import Usage, get_usage
 from dataclasses import dataclass, field
 from sqlalchemy import text
@@ -114,7 +121,7 @@ if not os.getenv("OPENAI_API_KEY"):
 from langchain_core.documents import Document
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-from pydantic import BaseModel, Field, computed_field
+from pydantic import BaseModel, Field, model_validator
 
 # ---------------------------------------------------------------------------
 # Configuration constants
@@ -300,24 +307,66 @@ def _verify_bm25_hash(path: Path) -> None:
     logger.info("BM25 index integrity check passed.")
 
 
-def load_retriever() -> Retriever:
-    """Load the passage indexes from data/index/ (see src/backend/retrieval).
+RETRIEVER_BACKENDS = ("faiss", "pgvector", "pgvector_bm25")
 
-    Semantic search over FAISS finds passages that *mean* the same as the
-    question (it can match "sacred garments" to "temple clothing" without
-    shared words); keyword search over BM25 finds exact names and terms that
-    embeddings can blur. Both run for every question and their rankings are
-    fused.
+# pgvector_bm25: keyword-only hits less similar than this to the question are
+# dropped. Chosen on the 30-question eval (scripts/eval_retrieval.py): 0.30
+# removed an off-topic source without losing a relevant one; 0.35 and up
+# started dropping relevant pages.
+PGVECTOR_BM25_MIN_SIMILARITY = 0.30
+
+
+def retriever_backend() -> str:
+    backend = os.getenv("RETRIEVER_BACKEND", "faiss").strip().lower() or "faiss"
+    if backend not in RETRIEVER_BACKENDS:
+        raise RuntimeError(f"RETRIEVER_BACKEND must be one of {', '.join(RETRIEVER_BACKENDS)}, not {backend!r}")
+    return backend
+
+
+def load_retriever(session_factory=None) -> Retriever:
+    """Set up passage search for RETRIEVER_BACKEND (see src/backend/retrieval).
+
+    faiss (default): semantic search over the FAISS file plus BM25 keyword
+    search, both loaded into memory from data/index/.
+    pgvector: the same two searches inside Supabase Postgres (hybrid_search()),
+    over the backend's database connection, or Supabase's REST API with
+    SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY when there's no DATABASE_URL.
+    Nothing is loaded into memory, and newly ingested collections are
+    searchable without a redeploy.
+    pgvector_bm25: semantic search in Supabase plus BM25 built in memory from
+    the stored passages at startup (about 30 MB). Matched FAISS on every
+    eval question; Postgres full-text ranking didn't.
+
+    The embeddings client is created once here and reused for every question
+    (it keeps its HTTP connection pool).
     """
+    embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL, timeout=10.0)
+    backend = retriever_backend()
+    if backend in ("pgvector", "pgvector_bm25"):
+        if session_factory is not None:
+            transport = SqlTransport(session_factory)
+        elif os.getenv("SUPABASE_URL") and os.getenv("SUPABASE_SERVICE_ROLE_KEY"):
+            transport = RestTransport(os.environ["SUPABASE_URL"], os.environ["SUPABASE_SERVICE_ROLE_KEY"])
+        else:
+            raise RuntimeError(
+                f"RETRIEVER_BACKEND={backend} needs DATABASE_URL (or SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY)."
+            )
+        if backend == "pgvector_bm25":
+            retriever = PgvectorBm25Retriever(
+                transport, embeddings, k=CHUNKS_PER_RETRIEVER, min_similarity=PGVECTOR_BM25_MIN_SIMILARITY
+            )
+        else:
+            retriever = PgvectorRetriever(transport, embeddings, k=CHUNKS_PER_RETRIEVER)
+        if not retriever.chunk_counts()["vector"]:
+            logger.error("The pgvector store is empty: run scripts/ingest.py. Every question will find nothing.")
+        return retriever
+
     if not INDEX_DIR.exists():
         raise RuntimeError(
             f"Index directory not found at {INDEX_DIR}. "
-            "Run `uv run scripts/ingest.py` first to build the indexes."
+            "Run `uv run scripts/build_local_index.py` first to build the indexes."
         )
     _verify_bm25_hash(BM25_INDEX_PATH)
-    # The embeddings client is created once here and reused for every
-    # question (it keeps its HTTP connection pool).
-    embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL, timeout=10.0)
     return load_local_retriever(INDEX_DIR, embeddings, k=CHUNKS_PER_RETRIEVER)
 
 
@@ -383,17 +432,22 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # covers OPENAI_API_KEY, APP_API_KEY, and ALLOWED_ORIGINS alike.
 
     log_startup_config()
-    logger.info("Starting up: loading FAISS + BM25 indexes into memory...")
+    # Creates the app's tables if missing (and the pgvector store's schema).
+    # None when DATABASE_URL is unset or invalid, which disables rate
+    # limiting. Set up first: the pgvector backend searches through it.
+    app.state.db_session_factory = await asyncio.to_thread(init_db)
+    backend = retriever_backend()
+    logger.info("Starting up: retriever backend %s...", backend)
     # Attached directly to FastAPI's own per-app state object -- no separate
     # global dict to keep in sync with the app's lifecycle. Populated once,
     # here, and only ever read from inside request handlers afterward.
-    app.state.retriever = await asyncio.to_thread(load_retriever)  # Issue #4: never block the event loop
+    app.state.retriever = await asyncio.to_thread(  # Issue #4: never block the event loop
+        load_retriever, app.state.db_session_factory
+    )
+    app.state.retriever_backend = backend
     log_index_counts(app.state.retriever)
     app.state.chat_model = ChatOpenAI(model=CHAT_MODEL, temperature=0)
-    # Creates user_query_logs if missing. None when DATABASE_URL is unset or
-    # invalid, which disables rate limiting.
-    app.state.db_session_factory = await asyncio.to_thread(init_db)
-    logger.info("Startup complete: indexes are loaded and ready for queries.")
+    logger.info("Startup complete: retrieval is ready for queries.")
 
     yield  # <-- the app runs here, handling requests, until it shuts down
 
@@ -579,10 +633,17 @@ class QueryResponse(BaseModel):
         description="The caller's question allowance after this question; None without a database.",
     )
 
-    @computed_field(description="Each source with a readable label and its churchofjesuschrist.org URL.")
-    @property
-    def source_links(self) -> list[SourceLink]:
-        return [source_link(source) for source in self.sources]
+    source_links: list[SourceLink] = Field(
+        default_factory=list,
+        description="Each source with a readable label and its churchofjesuschrist.org URL.",
+    )
+
+    @model_validator(mode="after")
+    def _links_from_ids(self) -> "QueryResponse":
+        # Callers that only know the ids get links built from them.
+        if self.sources and not self.source_links:
+            self.source_links = [source_link(source) for source in self.sources]
+        return self
 
 
 # ---------------------------------------------------------------------------
@@ -773,6 +834,19 @@ def collect_unique_sources(documents: list[Document]) -> list[str]:
     return list(dict.fromkeys(labels))
 
 
+def collect_unique_links(documents: list[Document]) -> list[SourceLink]:
+    """One link per source, in order, using the page's real title and URL when
+    the retriever provides them (pgvector) and the id otherwise (FAISS)."""
+    links: dict[str, SourceLink] = {}
+    for document in documents:
+        source_id = describe_source(document)
+        if source_id not in links:
+            links[source_id] = source_link_for(
+                source_id, document.metadata.get("title"), document.metadata.get("url")
+            )
+    return list(links.values())
+
+
 def to_langchain_message(message: Message) -> HumanMessage | AIMessage:
     """Convert one frontend chat message into the LangChain message type
     the chat model expects, so prior turns are replayed as real
@@ -832,6 +906,18 @@ async def root() -> dict[str, str]:
 HEALTH_DB_TIMEOUT_SECONDS = 2.0
 
 
+def retriever_summary(state) -> dict | None:
+    """Which backend answers searches and how many passages it holds."""
+    retriever = getattr(state, "retriever", None)
+    if retriever is None:
+        return None
+    try:
+        counts = index_chunk_counts(retriever) or {}
+    except Exception:  # noqa: BLE001 - health must never fail on this
+        counts = {}
+    return {"backend": getattr(state, "retriever_backend", None), "chunks": counts.get("vector")}
+
+
 def current_commit() -> str:
     """Short git commit of the running build (Render sets RENDER_GIT_COMMIT)."""
     return (os.getenv("RENDER_GIT_COMMIT") or "unknown")[:7]
@@ -889,6 +975,7 @@ async def health(request: Request) -> JSONResponse:
             "commit": current_commit(),
             "indexes_loaded": indexes_loaded,
             "db": db_status,
+            "retriever": retriever_summary(state),
         },
     )
 
@@ -1061,6 +1148,7 @@ class PreparedAnswer:
     sources: list[str]
     llm_messages: list | None = None
     fixed_answer: str | None = None
+    links: list[SourceLink] = field(default_factory=list)
     # Milliseconds spent in each step before answering, for logs and evals.
     timings: dict[str, float] = field(default_factory=dict)
 
@@ -1166,6 +1254,7 @@ async def prepare_answer(
     return PreparedAnswer(
         intent=route.intent,
         sources=collect_unique_sources(documents),
+        links=collect_unique_links(documents),
         llm_messages=[
             SystemMessage(content=SYSTEM_PROMPT),
             *(to_langchain_message(m) for m in trimmed_history),
@@ -1192,7 +1281,8 @@ def log_query(db, caller: Caller) -> None:
 
 
 def record_answer(
-    db, caller: Caller, payload: QueryRequest, answer: str, sources: list[str]
+    db, caller: Caller, payload: QueryRequest, answer: str, sources: list[str],
+    links: list[SourceLink] | None = None,
 ) -> QueryResponse:
     """Log the query, save the turn to the user's history, and build the
     response with their updated allowance. DB failures are logged, never
@@ -1205,7 +1295,7 @@ def record_answer(
             try:
                 conversation_id = save_turn(
                     db, caller.identifier, payload.conversation_id,
-                    payload.messages[-1].content, answer, sources,
+                    payload.messages[-1].content, answer, links or sources,
                 )
             except SQLAlchemyError:
                 rollback_quietly(db)
@@ -1215,7 +1305,9 @@ def record_answer(
         except SQLAlchemyError:
             rollback_quietly(db)
             logger.exception("Failed to read usage after answering")
-    return QueryResponse(answer=answer, sources=sources, conversation_id=conversation_id, usage=usage)
+    return QueryResponse(
+        answer=answer, sources=sources, source_links=links or [], conversation_id=conversation_id, usage=usage
+    )
 
 
 @app.post(
@@ -1255,14 +1347,14 @@ async def query(
     question = payload.messages[-1].content
     prepared = await prepare_answer(question, payload.messages[:-1], retriever, chat_model)
     if prepared.fixed_answer is not None:
-        return record_answer(db, caller, payload, prepared.fixed_answer, prepared.sources)
+        return record_answer(db, caller, payload, prepared.fixed_answer, prepared.sources, prepared.links)
 
     try:
         response = await chat_model.ainvoke(prepared.llm_messages)
     except Exception as exc:  # noqa: BLE001
         logger.error("Chat completion failed for question=%r", question, exc_info=exc)
         raise HTTPException(status_code=502, detail=ANSWER_FAILED_DETAIL) from exc
-    return record_answer(db, caller, payload, str(response.content), prepared.sources)
+    return record_answer(db, caller, payload, str(response.content), prepared.sources, prepared.links)
 
 
 def sse_event(event: str, data: dict) -> str:
@@ -1317,7 +1409,7 @@ async def query_stream(
     async def events():
         if prepared.fixed_answer is not None:
             yield sse_event("token", {"text": prepared.fixed_answer})
-            response = record_answer(db, caller, payload, prepared.fixed_answer, prepared.sources)
+            response = record_answer(db, caller, payload, prepared.fixed_answer, prepared.sources, prepared.links)
             yield sse_event("done", response.model_dump(mode="json"))
             return
 
@@ -1346,7 +1438,7 @@ async def query_stream(
             if not finished and not failed and parts:
                 log_query(db, caller)
 
-        response = record_answer(db, caller, payload, "".join(parts), prepared.sources)
+        response = record_answer(db, caller, payload, "".join(parts), prepared.sources, prepared.links)
         yield sse_event("done", response.model_dump(mode="json"))
 
     return StreamingResponse(

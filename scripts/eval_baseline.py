@@ -9,6 +9,7 @@ before and after a dependency upgrade or a performance change.
 Usage:
     uv run python scripts/eval_baseline.py eval/baseline_0.3.json
     uv run python scripts/eval_baseline.py eval/after_1x.json --runs 3
+    uv run python scripts/eval_baseline.py eval/pgvector.json --backend pgvector
 
 Costs a few cents of OpenAI usage per run (one embedding plus one or two
 chat calls per question).
@@ -18,6 +19,7 @@ import argparse
 import asyncio
 import importlib.metadata
 import json
+import os
 import statistics
 import sys
 import time
@@ -150,9 +152,22 @@ async def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("output", help="where to write the JSON results, e.g. eval/baseline_0.3.json")
     parser.add_argument("--runs", type=int, default=2, help="runs per question; timings use the median")
+    parser.add_argument("--backend", choices=["faiss", "pgvector"], default=None,
+                        help="retriever to evaluate (default: RETRIEVER_BACKEND, else faiss). pgvector "
+                             "uses DATABASE_URL, or the Supabase REST API when SUPABASE_URL and "
+                             "SUPABASE_SERVICE_ROLE_KEY are set and --store rest is given")
+    parser.add_argument("--store", choices=["rest", "sql"], default="rest",
+                        help="how a pgvector run reaches the database (default rest)")
     args = parser.parse_args()
 
-    retriever = backend.load_retriever()
+    if args.backend:
+        os.environ["RETRIEVER_BACKEND"] = args.backend
+    session_factory = None
+    if backend.retriever_backend() == "pgvector" and args.store == "sql":
+        from src.backend.database import get_session_factory
+
+        session_factory = get_session_factory()
+    retriever = backend.load_retriever(session_factory)
     chat_model = backend.ChatOpenAI(model=backend.CHAT_MODEL, temperature=0)
     items = json.loads(QUESTIONS.read_text(encoding="utf-8"))
 
@@ -186,7 +201,8 @@ async def main() -> None:
 
     out = PROJECT_ROOT / args.output
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps({"versions": versions(), "runs_per_question": args.runs, "results": results},
+    out.write_text(json.dumps({"versions": versions(), "backend": backend.retriever_backend(),
+                               "runs_per_question": args.runs, "results": results},
                               indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"\nwrote {out}")
 

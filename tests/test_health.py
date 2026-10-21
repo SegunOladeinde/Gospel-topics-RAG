@@ -33,6 +33,8 @@ def test_health_without_database(client, monkeypatch):
         "commit": "0123456",
         "indexes_loaded": True,
         "db": "disabled",
+        # The test stub retriever has no real chunk count.
+        "retriever": {"backend": "faiss", "chunks": None},
     }
 
 

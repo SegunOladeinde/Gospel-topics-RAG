@@ -1,0 +1,58 @@
+# Collections that scripts/ingest.py loads into the pgvector store.
+#
+# To add a collection (e.g. church history): put its pages in raw_path as
+# one .txt file per page, add an entry here, and run
+#   uv run python scripts/ingest.py --dry-run   # counts and cost first
+#   uv run python scripts/ingest.py
+# No redeploy is needed: the running app searches whatever is in the store.
+# For links in the UI, also add the collection's label and URL pattern to
+# COLLECTIONS in src/backend/source_links.py (used when a page has no URL).
+#
+# Each raw file looks like:
+#   line 1: the page title          (title_source: first_line)
+#   line 2: "Source: <page URL>"    (url_source: source_line)
+#   then the page text.
+#
+# Fields:
+#   name           collection id, stored with every passage (e.g. topical_guide)
+#   label          shown before the title in source links ("Topical Guide: Faith")
+#   raw_path       folder of .txt files, relative to the project root
+#   url_pattern    fallback URL when a file has no Source line; {slug} = file name
+#   title_source   first_line (the file's first line) or slug (title-cased file name)
+#   url_source     source_line (the file's "Source:" line) or pattern (url_pattern)
+#   resolve_redirects  follow redirects once per new/changed page and store the
+#                  final URL (Gospel Topics pages get merged and renamed)
+#   chunk_size / chunk_overlap   characters per passage and overlap between them
+#   embedding_model / tokenizer  for embeddings and the dry-run cost estimate
+
+defaults:
+  embedding_model: text-embedding-3-small
+  tokenizer: cl100k_base
+  usd_per_million_tokens: 0.02
+  chunk_size: 1000
+  chunk_overlap: 200
+
+collections:
+  - name: bible_dictionary
+    label: Bible Dictionary
+    raw_path: data/raw/bible_dictionary
+    url_pattern: "https://www.churchofjesuschrist.org/study/scriptures/bd/{slug}?lang=eng"
+    title_source: first_line
+    url_source: source_line
+    resolve_redirects: false
+
+  - name: topical_guide
+    label: Topical Guide
+    raw_path: data/raw/topical_guide
+    url_pattern: "https://www.churchofjesuschrist.org/study/scriptures/tg/{slug}?lang=eng"
+    title_source: first_line
+    url_source: source_line
+    resolve_redirects: false
+
+  - name: topics_and_questions
+    label: Gospel Topics
+    raw_path: data/raw/topics_and_questions
+    url_pattern: "https://www.churchofjesuschrist.org/study/manual/gospel-topics/{slug}?lang=eng"
+    title_source: first_line
+    url_source: source_line
+    resolve_redirects: true

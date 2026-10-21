@@ -1,7 +1,9 @@
 import logging
 import os
 from functools import lru_cache
+from pathlib import Path
 
+import psycopg
 from sqlalchemy import (
     JSON, Boolean, Column, DateTime, ForeignKey, Index, String, Text, create_engine, false, inspect, text,
 )
@@ -45,7 +47,7 @@ def engine_kwargs(url: str) -> dict:
         "pool_recycle": 1800,
         # Give up on an unreachable database after 5s instead of the OS TCP
         # timeout, so /health and the rate-limit check can't hang on it.
-        "connect_args": {"connect_timeout": 5},
+        "connect_args": {"connect_timeout": int(os.getenv("DB_CONNECT_TIMEOUT", "5"))},
     }
     if make_url(url).port == SUPABASE_TRANSACTION_POOLER_PORT:
         # The transaction pooler hands each transaction to whichever server
@@ -131,7 +133,7 @@ class ChatMessage(Base):
     )
     role = Column(String, nullable=False)  # "user" or "assistant"
     content = Column(Text, nullable=False)
-    sources = Column(JSON, nullable=False, default=list)  # source ids, e.g. "topical_guide/faith"
+    sources = Column(JSON, nullable=False, default=list)  # source ids, or {id, label, url} links
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
@@ -148,6 +150,36 @@ def enable_row_level_security(engine) -> None:
     with engine.begin() as connection:
         for table in RLS_TABLES:
             connection.execute(text(f"ALTER TABLE public.{table} ENABLE ROW LEVEL SECURITY"))
+
+
+RAG_SCHEMA_SQL = Path(__file__).resolve().parents[2] / "sql" / "004_rag_store.sql"
+
+
+def apply_rag_schema(engine) -> bool:
+    """Create the pgvector passage store (sql/004_rag_store.sql). Postgres only.
+
+    The file is written to be re-run safely. Returns False (and logs) if it
+    can't be applied, e.g. pgvector isn't available: the FAISS backend doesn't
+    need it, so that mustn't stop the app.
+    """
+    if engine.dialect.name != "postgresql":
+        return False
+    sql = RAG_SCHEMA_SQL.read_text(encoding="utf-8")
+    try:
+        # On the raw driver connection with no parameters: going through
+        # SQLAlchemy, psycopg treats the file's format('%I', ...) as a query
+        # placeholder and refuses it.
+        raw = engine.raw_connection()
+        try:
+            with raw.cursor() as cursor:
+                cursor.execute(sql)
+            raw.commit()
+        finally:
+            raw.close()
+        return True
+    except (SQLAlchemyError, psycopg.Error):
+        logger.warning("Could not apply %s; RETRIEVER_BACKEND=pgvector won't work.", RAG_SCHEMA_SQL.name, exc_info=True)
+        return False
 
 
 def add_missing_columns(engine) -> None:
@@ -191,6 +223,7 @@ def init_db() -> sessionmaker | None:
         Base.metadata.create_all(bind=session_factory.kw["bind"])
         add_missing_columns(session_factory.kw["bind"])
         enable_row_level_security(session_factory.kw["bind"])
+        apply_rag_schema(session_factory.kw["bind"])
         logger.info("Database ready: user_query_logs and chat history tables exist.")
     except SQLAlchemyError:
         logger.exception(
