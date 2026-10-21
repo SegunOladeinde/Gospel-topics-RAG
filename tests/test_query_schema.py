@@ -134,7 +134,7 @@ def test_empty_messages_list_rejected(client):
 # ---------------------------------------------------------------------------
 # Area 3: 3-Way intent routing
 # ---------------------------------------------------------------------------
-# All three tests patch classify_intent so we don't pay an OpenAI round-trip
+# All three tests patch route_question so we don't pay an OpenAI round-trip
 # just to decide which branch to enter.
 
 def test_chitchat_branch_skips_retrieval(client, monkeypatch):
@@ -142,7 +142,7 @@ def test_chitchat_branch_skips_retrieval(client, monkeypatch):
     from unittest.mock import patch as mock_patch
     import src.backend.main as backend
 
-    with mock_patch.object(backend, "classify_intent", new=AsyncMock(return_value="CHITCHAT")), \
+    with mock_patch.object(backend, "route_question", new=AsyncMock(return_value=backend.RouteDecision("CHITCHAT", "Hello!"))), \
          mock_patch.object(app.state, "retriever") as mock_ret, \
          mock_patch.object(app.state, "chat_model") as mock_chat:
         mock_ret.ainvoke = AsyncMock(return_value=[])           # should never be called
@@ -157,16 +157,16 @@ def test_chitchat_branch_skips_retrieval(client, monkeypatch):
     mock_ret.ainvoke.assert_not_awaited() # retriever must NOT have been called
 
 
-def test_rag_followup_branch_calls_retriever(client, monkeypatch):
-    """RAG_FOLLOWUP intent must call rewrite_to_standalone then the retriever."""
+def test_rag_followup_branch_searches_the_standalone_question(client, monkeypatch):
+    """RAG_FOLLOWUP must search the router's standalone question, not the raw follow-up."""
     from unittest.mock import patch as mock_patch
     import src.backend.main as backend
     from langchain_core.documents import Document
 
     fake_doc = Document(page_content="Chastity text.", metadata={"source": "s", "topic": "t"})
+    decision = backend.RouteDecision("RAG_FOLLOWUP", "rewritten query")
 
-    with mock_patch.object(backend, "classify_intent", new=AsyncMock(return_value="RAG_FOLLOWUP")), \
-         mock_patch.object(backend, "rewrite_to_standalone", new=AsyncMock(return_value="rewritten query")), \
+    with mock_patch.object(backend, "route_question", new=AsyncMock(return_value=decision)), \
          mock_patch.object(app.state, "retriever") as mock_ret, \
          mock_patch.object(app.state, "chat_model") as mock_chat:
         mock_ret.ainvoke = AsyncMock(return_value=[fake_doc])
@@ -183,20 +183,20 @@ def test_rag_followup_branch_calls_retriever(client, monkeypatch):
 
     assert response.status_code == 200
     assert response.json()["sources"] == ["s/t"]
-    # Retriever must have been called with the REWRITTEN query, not the raw one
-    mock_ret.ainvoke.assert_awaited_once_with("rewritten query")
+    # The answer is built from the search for the REWRITTEN query.
+    assert mock_ret.ainvoke.await_args_list[-1].args == ("rewritten query",)
 
 
-def test_rag_new_topic_branch_skips_rewrite(client, monkeypatch):
-    """RAG_NEW_TOPIC must pass the raw question to the retriever without rewriting."""
+def test_rag_new_topic_branch_searches_the_raw_question(client, monkeypatch):
+    """RAG_NEW_TOPIC must search the question as asked, without a rewrite."""
     from unittest.mock import patch as mock_patch
     import src.backend.main as backend
     from langchain_core.documents import Document
 
     fake_doc = Document(page_content="Tithing text.", metadata={"source": "s", "topic": "tithing"})
+    decision = backend.RouteDecision("RAG_NEW_TOPIC", "Tell me about tithing.")
 
-    with mock_patch.object(backend, "classify_intent", new=AsyncMock(return_value="RAG_NEW_TOPIC")), \
-         mock_patch.object(backend, "rewrite_to_standalone", new=AsyncMock()) as mock_rewrite, \
+    with mock_patch.object(backend, "route_question", new=AsyncMock(return_value=decision)), \
          mock_patch.object(app.state, "retriever") as mock_ret, \
          mock_patch.object(app.state, "chat_model") as mock_chat:
         mock_ret.ainvoke = AsyncMock(return_value=[fake_doc])
@@ -212,8 +212,8 @@ def test_rag_new_topic_branch_skips_rewrite(client, monkeypatch):
         response = client.post("/api/v1/query", json=payload, headers=_auth())
 
     assert response.status_code == 200
-    mock_rewrite.assert_not_awaited()                                    # rewrite skipped
-    mock_ret.ainvoke.assert_awaited_once_with("Tell me about tithing.") # raw question used
+    # Searched once, with the raw question (the speculative search is reused).
+    mock_ret.ainvoke.assert_awaited_once_with("Tell me about tithing.")
 
 
 def _make_ai_msg(text: str):

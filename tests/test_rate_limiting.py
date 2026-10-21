@@ -87,12 +87,12 @@ def client(monkeypatch):
 
 
 def _patch_rag():
-    """Context manager that patches retriever + chat model + classify_intent
+    """Context manager that patches retriever + chat model + route_question
     so the endpoint never calls OpenAI or touches real indexes."""
     import src.backend.main as backend
 
     return (
-        patch.object(backend, "classify_intent", new=AsyncMock(return_value="RAG_NEW_TOPIC")),
+        patch.object(backend, "route_question", new=AsyncMock(return_value=backend.RouteDecision("RAG_NEW_TOPIC", "test question"))),
         patch.object(app.state, "retriever", create=True),
         patch.object(app.state, "chat_model", create=True),
     )
@@ -113,7 +113,7 @@ def _send_query(client, *, user_id: str = "", forwarded_for: str = "", role: str
 
     payload = {"messages": [{"role": "user", "content": "What is faith?"}]}
 
-    with patch.object(backend, "classify_intent", new=AsyncMock(return_value="RAG_NEW_TOPIC")), \
+    with patch.object(backend, "route_question", new=AsyncMock(return_value=backend.RouteDecision("RAG_NEW_TOPIC", "test question"))), \
          patch.object(app.state, "retriever") as mock_ret, \
          patch.object(app.state, "chat_model") as mock_chat:
         mock_ret.ainvoke = AsyncMock(return_value=[])

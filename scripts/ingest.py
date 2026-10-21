@@ -3,23 +3,27 @@
 Reads every .txt file under data/raw/ (recursively), splits each into
 overlapping chunks, embeds them with OpenAI, and writes two indexes to
 data/index/:
-- a FAISS vector store (semantic search)
-- a BM25Retriever, pickled (keyword search)
+- index.faiss + index.pkl: the vectors and their passages (semantic search)
+- bm25.pkl: a BM25 index over the same passages (keyword search)
 
-Both are loaded together into an EnsembleRetriever at query time (see
+Both are loaded together by src/backend/retrieval at startup (see
 CLAUDE.md), so they're built from the exact same chunks/metadata here.
+After rebuilding, update BM25_INDEX_SHA256 on Render (see README).
 """
 
 import logging
 import os
-import pickle
+import sys
 from pathlib import Path
 
+import faiss
+import numpy as np
 from dotenv import load_dotenv
-from langchain_community.retrievers import BM25Retriever
-from langchain_community.vectorstores import FAISS
 from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from src.backend.retrieval.index_files import save_keyword_index, save_vector_index  # noqa: E402
 
 logging.basicConfig(
     level=logging.INFO,
@@ -60,15 +64,15 @@ def main() -> None:
 
     logger.info("Embedding chunks and building FAISS index...")
     embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
-    vectorstore = FAISS.from_documents(chunks, embeddings)
-    vectorstore.save_local(str(INDEX_DIR))
+    vectors = np.asarray(embeddings.embed_documents([c.page_content for c in chunks]), dtype=np.float32)
+    index = faiss.IndexFlatL2(vectors.shape[1])
+    index.add(vectors)
+    save_vector_index(INDEX_DIR, index, chunks)
     logger.info("  saved FAISS index to %s", INDEX_DIR)
 
-    logger.info("Training BM25 index...")
-    bm25_retriever = BM25Retriever.from_documents(chunks)
+    logger.info("Building BM25 index...")
     bm25_path = INDEX_DIR / "bm25.pkl"
-    with open(bm25_path, "wb") as f:
-        pickle.dump(bm25_retriever, f)
+    save_keyword_index(bm25_path, chunks)
     logger.info("  saved BM25 index to %s", bm25_path)
 
     logger.info("Done.")

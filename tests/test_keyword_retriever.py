@@ -1,15 +1,16 @@
-"""Tests for src/backend/keyword_retriever.py.
+"""Tests for src/backend/retrieval/keyword.py.
 
-Builds a tiny BM25 index the same way scripts/ingest.py does (LangChain's
-default str.split tokenizer), so the corpus has the same quirks as the real
-one: case and punctuation stay attached to words.
+Builds a tiny BM25 index the same way scripts/ingest.py does (a plain
+str.split tokenizer), so the corpus has the same quirks as the real one:
+case and punctuation stay attached to words.
 """
 
+import numpy as np
 import pytest
-from langchain_community.retrievers import BM25Retriever
 from langchain_core.documents import Document
+from rank_bm25 import BM25Okapi
 
-from src.backend.keyword_retriever import KeywordBM25Retriever, content_words, query_tokens
+from src.backend.retrieval.keyword import KeywordSearch, content_words, query_tokens
 
 CORPUS = {
     "baptism": "Baptism by immersion is the first ordinance. We are baptized for the remission of sins.",
@@ -23,7 +24,7 @@ CORPUS = {
 @pytest.fixture(scope="module")
 def retriever():
     docs = [Document(page_content=text, metadata={"topic": topic}) for topic, text in CORPUS.items()]
-    return KeywordBM25Retriever(bm25=BM25Retriever.from_documents(docs), k=3)
+    return KeywordSearch(BM25Okapi([doc.page_content.split() for doc in docs]), docs, k=3)
 
 
 def topics(documents):
@@ -57,31 +58,31 @@ def test_query_tokens_cover_the_corpus_spellings():
 
 def test_matches_the_topic_not_the_question_words(retriever):
     # The raw index would rank "filler" first: it's full of "What", "is", "it".
-    assert topics(retriever.invoke("What is baptism?"))[0] == "baptism"
-    assert "filler" not in topics(retriever.invoke("What is baptism?"))
+    assert topics(retriever.search("What is baptism?"))[0] == "baptism"
+    assert "filler" not in topics(retriever.search("What is baptism?"))
 
 
 def test_finds_capitalised_and_punctuated_corpus_tokens(retriever):
     # The corpus has "Baptism" and "Tithing" capitalised, "sins." with a period.
-    assert topics(retriever.invoke("what about tithing"))[0] == "tithing"
-    assert topics(retriever.invoke("remission of sins?"))[0] == "baptism"
+    assert topics(retriever.search("what about tithing"))[0] == "tithing"
+    assert topics(retriever.search("remission of sins?"))[0] == "baptism"
 
 
 def test_only_documents_with_a_real_match_are_returned(retriever):
     # Only one document mentions the sacrament, so k=3 doesn't pad with others.
-    assert topics(retriever.invoke("What is the sacrament?")) == ["sacrament"]
+    assert topics(retriever.search("What is the sacrament?")) == ["sacrament"]
 
 
 def test_stopword_only_question_returns_nothing(retriever):
-    assert retriever.invoke("What is it?") == []
+    assert retriever.search("What is it?") == []
 
 
 def test_unknown_word_returns_nothing(retriever):
-    assert retriever.invoke("What is zyzzyva?") == []
+    assert retriever.search("What is zyzzyva?") == []
 
 
 def test_k_limits_results(retriever):
-    assert len(retriever.invoke("Jesus Christ faith sacrament baptism tithing")) == 3
+    assert len(retriever.search("Jesus Christ faith sacrament baptism tithing")) == 3
 
 
 @pytest.mark.parametrize(
@@ -103,4 +104,22 @@ def test_instruction_words_are_not_searched(question, words):
 
 
 def test_instruction_word_only_question_has_no_keyword_hits(retriever):
-    assert retriever.invoke("Explain the purpose, list the steps") == []
+    assert retriever.search("Explain the purpose, list the steps") == []
+
+
+@pytest.mark.parametrize(
+    "question",
+    ["What is baptism?", "Jesus Christ faith", "remission of sins?", "what about tithing", "zyzzyva", "the the the"],
+)
+def test_scores_match_rank_bm25_exactly(question):
+    """The inverted index computes the same floats as BM25Okapi.get_scores."""
+    docs = [Document(page_content=text) for text in CORPUS.values()]
+    vectorizer = BM25Okapi([doc.page_content.split() for doc in docs])
+    tokens = query_tokens(question) or ["the", "the", "the"]  # also check stopword-only scoring
+    assert np.array_equal(KeywordSearch(vectorizer, docs).scores(tokens), vectorizer.get_scores(tokens))
+
+
+def test_mismatched_passages_are_refused():
+    vectorizer = BM25Okapi([["a"], ["b"]])
+    with pytest.raises(ValueError):
+        KeywordSearch(vectorizer, [Document(page_content="a")])

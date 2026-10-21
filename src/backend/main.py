@@ -42,8 +42,8 @@ import json
 import logging
 import logging.config
 import os
-import pickle
 import re
+import time
 from collections import deque
 from collections.abc import AsyncIterator, Iterator
 from contextlib import asynccontextmanager
@@ -69,10 +69,10 @@ from src.backend.history import (
     list_conversations,
     save_turn,
 )
-from src.backend.keyword_retriever import KeywordBM25Retriever
+from src.backend.retrieval import Retriever, load_local_retriever
 from src.backend.source_links import SourceLink, source_link
 from src.backend.usage import Usage, get_usage
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
@@ -111,13 +111,8 @@ if not os.getenv("OPENAI_API_KEY"):
     )
     raise RuntimeError("Missing required environment variable: OPENAI_API_KEY")
 
-from langchain.retrievers import EnsembleRetriever
-from langchain_community.retrievers import BM25Retriever
-from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
-from langchain_core.prompts import PromptTemplate
-from langchain_core.retrievers import BaseRetriever
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from pydantic import BaseModel, Field, computed_field
 
@@ -199,37 +194,27 @@ SYSTEM_PROMPT = (
     "The Church of Jesus Christ of Latter-day Saints."
 )
 
-STANDALONE_QUESTION_PROMPT = PromptTemplate.from_template(
-    "Given the conversation history below and the follow-up question, "
-    "rewrite the follow-up into a single, self-contained question that "
-    "captures all necessary context for searching a document database. "
-    "Output ONLY the rewritten question — no preamble, no explanation.\n\n"
-    "History:\n{history}\n\n"
-    "Follow-up: {question}\n\n"
-    "Standalone question:"
-)
+# System prompt for route_question()'s one model call (only made when there
+# is earlier conversation): decide the intent and produce the search query
+# together, instead of a classify call followed by a rewrite call.
+ROUTER_PROMPT = """You route the latest message in a gospel-study chat and prepare it for search.
 
-# System prompt used exclusively inside classify_intent().
-# Kept deliberately narrow so the model outputs only one of the three tokens.
-INTENT_CLASSIFIER_PROMPT = """You are an intent classification engine.
-Analyse the user's latest question in the context of the conversation history
-and return EXACTLY one of these three strings — nothing else:
+Return two fields:
 
-  CHITCHAT      — The message is ONLY a greeting, thanks, compliment or
-                  casual small-talk, with no question or request at all
-                  (e.g. "Hello", "Thanks!", "Great answer").
-                  If small-talk is combined with ANY question or request
-                  (e.g. "Thanks! And what about tithing?"), it is NOT
-                  CHITCHAT: use RAG_FOLLOWUP or RAG_NEW_TOPIC.
+intent:
+  CHITCHAT      - the message is ONLY a greeting, thanks, compliment or small
+                  talk, with no question or request at all.
+  RAG_FOLLOWUP  - a question that needs the earlier conversation to make sense
+                  (e.g. "Why should I keep it?", "Can you share scriptures about that?").
+  RAG_NEW_TOPIC - a new gospel question that makes sense on its own.
+  Small talk combined with ANY question or request (e.g. "Thanks! And what
+  about tithing?") is never CHITCHAT.
 
-  RAG_FOLLOWUP  — The user is asking a question that requires context from
-                  the conversation history to make sense (e.g. "Why should I
-                  keep it?", "Can you share scriptures about that?").
+standalone_question:
+  The latest message rewritten as one self-contained question for searching a
+  document database: replace pronouns and references ("it", "that topic") with
+  what they refer to in the conversation, and drop any greeting or thanks."""
 
-  RAG_NEW_TOPIC — The user is asking a completely new gospel question that is
-                  unrelated to the previous exchange.
-
-Output the label only. No punctuation, no explanation."""
 
 # Lightweight system prompt for the CHITCHAT branch — no RAG context needed.
 CHITCHAT_SYSTEM_PROMPT = (
@@ -315,56 +300,25 @@ def _verify_bm25_hash(path: Path) -> None:
     logger.info("BM25 index integrity check passed.")
 
 
-def load_retriever() -> BaseRetriever:
-    """Load the FAISS and BM25 indexes from disk and combine them.
+def load_retriever() -> Retriever:
+    """Load the passage indexes from data/index/ (see src/backend/retrieval).
 
-    FAISS finds chunks that are *semantically* similar to the question
-    (e.g. it can match "sacred garments" to "temple clothing" even without
-    shared keywords). BM25 finds chunks that share *exact words* with the
-    question, which is great for names, titles, and specific terms that
-    embeddings sometimes blur together.
-
-    ``EnsembleRetriever`` runs both searches and merges/re-ranks their
-    results, giving us the best of both approaches for every query.
+    Semantic search over FAISS finds passages that *mean* the same as the
+    question (it can match "sacred garments" to "temple clothing" without
+    shared words); keyword search over BM25 finds exact names and terms that
+    embeddings can blur. Both run for every question and their rankings are
+    fused.
     """
     if not INDEX_DIR.exists():
         raise RuntimeError(
             f"Index directory not found at {INDEX_DIR}. "
             "Run `uv run scripts/ingest.py` first to build the indexes."
         )
-
-    # The FAISS index only stores vectors + text; it needs an embeddings
-    # object at load time so it can embed *new* incoming questions using the
-    # same model that was used to embed the stored chunks.
-    embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL, timeout=10.0)
-    vectorstore = FAISS.load_local(
-        str(INDEX_DIR),
-        embeddings,
-        # This flag is required by newer versions of LangChain before they
-        # will unpickle a FAISS index. It's safe here because this index
-        # was built by our own trusted scripts/ingest.py, not downloaded from the
-        # internet.
-        allow_dangerous_deserialization=True,
-    )
-    faiss_retriever = vectorstore.as_retriever(
-        search_kwargs={"k": CHUNKS_PER_RETRIEVER}
-    )
-
-    # The BM25 index was saved as a plain pickle file in scripts/ingest.py, so
-    # we load it back the same way.
     _verify_bm25_hash(BM25_INDEX_PATH)
-    with open(BM25_INDEX_PATH, "rb") as bm25_file:
-        bm25_index: BM25Retriever = pickle.load(bm25_file)
-    # Query it on content words only, and only keep real matches; see
-    # src/backend/keyword_retriever.py for why.
-    bm25_retriever = KeywordBM25Retriever(bm25=bm25_index, k=CHUNKS_PER_RETRIEVER)
-
-    # `weights` controls how much each retriever's ranking counts towards
-    # the final merged ranking. 0.5/0.5 means "trust them equally".
-    return EnsembleRetriever(
-        retrievers=[faiss_retriever, bm25_retriever],
-        weights=[0.5, 0.5],
-    )
+    # The embeddings client is created once here and reused for every
+    # question (it keeps its HTTP connection pool).
+    embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL, timeout=10.0)
+    return load_local_retriever(INDEX_DIR, embeddings, k=CHUNKS_PER_RETRIEVER)
 
 
 REQUIRED_ENV_VARS = ("OPENAI_API_KEY", "APP_API_KEY")
@@ -395,18 +349,14 @@ def log_startup_config() -> None:
             logger.warning("Required env var %s is not set.", name)
 
 
-def index_chunk_counts(retriever: BaseRetriever) -> dict[str, int] | None:
-    """Chunk counts of the loaded FAISS and BM25 indexes, for the startup log."""
-    if not isinstance(retriever, EnsembleRetriever):
-        return None
-    faiss_retriever, keyword_retriever = retriever.retrievers
-    return {
-        "faiss": faiss_retriever.vectorstore.index.ntotal,
-        "bm25": keyword_retriever.doc_count,
-    }
+def index_chunk_counts(retriever: Retriever) -> dict[str, int] | None:
+    """Passages per index ({"vector": ..., "keyword": ...}), for the startup log."""
+    if not isinstance(retriever, Retriever):
+        return None  # e.g. a test stub
+    return retriever.chunk_counts()
 
 
-def log_index_counts(retriever: BaseRetriever) -> None:
+def log_index_counts(retriever: Retriever) -> None:
     """Log the loaded chunk counts. Diagnostics only: any error is logged as
     a warning and startup carries on, since the indexes themselves loaded."""
     try:
@@ -415,9 +365,9 @@ def log_index_counts(retriever: BaseRetriever) -> None:
         logger.warning("Could not count the loaded index chunks.", exc_info=True)
         return
     if counts:
-        logger.info("Indexes loaded: FAISS %d chunks, BM25 %d chunks.", counts["faiss"], counts["bm25"])
-        if counts["faiss"] != counts["bm25"]:
-            logger.warning("FAISS and BM25 chunk counts differ -- the indexes may be out of sync.")
+        logger.info("Indexes loaded: %d vector chunks, %d keyword chunks.", counts["vector"], counts["keyword"])
+        if counts["vector"] != counts["keyword"]:
+            logger.warning("Vector and keyword chunk counts differ -- the indexes may be out of sync.")
 
 
 @asynccontextmanager
@@ -450,7 +400,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     logger.info("Shutting down: releasing in-memory indexes.")
 
 
-def get_retriever(request: Request) -> BaseRetriever:
+def get_retriever(request: Request) -> Retriever:
     return request.app.state.retriever
 
 
@@ -638,49 +588,11 @@ class QueryResponse(BaseModel):
 # ---------------------------------------------------------------------------
 # Helper functions
 # ---------------------------------------------------------------------------
-async def rewrite_to_standalone(
-    question: str,
-    history: list[Message],
-    chat_model: ChatOpenAI,
-) -> str:
-    """Rewrite a follow-up question into a self-contained search query.
-
-    Called only when there is prior history.  The resulting string is fed
-    into FAISS/BM25 instead of the raw user input, so retrieval receives
-    meaningful, context-rich text rather than bare pronouns or references
-    (e.g. "it" or "that topic").
-
-    Falls back to the original question if the LLM call fails, so retrieval
-    always proceeds regardless of any transient upstream error.
-    """
-    history_text = "\n".join(
-        f"{m.role.capitalize()}: {m.content}" for m in history
-    )
-    prompt = STANDALONE_QUESTION_PROMPT.invoke(
-        {"history": history_text, "question": question}
-    )
-    try:
-        response = await chat_model.ainvoke(prompt)
-        rewritten = str(response.content).strip()
-        logger.info(
-            "Standalone rewrite: %r → %r", question, rewritten
-        )
-        return rewritten
-    except Exception:  # noqa: BLE001 - fall back gracefully, never block retrieval
-        logger.warning(
-            "Standalone rewrite failed; falling back to raw question.",
-            exc_info=True,
-        )
-        return question
-
-
-_VALID_INTENTS = {"CHITCHAT", "RAG_FOLLOWUP", "RAG_NEW_TOPIC"}
-
-# Issue #5: in-process cache for classify_intent, keyed on the question plus
+# Issue #5: in-process cache for route_question, keyed on the question plus
 # a digest of the last INTENT_CACHE_TURNS messages: the same words can be a
 # follow-up in one conversation and a new topic in another. FIFO eviction at
 # _INTENT_CACHE_MAX entries.
-_INTENT_CACHE: dict[tuple[str, str], str] = {}
+_INTENT_CACHE: dict[tuple[str, str], "RouteDecision"] = {}
 _INTENT_CACHE_MAX = 256
 INTENT_CACHE_TURNS = 4
 
@@ -739,81 +651,86 @@ def _intent_cache_key(question: str, history: list[Message]) -> tuple[str, str]:
     return question, digest
 
 
-async def classify_intent(
-    question: str,
-    history: list[Message],
-    chat_model: ChatOpenAI,
-) -> str:
-    """Return the routing label for the user's latest question.
+@dataclass(frozen=True)
+class RouteDecision:
+    """How to answer: the intent, and what to search for (unused for CHITCHAT)."""
 
-    Asks the LLM to inspect the question against the conversation history
-    and return exactly one of: ``CHITCHAT``, ``RAG_FOLLOWUP``, or
-    ``RAG_NEW_TOPIC``.  Any unexpected response is treated as
-    ``RAG_NEW_TOPIC`` so we always attempt a retrieval rather than silently
-    swallowing the question.
+    intent: str
+    query: str
 
-    ``CHITCHAT``      — greeting / thanks / casual compliment; skip retrieval.
-    ``RAG_FOLLOWUP``  — context-dependent follow-up; rewrite then retrieve.
-    ``RAG_NEW_TOPIC`` — fresh gospel question; retrieve against raw question.
 
-    CHITCHAT is decided in code, not by the model: pure small talk (see
-    is_pure_small_talk) skips the OpenAI call entirely, and a CHITCHAT label
-    from the model for anything else is overridden, so a question tucked
-    behind a "thanks" still gets a grounded answer.
+class _RouterOutput(BaseModel):
+    intent: Literal["CHITCHAT", "RAG_FOLLOWUP", "RAG_NEW_TOPIC"]
+    standalone_question: str = Field(description="The message as a self-contained search question.")
+
+
+_SENTENCE_END = re.compile(r"(?<=[.!?])\s+")
+
+
+def strip_leading_small_talk(question: str) -> str:
+    """Drop opening pleasantries before searching.
+
+    "Thanks! And what about tithing?" is searched as "And what about
+    tithing?", so "Thanks" doesn't pull in keyword matches of its own.
+    """
+    sentences = _SENTENCE_END.split(question.strip())
+    while len(sentences) > 1 and is_pure_small_talk(sentences[0]):
+        sentences.pop(0)
+    return " ".join(sentences)
+
+
+async def route_question(question: str, history: list[Message], chat_model: ChatOpenAI) -> RouteDecision:
+    """Decide how to answer the latest message, with as few model calls as possible.
+
+    - Pure small talk (see is_pure_small_talk) is CHITCHAT, decided in code.
+    - With no earlier conversation there's nothing to follow up on, and
+      anything that isn't pure small talk is a real question: RAG_NEW_TOPIC,
+      no model call. (Asking the model here only cost a second, and it
+      sometimes labelled "Thanks! And what about tithing?" a follow-up to a
+      conversation that didn't exist.)
+    - Otherwise one structured-output call returns the intent and the
+      standalone search question together. A CHITCHAT label is overridden,
+      since the message isn't pure small talk.
+
+    New topics are searched as asked (minus opening pleasantries), so the
+    speculative search prepare_answer starts in parallel can be reused.
+    Any model error falls back to RAG_NEW_TOPIC.
     """
     if is_pure_small_talk(question):
-        return "CHITCHAT"
+        return RouteDecision("CHITCHAT", question)
+    as_asked = strip_leading_small_talk(question)
+    if not history:
+        return RouteDecision("RAG_NEW_TOPIC", as_asked)
 
-    # Cache lookup — skip the OpenAI call for a question already classified
-    # in the same recent context.
-    _cache_key = _intent_cache_key(question, history)
-    if _cache_key in _INTENT_CACHE:
-        cached = _INTENT_CACHE[_cache_key]
-        logger.info("Intent cache hit: %r -> %r", question, cached)
-        return cached
+    cache_key = _intent_cache_key(question, history)
+    if cache_key in _INTENT_CACHE:
+        logger.info("Intent cache hit for question=%r", question)
+        return _INTENT_CACHE[cache_key]
 
-    history_text = "\n".join(
-        f"{m.role.capitalize()}: {m.content}" for m in history
-    ) if history else "(no prior history)"
-
-    user_block = (
-        f"Conversation history:\n{history_text}\n\n"
-        f"Latest question: {question}"
-    )
+    history_text = "\n".join(f"{m.role.capitalize()}: {m.content}" for m in history)
     try:
-        response = await chat_model.ainvoke([
-            SystemMessage(content=INTENT_CLASSIFIER_PROMPT),
-            HumanMessage(content=user_block),
+        router = chat_model.with_structured_output(_RouterOutput)
+        output = await router.ainvoke([
+            SystemMessage(content=ROUTER_PROMPT),
+            HumanMessage(content=f"Conversation history:\n{history_text}\n\nLatest message: {question}"),
         ])
-        label = str(response.content).strip().upper()
-        # Strip any accidental punctuation the model might have added
-        label = label.rstrip(".!,;")
-        if label not in _VALID_INTENTS:
-            logger.warning(
-                "classify_intent returned unexpected label %r; defaulting to RAG_NEW_TOPIC.",
-                label,
-            )
-            label = "RAG_NEW_TOPIC"
-        elif label == "CHITCHAT":
-            # Not pure small talk (checked above), so there's a real question
-            # in it. With history it may lean on earlier turns; the follow-up
-            # branch rewrites it into a standalone query either way.
+        intent = output.intent
+        if intent == "CHITCHAT":
             logger.info("Overriding CHITCHAT for a message with a question in it: %r", question)
-            label = "RAG_FOLLOWUP" if history else "RAG_NEW_TOPIC"
+            intent = "RAG_FOLLOWUP"
+        if intent == "RAG_FOLLOWUP":
+            decision = RouteDecision(intent, output.standalone_question.strip() or as_asked)
+        else:
+            decision = RouteDecision("RAG_NEW_TOPIC", as_asked)
     except Exception:  # noqa: BLE001 - never block the pipeline
-        logger.warning(
-            "classify_intent failed; defaulting to RAG_NEW_TOPIC.",
-            exc_info=True,
-        )
-        label = "RAG_NEW_TOPIC"
+        logger.warning("route_question failed; defaulting to RAG_NEW_TOPIC.", exc_info=True)
+        decision = RouteDecision("RAG_NEW_TOPIC", as_asked)
 
-    logger.info("Intent classified as %r for question=%r", label, question)
-
-    # Store in cache; evict oldest entry (FIFO) when at capacity.
+    logger.info("Routed %r as %s, searching %r", question, decision.intent, decision.query)
     if len(_INTENT_CACHE) >= _INTENT_CACHE_MAX:
         _INTENT_CACHE.pop(next(iter(_INTENT_CACHE)))
-    _INTENT_CACHE[_cache_key] = label
-    return label
+    _INTENT_CACHE[cache_key] = decision
+    return decision
 
 
 def format_context(documents: list[Document]) -> str:
@@ -1140,9 +1057,12 @@ NO_MATERIAL_ANSWER = (
 class PreparedAnswer:
     """What to answer with: either a fixed reply, or messages to send the model."""
 
+    intent: str
     sources: list[str]
     llm_messages: list | None = None
     fixed_answer: str | None = None
+    # Milliseconds spent in each step before answering, for logs and evals.
+    timings: dict[str, float] = field(default_factory=dict)
 
 
 def admit_question(payload: QueryRequest, caller: Caller, db) -> JSONResponse | None:
@@ -1170,50 +1090,71 @@ def admit_question(payload: QueryRequest, caller: Caller, db) -> JSONResponse | 
 async def prepare_answer(
     question: str,
     history: list[Message],
-    retriever: BaseRetriever,
+    retriever: Retriever,
     chat_model: ChatOpenAI,
 ) -> PreparedAnswer:
     """Everything up to generating the answer: route, retrieve, build the prompt.
 
-    1. Classify the intent before touching FAISS/BM25, so chit-chat skips
-       retrieval and a topic switch doesn't drag in the old subject.
-    2. For a follow-up, rewrite it into a standalone query; a new topic is
-       searched as asked.
-    3. Retrieve, and build the prompt from the retrieved passages with the
-       earlier turns replayed as real conversation history.
+    Routing (route_question) only calls the model when there's earlier
+    conversation. While it does, the question is already being searched as
+    asked; if it turns out to be a new topic that search is used, otherwise
+    (a follow-up) the standalone question is searched instead. Either way
+    retrieval no longer waits for the router when it doesn't have to.
     Raises HTTPException(502) if retrieval fails.
     """
+    started = time.perf_counter()
+    timings: dict[str, float] = {}
     trimmed_history = trim_history(history)
-    intent = await classify_intent(question, trimmed_history, chat_model)
 
-    if intent == "CHITCHAT":
+    speculative: asyncio.Task | None = None
+    as_asked = strip_leading_small_talk(question)
+    if trimmed_history and not is_pure_small_talk(question):
+        speculative = asyncio.create_task(retriever.ainvoke(as_asked))
+        # If it's cancelled or unused, don't let an exception go unobserved.
+        speculative.add_done_callback(lambda task: task.cancelled() or task.exception())
+
+    route = await route_question(question, trimmed_history, chat_model)
+    timings["route_ms"] = (time.perf_counter() - started) * 1000
+
+    if route.intent == "CHITCHAT":
+        if speculative:
+            speculative.cancel()
         # No retrieval and no citations: just reply in kind.
         return PreparedAnswer(
+            intent=route.intent,
             sources=[],
             llm_messages=[
                 SystemMessage(content=CHITCHAT_SYSTEM_PROMPT),
                 *(to_langchain_message(m) for m in trimmed_history),
                 HumanMessage(content=question),
             ],
+            timings=timings,
         )
 
-    if intent == "RAG_FOLLOWUP":
-        retrieval_query = await rewrite_to_standalone(question, trimmed_history, chat_model)
-    else:  # RAG_NEW_TOPIC, and any unexpected label
-        retrieval_query = question
-
+    waited_from = time.perf_counter()
     try:
-        documents = await retriever.ainvoke(retrieval_query)
+        if speculative and route.query == as_asked:
+            documents = await speculative
+        else:
+            if speculative:
+                speculative.cancel()
+            documents = await retriever.ainvoke(route.query)
     except Exception as exc:  # noqa: BLE001
         logger.error("Retrieval failed for question=%r", question, exc_info=exc)
         raise HTTPException(
             status_code=502,
             detail="Failed to search the document indexes. Please try again shortly.",
         ) from exc
+    timings["retrieval_wait_ms"] = (time.perf_counter() - waited_from) * 1000
+    timings["prepare_ms"] = (time.perf_counter() - started) * 1000
+    logger.info(
+        "Prepared %s in %.0f ms (routing %.0f ms, then waited %.0f ms for retrieval)",
+        route.intent, timings["prepare_ms"], timings["route_ms"], timings["retrieval_wait_ms"],
+    )
 
     if not documents:
         # No relevant material found: don't let the model improvise.
-        return PreparedAnswer(sources=[], fixed_answer=NO_MATERIAL_ANSWER)
+        return PreparedAnswer(intent=route.intent, sources=[], fixed_answer=NO_MATERIAL_ANSWER, timings=timings)
 
     # The labels here are for the model only; the system prompt tells it
     # never to refer to "passages" or "context" in its answer.
@@ -1223,12 +1164,14 @@ async def prepare_answer(
         "Answer from these passages only, citing them naturally by name."
     )
     return PreparedAnswer(
+        intent=route.intent,
         sources=collect_unique_sources(documents),
         llm_messages=[
             SystemMessage(content=SYSTEM_PROMPT),
             *(to_langchain_message(m) for m in trimmed_history),
             HumanMessage(content=user_prompt),
         ],
+        timings=timings,
     )
 
 
@@ -1287,7 +1230,7 @@ async def query(
     x_user_id: str | None = Header(default="", alias="X-User-Id"),
     x_forwarded_for: str | None = Header(default="", alias="X-Forwarded-For"),
     x_user_role: str | None = Header(default="", alias="X-User-Role"),
-    retriever: BaseRetriever = Depends(get_retriever),
+    retriever: Retriever = Depends(get_retriever),
     chat_model: ChatOpenAI = Depends(get_chat_model),
     db = Depends(get_db),
 ) -> QueryResponse:
@@ -1343,7 +1286,7 @@ async def query_stream(
     x_user_id: str | None = Header(default="", alias="X-User-Id"),
     x_forwarded_for: str | None = Header(default="", alias="X-Forwarded-For"),
     x_user_role: str | None = Header(default="", alias="X-User-Role"),
-    retriever: BaseRetriever = Depends(get_retriever),
+    retriever: Retriever = Depends(get_retriever),
     chat_model: ChatOpenAI = Depends(get_chat_model),
     # scope="request" keeps the session open until the stream has finished,
     # so the turn can be saved after the last token.
@@ -1362,6 +1305,7 @@ async def query_stream(
     client stops the stream early, the question still counts (the model was
     used) but nothing is saved to history.
     """
+    started = time.perf_counter()
     caller = resolve_caller(request, x_user_id, x_forwarded_for, x_user_role)
     refusal = admit_question(payload, caller, db)
     if refusal is not None:
@@ -1383,6 +1327,10 @@ async def query_stream(
             async for chunk in chat_model.astream(prepared.llm_messages):
                 text = _chunk_text(chunk)
                 if text:
+                    if not parts:
+                        logger.info(
+                            "First token after %.0f ms (%s)", (time.perf_counter() - started) * 1000, prepared.intent
+                        )
                     parts.append(text)
                     yield sse_event("token", {"text": text})
             finished = True

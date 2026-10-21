@@ -79,7 +79,7 @@ def _ask(client, question="What is faith?", *, conversation_id=None, history=(),
         payload["conversation_id"] = conversation_id
     if docs is None:
         docs = [Document(page_content="Faith is...", metadata={"source": "topical_guide", "topic": "faith"})]
-    with patch.object(backend, "classify_intent", new=AsyncMock(return_value="RAG_NEW_TOPIC")), \
+    with patch.object(backend, "route_question", new=AsyncMock(return_value=backend.RouteDecision("RAG_NEW_TOPIC", "test question"))), \
          patch.object(app.state, "retriever") as retriever, \
          patch.object(app.state, "chat_model") as chat_model:
         retriever.ainvoke = AsyncMock(return_value=docs)
