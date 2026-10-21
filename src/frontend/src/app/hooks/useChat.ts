@@ -50,6 +50,7 @@ export function useChat() {
                     role: "assistant",
                     content: data.answer ?? "No answer was returned.",
                     sources: data.sources ?? [],
+                    sourceLinks: data.source_links,
                 },
             ]);
         } catch (err) {

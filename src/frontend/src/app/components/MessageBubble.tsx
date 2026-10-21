@@ -1,13 +1,21 @@
 "use client";
 import ReactMarkdown from "react-markdown";
-import type { Message } from "../types";
+import type { Message, SourceLink } from "../types";
 
 interface Props {
     message: Message;
 }
 
+const CHIP_CLASS =
+    "rounded-lg border border-[#7c6cfc]/30 bg-[#7c6cfc]/10 backdrop-blur-md px-3 py-1 text-xs font-medium text-[#7c6cfc] dark:text-[#a599ff] dark:border-[#7c6cfc]/40 dark:bg-[#7c6cfc]/20";
+
 export function MessageBubble({ message }: Props) {
     const isUser = message.role === "user";
+    // A backend without source_links yet: show the bare ids as plain text
+    // rather than linking them, since relative links 404.
+    const sourceLinks: SourceLink[] =
+        message.sourceLinks ??
+        (message.sources ?? []).map((id) => ({ id, label: id, url: null }));
 
     return (
         <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
@@ -53,19 +61,26 @@ export function MessageBubble({ message }: Props) {
                 )}
 
                 {/* Source pills — assistant only */}
-                {!isUser && message.sources && message.sources.length > 0 && (
+                {!isUser && sourceLinks.length > 0 && (
                     <div className="relative z-10 mt-4 flex flex-wrap gap-2 border-t pt-4 border-white/60 dark:border-white/[0.05]">
-                        {message.sources.map((src, i) => (
-                            <a
-                                key={i}
-                                href={src}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="rounded-lg border border-[#7c6cfc]/30 bg-[#7c6cfc]/10 backdrop-blur-md px-3 py-1 text-xs font-medium text-[#7c6cfc] dark:text-[#a599ff] dark:border-[#7c6cfc]/40 dark:bg-[#7c6cfc]/20 hover:opacity-80 transition-opacity"
-                            >
-                                {src}
-                            </a>
-                        ))}
+                        {sourceLinks.map((link, i) =>
+                            link.url ? (
+                                <a
+                                    key={i}
+                                    href={link.url}
+                                    title={link.id}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className={`${CHIP_CLASS} hover:opacity-80 transition-opacity`}
+                                >
+                                    {link.label}
+                                </a>
+                            ) : (
+                                <span key={i} title={link.id} className={CHIP_CLASS}>
+                                    {link.label}
+                                </span>
+                            )
+                        )}
                     </div>
                 )}
             </div>

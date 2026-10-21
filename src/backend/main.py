@@ -60,6 +60,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response as StarletteResponse
 
 from src.backend.database import UserQueryLog, init_db
+from src.backend.source_links import SourceLink, source_link
 from datetime import datetime, timedelta, timezone
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
@@ -109,7 +110,7 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_core.prompts import PromptTemplate
 from langchain_core.retrievers import BaseRetriever
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, computed_field
 
 # ---------------------------------------------------------------------------
 # Configuration constants
@@ -565,6 +566,11 @@ class QueryResponse(BaseModel):
         default_factory=list,
         description="Names of the source documents the answer was grounded in.",
     )
+
+    @computed_field(description="Each source with a readable label and its churchofjesuschrist.org URL.")
+    @property
+    def source_links(self) -> list[SourceLink]:
+        return [source_link(source) for source in self.sources]
 
 
 # ---------------------------------------------------------------------------
