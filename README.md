@@ -63,7 +63,7 @@ Signed-in users' chats are saved in `chat_conversations` and `chat_messages`, cr
 | Signed in | 7 in any rolling 24 hours | a question frees up 24 hours after it was asked | saved, listed in the sidebar |
 | Admin (`ADMIN_EMAILS`) | unlimited | n/a | saved |
 
-`GET /api/v1/usage` returns the caller's allowance (`limit`, `used`, `remaining`, `reset_at`), and every answer includes the updated `usage`. A limit-reached 429 keeps its `detail` code (`GUEST_LIMIT_REACHED` / `USER_LIMIT_REACHED`) and adds `reset_at` and `usage`. `GET /api/v1/conversations` and `GET /api/v1/conversations/{id}` return the signed-in user's saved chats; a chat that belongs to someone else is a 404. All of them need the API key, so the browser reaches them through the Next.js routes `/api/usage` and `/api/conversations`.
+`GET /api/v1/usage` returns the caller's allowance (`limit`, `used`, `remaining`, `reset_at`), and every answer includes the updated `usage`. A limit-reached 429 keeps its `detail` code (`GUEST_LIMIT_REACHED` / `USER_LIMIT_REACHED`) and adds `reset_at` and `usage`. `GET /api/v1/conversations` and `GET /api/v1/conversations/{id}` return the signed-in user's saved chats, and `DELETE /api/v1/conversations/{id}` deletes one (deleting doesn't give questions back); a chat that belongs to someone else is a 404. All of them need the API key, so the browser reaches them through the Next.js routes `/api/usage` and `/api/conversations`.
 
 To run the Postgres integration test against a real database:
 
@@ -71,6 +71,9 @@ To run the Postgres integration test against a real database:
 TEST_DATABASE_URL="postgresql://postgres:postgres@localhost:5432/postgres" uv run pytest -m postgres -v --no-cov
 ```
 *`--no-cov` is needed because the 70% coverage gate in `pyproject.toml` fails when only one test is selected.*
+
+### Checking retrieval quality
+`uv run python scripts/diagnose_retrieval.py` prints, for ten sample questions (or the ones you pass), the keyword (BM25) hits with the words they matched, the FAISS hits with their relevance, and the final sources. Keyword search ignores stopwords and only returns chunks that actually match a content word (see `src/backend/keyword_retriever.py`).
 
 ## Local Development
 
