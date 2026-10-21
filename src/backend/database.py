@@ -3,6 +3,8 @@ import os
 from pathlib import Path
 from functools import lru_cache
 
+import psycopg
+
 from sqlalchemy import (
     JSON, Boolean, Column, DateTime, ForeignKey, Index, String, Text, create_engine, false, inspect, text,
 )
@@ -163,11 +165,20 @@ def apply_rag_schema(engine) -> bool:
     """
     if engine.dialect.name != "postgresql":
         return False
+    sql = RAG_SCHEMA_SQL.read_text(encoding="utf-8")
     try:
-        with engine.begin() as connection:
-            connection.exec_driver_sql(RAG_SCHEMA_SQL.read_text(encoding="utf-8"))
+        # On the raw driver connection with no parameters: going through
+        # SQLAlchemy, psycopg treats the file's format('%I', ...) as a query
+        # placeholder and refuses it.
+        raw = engine.raw_connection()
+        try:
+            with raw.cursor() as cursor:
+                cursor.execute(sql)
+            raw.commit()
+        finally:
+            raw.close()
         return True
-    except SQLAlchemyError:
+    except (SQLAlchemyError, psycopg.Error):
         logger.warning("Could not apply %s; RETRIEVER_BACKEND=pgvector won't work.", RAG_SCHEMA_SQL.name, exc_info=True)
         return False
 
