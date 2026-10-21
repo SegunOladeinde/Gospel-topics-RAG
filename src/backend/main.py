@@ -38,6 +38,7 @@ automatically when you edit code), but you would drop it in production.
 import asyncio
 import hashlib
 import hmac
+import json
 import logging
 import logging.config
 import os
@@ -52,7 +53,7 @@ from typing import Literal
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import JSONResponse, Response, StreamingResponse
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_ipaddr
@@ -144,6 +145,14 @@ CHAT_MODEL = "gpt-4o-mini"
 # Deliberately kept separate from CHAT_MODEL so we can swap it independently.
 REWRITE_MODEL = "gpt-4o-mini"
 
+# Longest question we'll answer. The UI caps its input at the same length;
+# this is the server-side guarantee. (Message.content allows more because
+# replayed assistant answers can be longer.)
+MAX_QUESTION_CHARS = 2000
+QUESTION_TOO_LONG_DETAIL = (
+    f"That question is a bit long. Please keep it under {MAX_QUESTION_CHARS:,} characters."
+)
+
 # How many chunks each retriever should fetch before we merge and hand them
 # to the LLM. More chunks = more context, but also a bigger/slower prompt.
 CHUNKS_PER_RETRIEVER = 4
@@ -175,9 +184,15 @@ SYSTEM_PROMPT = (
     "who has studied LDS scriptures and Gospel Topics deeply. "
     "When the user asks follow-up questions, acknowledge what was said "
     "before and build naturally on the conversation. "
-    "Always ground your answers strictly in the context passages provided "
-    "in each message; if the context does not cover the question, say so "
-    "honestly rather than speculating. "
+    "Base every answer strictly on the reference passages that come with "
+    "each question, and don't add doctrine they don't support. If they "
+    "don't cover the question, say honestly that you don't have enough "
+    "to answer it well, rather than speculating. "
+    "Write as if you simply know the material: never mention the passages "
+    "themselves, the \"context\", \"documents\", \"sources provided\", or "
+    "\"the text above\". Instead, cite naturally by name when it helps, "
+    "e.g. \"The Bible Dictionary explains...\", \"In the Topical Guide "
+    "under Faith...\", or \"Gospel Topics notes...\". "
     "Occasionally (not every message) remind the user that personal "
     "prayer and the Holy Spirit are the ultimate witnesses of truth, "
     "and note that you are not an official resource of "
@@ -810,8 +825,10 @@ def format_context(documents: list[Document]) -> str:
     """
     blocks = []
     for document in documents:
-        source_label = describe_source(document)
-        blocks.append(f"[Source: {source_label}]\n{document.page_content}")
+        # The readable label ("Topical Guide: Faith"), so a natural citation
+        # names the source the way the UI's chips do, not "topical_guide/faith".
+        source_label = source_link(describe_source(document)).label
+        blocks.append(f"[{source_label}]\n{document.page_content}")
     return "\n\n---\n\n".join(blocks)
 
 
@@ -1113,6 +1130,151 @@ async def remove_conversation(
     return Response(status_code=204)
 
 
+ANSWER_FAILED_DETAIL = "Failed to generate an answer. Please try again shortly."
+NO_MATERIAL_ANSWER = (
+    "I couldn't find anything in the available LDS source material to answer that question."
+)
+
+
+@dataclass
+class PreparedAnswer:
+    """What to answer with: either a fixed reply, or messages to send the model."""
+
+    sources: list[str]
+    llm_messages: list | None = None
+    fixed_answer: str | None = None
+
+
+def admit_question(payload: QueryRequest, caller: Caller, db) -> JSONResponse | None:
+    """Length and question-limit checks. Returns the 429 to send if the caller
+    is out of questions; raises HTTPException for other refusals."""
+    # Before the limit check, so an over-long question doesn't use one up.
+    if len(payload.messages[-1].content) > MAX_QUESTION_CHARS:
+        raise HTTPException(status_code=400, detail=QUESTION_TOO_LONG_DETAIL)
+    if db is None:
+        return None
+    try:
+        usage = get_usage(db, caller.identifier, is_guest=caller.is_guest, is_admin=caller.is_admin)
+    except SQLAlchemyError:
+        # A database outage shouldn't take the whole Q&A service down
+        # with it, so by default the question is answered unmetered
+        # (fail-open). RATE_LIMIT_FAIL_CLOSED=true refuses it instead.
+        logger.exception("Rate-limit check failed for %s", "guest" if caller.is_guest else "user")
+        rollback_quietly(db)
+        if rate_limit_fail_closed():
+            raise HTTPException(status_code=503, detail=RATE_LIMIT_UNAVAILABLE_DETAIL)
+        return None
+    return limit_reached_response(usage) if usage.remaining == 0 else None
+
+
+async def prepare_answer(
+    question: str,
+    history: list[Message],
+    retriever: BaseRetriever,
+    chat_model: ChatOpenAI,
+) -> PreparedAnswer:
+    """Everything up to generating the answer: route, retrieve, build the prompt.
+
+    1. Classify the intent before touching FAISS/BM25, so chit-chat skips
+       retrieval and a topic switch doesn't drag in the old subject.
+    2. For a follow-up, rewrite it into a standalone query; a new topic is
+       searched as asked.
+    3. Retrieve, and build the prompt from the retrieved passages with the
+       earlier turns replayed as real conversation history.
+    Raises HTTPException(502) if retrieval fails.
+    """
+    trimmed_history = trim_history(history)
+    intent = await classify_intent(question, trimmed_history, chat_model)
+
+    if intent == "CHITCHAT":
+        # No retrieval and no citations: just reply in kind.
+        return PreparedAnswer(
+            sources=[],
+            llm_messages=[
+                SystemMessage(content=CHITCHAT_SYSTEM_PROMPT),
+                *(to_langchain_message(m) for m in trimmed_history),
+                HumanMessage(content=question),
+            ],
+        )
+
+    if intent == "RAG_FOLLOWUP":
+        retrieval_query = await rewrite_to_standalone(question, trimmed_history, chat_model)
+    else:  # RAG_NEW_TOPIC, and any unexpected label
+        retrieval_query = question
+
+    try:
+        documents = await retriever.ainvoke(retrieval_query)
+    except Exception as exc:  # noqa: BLE001
+        logger.error("Retrieval failed for question=%r", question, exc_info=exc)
+        raise HTTPException(
+            status_code=502,
+            detail="Failed to search the document indexes. Please try again shortly.",
+        ) from exc
+
+    if not documents:
+        # No relevant material found: don't let the model improvise.
+        return PreparedAnswer(sources=[], fixed_answer=NO_MATERIAL_ANSWER)
+
+    # The labels here are for the model only; the system prompt tells it
+    # never to refer to "passages" or "context" in its answer.
+    user_prompt = (
+        f"Reference passages:\n{format_context(documents)}\n\n"
+        f"Question: {question}\n\n"
+        "Answer from these passages only, citing them naturally by name."
+    )
+    return PreparedAnswer(
+        sources=collect_unique_sources(documents),
+        llm_messages=[
+            SystemMessage(content=SYSTEM_PROMPT),
+            *(to_langchain_message(m) for m in trimmed_history),
+            HumanMessage(content=user_prompt),
+        ],
+    )
+
+
+def log_query(db, caller: Caller) -> None:
+    """Count one question against the caller's allowance. Never raises."""
+    if db is None:
+        return
+    try:
+        db.add(UserQueryLog(
+            user_identifier=caller.identifier,
+            is_guest=caller.is_guest,
+            is_admin=caller.is_admin,
+        ))
+        db.commit()
+    except Exception as log_exc:  # noqa: BLE001
+        rollback_quietly(db)
+        logger.error("Failed to insert UserQueryLog", exc_info=log_exc)
+
+
+def record_answer(
+    db, caller: Caller, payload: QueryRequest, answer: str, sources: list[str]
+) -> QueryResponse:
+    """Log the query, save the turn to the user's history, and build the
+    response with their updated allowance. DB failures are logged, never
+    raised: the user already has their answer."""
+    conversation_id = None
+    usage = None
+    log_query(db, caller)
+    if db is not None:
+        if not caller.is_guest:
+            try:
+                conversation_id = save_turn(
+                    db, caller.identifier, payload.conversation_id,
+                    payload.messages[-1].content, answer, sources,
+                )
+            except SQLAlchemyError:
+                rollback_quietly(db)
+                logger.exception("Failed to save the chat turn")
+        try:
+            usage = get_usage(db, caller.identifier, is_guest=caller.is_guest, is_admin=caller.is_admin)
+        except SQLAlchemyError:
+            rollback_quietly(db)
+            logger.exception("Failed to read usage after answering")
+    return QueryResponse(answer=answer, sources=sources, conversation_id=conversation_id, usage=usage)
+
+
 @app.post(
     "/api/v1/query",
     response_model=QueryResponse,
@@ -1130,7 +1292,8 @@ async def query(
     db = Depends(get_db),
 ) -> QueryResponse:
     """Answer a doctrinal question, grounded in the scraped LDS source texts,
-    while remembering the rest of the conversation.
+    while remembering the rest of the conversation. The whole answer comes
+    back at once; /api/v1/query/stream sends it as it's written.
 
     Requires a valid X-API-Key header (see verify_api_key) and is capped at
     10 requests/minute per client IP (see the `limiter` set up above).
@@ -1140,164 +1303,107 @@ async def query(
     server, which sets the header itself after checking the signed-in user's
     verified emails against ADMIN_EMAILS, and never forwards one from the
     browser. Guests can't be admins.
-
-    Flow:
-    1. Use the combined FAISS + BM25 retriever to fetch the most relevant
-       text chunks for the *newest* question (the last message).
-    2. Replay the earlier turns as real conversation history, and attach
-       the retrieved context to the newest question only.
-    3. Ask the chat model to answer using that context, in the pastoral
-       persona, with the full history in view.
-    4. Return the answer along with which source documents were used.
     """
     caller = resolve_caller(request, x_user_id, x_forwarded_for, x_user_role)
-
-    def _finish(answer: str, sources: list[str]) -> QueryResponse:
-        """Log the query, save the turn to the user's history, and build the
-        response with their updated allowance. DB failures are logged, never
-        raised: the user already has their answer."""
-        conversation_id = None
-        usage = None
-        if db is not None:
-            try:
-                db.add(UserQueryLog(
-                    user_identifier=caller.identifier,
-                    is_guest=caller.is_guest,
-                    is_admin=caller.is_admin,
-                ))
-                db.commit()
-            except Exception as log_exc:  # noqa: BLE001
-                rollback_quietly(db)
-                logger.error("Failed to insert UserQueryLog", exc_info=log_exc)
-            if not caller.is_guest:
-                try:
-                    conversation_id = save_turn(
-                        db, caller.identifier, payload.conversation_id, question, answer, sources
-                    )
-                except SQLAlchemyError:
-                    rollback_quietly(db)
-                    logger.exception("Failed to save the chat turn")
-            try:
-                usage = get_usage(db, caller.identifier, is_guest=caller.is_guest, is_admin=caller.is_admin)
-            except SQLAlchemyError:
-                rollback_quietly(db)
-                logger.exception("Failed to read usage after answering")
-        return QueryResponse(answer=answer, sources=sources, conversation_id=conversation_id, usage=usage)
-
-    if db is not None:
-        try:
-            usage = get_usage(db, caller.identifier, is_guest=caller.is_guest, is_admin=caller.is_admin)
-        except SQLAlchemyError:
-            # A database outage shouldn't take the whole Q&A service down
-            # with it, so by default the question is answered unmetered
-            # (fail-open). RATE_LIMIT_FAIL_CLOSED=true refuses it instead.
-            logger.exception("Rate-limit check failed for %s", "guest" if caller.is_guest else "user")
-            rollback_quietly(db)
-            if rate_limit_fail_closed():
-                raise HTTPException(status_code=503, detail=RATE_LIMIT_UNAVAILABLE_DETAIL)
-        else:
-            if usage.remaining == 0:
-                return limit_reached_response(usage)
+    refusal = admit_question(payload, caller, db)
+    if refusal is not None:
+        return refusal
 
     question = payload.messages[-1].content
-    history = payload.messages[:-1]
+    prepared = await prepare_answer(question, payload.messages[:-1], retriever, chat_model)
+    if prepared.fixed_answer is not None:
+        return record_answer(db, caller, payload, prepared.fixed_answer, prepared.sources)
 
-    # Trim history once; reused across all branches below.
-    trimmed_history = trim_history(history)
+    try:
+        response = await chat_model.ainvoke(prepared.llm_messages)
+    except Exception as exc:  # noqa: BLE001
+        logger.error("Chat completion failed for question=%r", question, exc_info=exc)
+        raise HTTPException(status_code=502, detail=ANSWER_FAILED_DETAIL) from exc
+    return record_answer(db, caller, payload, str(response.content), prepared.sources)
 
-    # =========================================================================
-    # Step 1 — Intent classification
-    # =========================================================================
-    # Classify the user's intent BEFORE touching FAISS/BM25. This keeps
-    # casual chit-chat from triggering a vector search and topic switches from
-    # contaminating retrieval with stale context from the previous subject.
-    intent = await classify_intent(question, trimmed_history, chat_model)
 
-    # =========================================================================
-    # Branch A — CHITCHAT
-    # =========================================================================
-    if intent == "CHITCHAT":
-        # No retrieval needed. Reply naturally with just the conversation
-        # history — no RAG context block, no source citations.
-        chitchat_messages = [
-            SystemMessage(content=CHITCHAT_SYSTEM_PROMPT),
-            *(to_langchain_message(m) for m in trimmed_history),
-            HumanMessage(content=question),
-        ]
+def sse_event(event: str, data: dict) -> str:
+    """One server-sent event: `event: <name>` plus a JSON `data:` line."""
+    return f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
+
+
+def _chunk_text(chunk) -> str:
+    content = getattr(chunk, "content", "")
+    if isinstance(content, str):
+        return content
+    # Some models stream a list of content parts.
+    return "".join(part.get("text", "") for part in content if isinstance(part, dict))
+
+
+@app.post("/api/v1/query/stream", dependencies=[Depends(verify_api_key)])
+@limiter.limit("10/minute")
+async def query_stream(
+    request: Request,
+    payload: QueryRequest,
+    x_user_id: str | None = Header(default="", alias="X-User-Id"),
+    x_forwarded_for: str | None = Header(default="", alias="X-Forwarded-For"),
+    x_user_role: str | None = Header(default="", alias="X-User-Role"),
+    retriever: BaseRetriever = Depends(get_retriever),
+    chat_model: ChatOpenAI = Depends(get_chat_model),
+    # scope="request" keeps the session open until the stream has finished,
+    # so the turn can be saved after the last token.
+    db = Depends(get_db, scope="request"),
+):
+    """Same as /api/v1/query, but the answer streams as server-sent events:
+
+        event: token  data: {"text": "..."}       one per chunk of the answer
+        event: done   data: <QueryResponse JSON>  sources, conversation_id, usage
+        event: error  data: {"detail": "..."}     generation failed mid-answer
+
+    Refusals (bad key, too long, out of questions, retrieval failure) come
+    back as ordinary JSON errors before any streaming starts.
+
+    The turn is logged and saved only after the answer is complete. If the
+    client stops the stream early, the question still counts (the model was
+    used) but nothing is saved to history.
+    """
+    caller = resolve_caller(request, x_user_id, x_forwarded_for, x_user_role)
+    refusal = admit_question(payload, caller, db)
+    if refusal is not None:
+        return refusal
+
+    question = payload.messages[-1].content
+    prepared = await prepare_answer(question, payload.messages[:-1], retriever, chat_model)
+
+    async def events():
+        if prepared.fixed_answer is not None:
+            yield sse_event("token", {"text": prepared.fixed_answer})
+            response = record_answer(db, caller, payload, prepared.fixed_answer, prepared.sources)
+            yield sse_event("done", response.model_dump(mode="json"))
+            return
+
+        parts: list[str] = []
+        finished = failed = False
         try:
-            response = await chat_model.ainvoke(chitchat_messages)
-        except Exception as exc:  # noqa: BLE001
-            logger.error(
-                "Chat completion failed (CHITCHAT) for question=%r",
-                question,
-                exc_info=exc,
-            )
-            raise HTTPException(
-                status_code=502,
-                detail="Failed to generate an answer. Please try again shortly.",
-            ) from exc
-        return _finish(str(response.content), [])
+            async for chunk in chat_model.astream(prepared.llm_messages):
+                text = _chunk_text(chunk)
+                if text:
+                    parts.append(text)
+                    yield sse_event("token", {"text": text})
+            finished = True
+        except Exception:  # noqa: BLE001
+            failed = True
+            logger.exception("Streaming chat completion failed for question=%r", question)
+            yield sse_event("error", {"detail": ANSWER_FAILED_DETAIL})
+            return
+        finally:
+            # Stopped by the client (disconnect cancels the stream): the model
+            # was used, so count it, but don't save a half answer to history.
+            # A failed answer isn't counted, same as the non-streaming endpoint.
+            if not finished and not failed and parts:
+                log_query(db, caller)
 
-    # =========================================================================
-    # Branch B — RAG_FOLLOWUP
-    # =========================================================================
-    # The question references prior context, so rewrite it into a standalone,
-    # self-contained query before hitting the vector store.
-    if intent == "RAG_FOLLOWUP":
-        retrieval_query = await rewrite_to_standalone(
-            question, trimmed_history, chat_model
-        )
-    # =========================================================================
-    # Branch C — RAG_NEW_TOPIC  (and any unexpected fallback)
-    # =========================================================================
-    # Fresh question — use the raw user text directly so FAISS/BM25 search
-    # against the new subject rather than the old conversation topic.
-    else:
-        retrieval_query = question
+        response = record_answer(db, caller, payload, "".join(parts), prepared.sources)
+        yield sse_event("done", response.model_dump(mode="json"))
 
-    # =========================================================================
-    # Step 2 — Retrieval (shared by RAG_FOLLOWUP and RAG_NEW_TOPIC)
-    # =========================================================================
-    try:
-        documents = await retriever.ainvoke(retrieval_query)
-    except Exception as exc:  # noqa: BLE001
-        logger.error("Retrieval failed for question=%r", question, exc_info=exc)
-        raise HTTPException(
-            status_code=502,
-            detail="Failed to search the document indexes. Please try again shortly.",
-        ) from exc
-
-    if not documents:
-        # No relevant material found — do not let the model hallucinate.
-        return _finish(
-            "I couldn't find anything in the available LDS source "
-            "material to answer that question.",
-            [],
-        )
-
-    # =========================================================================
-    # Step 3 — Answer generation (shared by RAG_FOLLOWUP and RAG_NEW_TOPIC)
-    # =========================================================================
-    context_text = format_context(documents)
-    user_prompt = (
-        f"Context:\n{context_text}\n\n"
-        f"Question: {question}\n\n"
-        "Answer the question using only the context above."
+    return StreamingResponse(
+        events(),
+        media_type="text/event-stream",
+        # Don't let proxies buffer the stream.
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
-    rag_messages = [
-        SystemMessage(content=SYSTEM_PROMPT),
-        *(to_langchain_message(m) for m in trimmed_history),
-        HumanMessage(content=user_prompt),
-    ]
-    try:
-        response = await chat_model.ainvoke(rag_messages)
-    except Exception as exc:  # noqa: BLE001
-        logger.error(
-            "Chat completion failed for question=%r", question, exc_info=exc
-        )
-        raise HTTPException(
-            status_code=502,
-            detail="Failed to generate an answer. Please try again shortly.",
-        ) from exc
-
-    return _finish(str(response.content), collect_unique_sources(documents))

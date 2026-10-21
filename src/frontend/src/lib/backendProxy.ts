@@ -29,6 +29,11 @@ interface ProxyOptions {
   body?: unknown;
   userId: string | null;
   isAdmin: boolean;
+  // Pass a text/event-stream answer straight through instead of reading JSON.
+  stream?: boolean;
+  // The browser's request signal: if the user stops or leaves, the backend
+  // request is cancelled too (so a streaming answer stops being generated).
+  signal?: AbortSignal;
 }
 
 // Forwards one request to the FastAPI backend with the shared API key and
@@ -37,7 +42,7 @@ interface ProxyOptions {
 // pages into a JSON { detail } the UI can show.
 export async function proxyToBackend(
   incoming: Headers,
-  { path, method, body, userId, isAdmin }: ProxyOptions
+  { path, method, body, userId, isAdmin, stream = false, signal }: ProxyOptions
 ): Promise<NextResponse> {
   const missing = [
     !BACKEND_URL && "BACKEND_URL",
@@ -55,6 +60,15 @@ export async function proxyToBackend(
     );
   }
 
+  // The timeout covers waiting for the backend (a cold start). Once a
+  // stream has started it's cleared, so a long answer isn't cut off.
+  const controller = new AbortController();
+  const timer = setTimeout(
+    () => controller.abort(new DOMException("Backend timed out", "TimeoutError")),
+    BACKEND_TIMEOUT_MS
+  );
+  signal?.addEventListener("abort", () => controller.abort(signal.reason), { once: true });
+
   let backendResponse: Response;
   try {
     backendResponse = await fetch(
@@ -67,11 +81,12 @@ export async function proxyToBackend(
           isAdmin,
         }),
         body: body === undefined ? undefined : JSON.stringify(body),
-        signal: AbortSignal.timeout(BACKEND_TIMEOUT_MS),
+        signal: controller.signal,
         cache: "no-store",
       }
     );
   } catch (err) {
+    clearTimeout(timer);
     // Timeout: almost always a cold start that's still booting.
     // Other network errors: the instance is down, restarting or deploying.
     const timedOut = err instanceof Error && err.name === "TimeoutError";
@@ -88,10 +103,28 @@ export async function proxyToBackend(
   }
 
   if (backendResponse.status === 204) {
+    clearTimeout(timer);
     return new NextResponse(null, { status: 204 });
   }
 
+  const isEventStream = (backendResponse.headers.get("content-type") ?? "").startsWith(
+    "text/event-stream"
+  );
+  if (stream && backendResponse.ok && isEventStream && backendResponse.body) {
+    clearTimeout(timer);
+    return new NextResponse(backendResponse.body, {
+      status: 200,
+      headers: {
+        "Content-Type": "text/event-stream; charset=utf-8",
+        "Cache-Control": "no-cache, no-transform",
+        "X-Accel-Buffering": "no",
+      },
+    });
+  }
+
+  // Refusals (429, 400, ...) arrive as JSON even on the streaming endpoint.
   const data = await backendResponse.json().catch(() => null);
+  clearTimeout(timer);
   if (data === null) {
     // Render answers 502/503/504 with an HTML page while an instance is
     // waking up or redeploying, so there's no JSON detail to pass through.

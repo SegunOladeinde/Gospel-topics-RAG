@@ -332,3 +332,23 @@ def test_make_title_truncates_long_questions():
     title = make_title("word " * 50)
     assert len(title) == TITLE_MAX_CHARS
     assert title.endswith("…")
+
+
+class TestQuestionLength:
+    def test_question_over_2000_chars_gets_a_friendly_400(self, client, db):
+        r = _ask(client, "a" * 2001, user_id="u50")
+        assert r.status_code == 400
+        assert "under 2,000 characters" in r.json()["detail"]
+        # Rejected before the limit check: nothing logged, nothing saved.
+        assert db.query(UserQueryLog).filter_by(user_identifier="u50").count() == 0
+        assert db.query(ChatMessage).count() == 0
+
+    def test_question_of_exactly_2000_chars_is_answered(self, client):
+        assert _ask(client, "a" * 2000, user_id="u51").status_code == 200
+
+    def test_long_earlier_answers_in_history_are_still_accepted(self, client):
+        history = [
+            {"role": "user", "content": "What is faith?"},
+            {"role": "assistant", "content": "b" * 5000},
+        ]
+        assert _ask(client, "Tell me more", user_id="u52", history=history).status_code == 200

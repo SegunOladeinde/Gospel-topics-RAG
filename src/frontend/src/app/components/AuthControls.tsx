@@ -42,24 +42,25 @@ function AdminBadge() {
     if (!userId || adminUserId !== userId) return null;
     return (
         <span
-            className="rounded-lg border border-[#7c6cfc]/30 bg-[#7c6cfc]/10 backdrop-blur-md px-2.5 py-1 text-xs font-medium text-[#7c6cfc]
+            title="Admin · unlimited questions"
+            className="whitespace-nowrap rounded-lg border border-[#7c6cfc]/30 bg-[#7c6cfc]/10 backdrop-blur-md px-2.5 py-1 text-xs font-medium text-[#7c6cfc]
               dark:text-[#a599ff] dark:border-[#7c6cfc]/40 dark:bg-[#7c6cfc]/20"
         >
-            Admin · unlimited
+            Admin<span className="hidden sm:inline"> · unlimited</span>
         </span>
     );
 }
 
 export function AuthControls() {
     return (
-        <div className="fixed top-4 right-4 md:right-8 z-[100] flex items-center gap-2 md:gap-3">
+        <div className="fixed top-3.5 right-3 sm:top-4 sm:right-4 md:right-8 z-[100] flex items-center gap-1.5 sm:gap-2 md:gap-3">
             {/* Unauthenticated state */}
             <Show when="signed-out">
                 <SignInButton mode="modal">
                     <button
                         type="button"
-                        className="rounded-lg px-3 py-1.5 text-sm font-medium transition-colors
-                          text-slate-700 hover:text-slate-900
+                        className="rounded-lg px-2.5 py-1 text-xs sm:px-3 sm:py-1.5 sm:text-sm font-medium transition-colors
+                          whitespace-nowrap text-slate-700 hover:text-slate-900
                           bg-white/70 hover:bg-white/90 backdrop-blur-md
                           border border-white/80 shadow-sm
                           dark:text-neutral-200 dark:hover:text-white
@@ -72,7 +73,7 @@ export function AuthControls() {
                 <SignUpButton mode="modal">
                     <button
                         type="button"
-                        className="rounded-lg bg-[#7c6cfc] px-3 py-1.5 text-sm font-medium text-white
+                        className="rounded-lg bg-[#7c6cfc] px-2.5 py-1 text-xs sm:px-3 sm:py-1.5 sm:text-sm font-medium text-white whitespace-nowrap
                           transition-all hover:bg-[#9b8dff] hover:scale-[1.03] active:scale-95 shadow-sm"
                     >
                         Sign up

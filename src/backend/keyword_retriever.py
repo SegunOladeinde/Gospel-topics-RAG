@@ -24,8 +24,8 @@ from langchain_core.callbacks import CallbackManagerForRetrieverRun
 from langchain_core.documents import Document
 from langchain_core.retrievers import BaseRetriever
 
-# Common English function words plus question scaffolding ("tell me", "explain").
-STOPWORDS = frozenset(
+# Common English function words.
+FUNCTION_WORDS = frozenset(
     """
     a about above after again against all am an and any are as at be because been before being below
     between both but by can could did do does doing down during each few for from further had has have
@@ -34,9 +34,24 @@ STOPWORDS = frozenset(
     should so some such than that the their theirs them themselves then there these they this those
     through to too under until up very was we were what when where which while who whom why will with
     would you your yours yourself yourselves
-    please tell explain describe mean means meaning know learn understand
     """.split()
 )
+
+# Words that say how to answer, not what about. Several are also Topical
+# Guide entries ("List", "Purpose", "Mean"), so leaving them in made keyword
+# search cite those entries: "List the steps of repentance" returned
+# "Topical Guide: List". The embedding search still sees the whole question.
+INSTRUCTION_WORDS = frozenset(
+    """
+    please tell explain explanation describe description define definition summarize summarise
+    summary overview outline list lists step steps purpose purposes mean means meaning meanings
+    give show example examples importance important significance way ways kind kinds type types
+    main key basic simple simply briefly detail details elaborate
+    know learn understand
+    """.split()
+)
+
+STOPWORDS = FUNCTION_WORDS | INSTRUCTION_WORDS
 
 _WORD = re.compile(r"[A-Za-z0-9]+(?:'[A-Za-z]+)?")
 # Trailing punctuation the corpus tokens most often carry.

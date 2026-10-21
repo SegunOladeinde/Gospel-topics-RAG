@@ -82,3 +82,25 @@ def test_unknown_word_returns_nothing(retriever):
 
 def test_k_limits_results(retriever):
     assert len(retriever.invoke("Jesus Christ faith sacrament baptism tithing")) == 3
+
+
+@pytest.mark.parametrize(
+    ("question", "words"),
+    [
+        ("List the steps of repentance", ["repentance"]),
+        ("What is the purpose of the sacrament?", ["sacrament"]),
+        ("What does baptism mean?", ["baptism"]),
+        ("Explain the meaning of the Atonement", ["atonement"]),
+        ("Give me examples of faith", ["faith"]),
+        ("Summarize the Word of Wisdom", ["word", "wisdom"]),
+        ("Tell me the importance of prayer", ["prayer"]),
+        ("Define charity", ["charity"]),
+    ],
+)
+def test_instruction_words_are_not_searched(question, words):
+    """Words saying how to answer ("list", "purpose") aren't topics to match."""
+    assert content_words(question) == words
+
+
+def test_instruction_word_only_question_has_no_keyword_hits(retriever):
+    assert retriever.invoke("Explain the purpose, list the steps") == []
