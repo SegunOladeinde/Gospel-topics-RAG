@@ -137,16 +137,19 @@ def print_banner() -> None:
 
 def print_response(data: dict) -> None:
     answer  = data.get("answer", "").strip()
-    sources = data.get("sources", [])
+    links   = data.get("source_links") or [
+        {"label": src, "url": None} for src in data.get("sources", [])
+    ]
 
     print()
     print(GREEN("Bot: ") + _wrap(answer, indent="      "))
 
-    if sources:
+    if links:
         print()
         print(YELLOW("  Sources:"))
-        for src in sources:
-            print(YELLOW(f"    • {src}"))
+        for link in links:
+            url = f"  {link['url']}" if link.get("url") else ""
+            print(YELLOW(f"    • {link['label']}{url}"))
 
     print()
 
