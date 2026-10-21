@@ -1,10 +1,9 @@
 import logging
 import os
-from pathlib import Path
 from functools import lru_cache
+from pathlib import Path
 
 import psycopg
-
 from sqlalchemy import (
     JSON, Boolean, Column, DateTime, ForeignKey, Index, String, Text, create_engine, false, inspect, text,
 )
