@@ -89,7 +89,7 @@ export default function Home() {
         )}
         {isMobile && <ChatHeader onToggleSidebar={toggleSidebar} />}
 
-        <div className="flex-1 overflow-y-auto">
+        <div data-chat-scroll className="flex-1 overflow-y-auto">
           {messages.length === 0 && !isLoadingConversation && !error ? (
             <BentoWelcomeGrid onSelect={sendQuestion} disabled={isLoading} />
           ) : (

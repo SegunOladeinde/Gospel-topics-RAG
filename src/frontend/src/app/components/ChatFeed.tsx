@@ -4,6 +4,7 @@ import { MessageBubble } from "./MessageBubble";
 import { SignInButton } from "@clerk/nextjs";
 import type { Message } from "../types";
 import { limitMessage, type ChatError } from "@/lib/usage";
+import { scrollActionFor, type FeedSnapshot } from "@/lib/chatScroll";
 
 interface Props {
     messages: Message[];
@@ -30,16 +31,74 @@ function ThinkingBubble() {
 }
 
 export function ChatFeed({ messages, isLoading, error }: Props) {
+    const feedRef = useRef<HTMLDivElement>(null);
     const anchorRef = useRef<HTMLDivElement>(null);
+    const prevRef = useRef<FeedSnapshot>({ count: 0, lastRole: null, hasError: false });
+    // Set when you scroll up yourself while waiting; cleared when you ask again.
+    const userScrolledUpRef = useRef(false);
+
+    // Notice manual scrolling (wheel, touch, keys) on the page's scroll area.
+    useEffect(() => {
+        const scroller = feedRef.current?.closest<HTMLElement>("[data-chat-scroll]");
+        if (!scroller) return;
+        const nearBottom = () => scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight < 80;
+        const onWheel = (e: WheelEvent) => {
+            if (e.deltaY < 0) userScrolledUpRef.current = true;
+            else if (nearBottom()) userScrolledUpRef.current = false;
+        };
+        const onTouchMove = () => {
+            userScrolledUpRef.current = !nearBottom();
+        };
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (["PageUp", "ArrowUp", "Home"].includes(e.key)) userScrolledUpRef.current = true;
+        };
+        scroller.addEventListener("wheel", onWheel, { passive: true });
+        scroller.addEventListener("touchmove", onTouchMove, { passive: true });
+        scroller.addEventListener("keydown", onKeyDown);
+        return () => {
+            scroller.removeEventListener("wheel", onWheel);
+            scroller.removeEventListener("touchmove", onTouchMove);
+            scroller.removeEventListener("keydown", onKeyDown);
+        };
+    }, []);
 
     useEffect(() => {
-        anchorRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages, isLoading]);
+        const next: FeedSnapshot = {
+            count: messages.length,
+            lastRole: messages.at(-1)?.role ?? null,
+            hasError: Boolean(error),
+        };
+        if (next.lastRole === "user" && next.count === prevRef.current.count + 1) {
+            userScrolledUpRef.current = false;
+        }
+        const action = scrollActionFor(prevRef.current, next, userScrolledUpRef.current);
+        prevRef.current = next;
+
+        if (action === "bottom") {
+            anchorRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+        } else if (action === "bottom-instant") {
+            anchorRef.current?.scrollIntoView({ behavior: "instant", block: "end" });
+        } else if (action === "message-start") {
+            feedRef.current
+                ?.querySelector(`[data-message-index="${next.count - 1}"]`)
+                ?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    }, [messages, error]);
+
+    // The thinking dots appear just after your question; keep them in view.
+    useEffect(() => {
+        if (isLoading && !userScrolledUpRef.current) {
+            anchorRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+        }
+    }, [isLoading]);
 
     return (
-        <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-8 pb-40 md:px-6">
+        <div ref={feedRef} className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-8 pb-40 md:px-6">
             {messages.map((msg, i) => (
-                <MessageBubble key={i} message={msg} />
+                // scroll-mt keeps the start of an answer clear of the sticky header.
+                <div key={i} data-message-index={i} className="scroll-mt-20">
+                    <MessageBubble message={msg} />
+                </div>
             ))}
 
             {isLoading && <ThinkingBubble />}
