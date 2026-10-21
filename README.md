@@ -128,7 +128,7 @@ When a run has written anything, it asks the backend to rebuild its in-memory ke
 |---|---|---|---|
 | `faiss` (default) | FAISS file in memory | BM25 file in memory | all indexes |
 | `pgvector` | Supabase (pgvector) | Postgres full text | none |
-| `pgvector_bm25` | Supabase (pgvector) | BM25 built in memory from the stored passages at startup; keyword-only hits below 0.30 similarity dropped | about 30 MB |
+| `pgvector_bm25` | Supabase (pgvector) | BM25 built in memory from the stored passages at startup (chunk ids only, `sparse_bm25.py`); keyword-only hits below 0.30 similarity dropped | about 6 MB |
 
 On the 30-question retrieval eval (`uv run python scripts/eval_retrieval.py`, relevance lists in `tests/eval/questions.json`, results in `eval/retrieval_comparison.json`), `pgvector_bm25` was no worse than FAISS on any question and better on one; `pgvector` was worse on 9, because Postgres full-text ranking picks weaker keyword matches than BM25. `scripts/eval_baseline.py --backend ...` compares answers end to end.
 
@@ -206,7 +206,35 @@ uv run python -c "import hashlib; print(hashlib.sha256(open('data/index/bm25.pkl
 
 Use the session pooler rather than the transaction pooler (6543): Render runs one long-lived process, which is what session mode is for. The direct `db.<ref>.supabase.co` host needs IPv6 or Supabase's IPv4 add-on.
 
-Memory: `/health` reports the process's resident memory as `memory_mb`. With the FAISS + BM25 indexes loaded (10,160 chunks each), the process used about 290 MB after startup and about 375 MB after answering queries. `pgvector_bm25` keeps only the BM25 index in memory; a rebuild briefly holds two. Either fits a 512 MB instance with `WEB_CONCURRENCY=1`. Each extra uvicorn worker loads its own copy of the indexes, so don't raise `WEB_CONCURRENCY` on a 512 MB instance.
+Memory: `/health` reports the process's resident memory as `memory_mb`. Measured live with `pgvector_bm25` and 10,160 passages:
+
+| | Before (rank_bm25, passages in memory) | Now (`SparseBm25`) |
+|---|---|---|
+| Startup | 301 MB | 156 MB |
+| After a rebuild | 355 MB | 164 MB (peak 172) |
+| Warm (after questions) | 369 MB | about 200 MB |
+| Rebuild on a warm instance | | peak 207 MB |
+
+What changed:
+- **`SparseBm25` replaces rank_bm25.** It keeps word ids, frequencies and chunk ids in flat arrays (6.3 MB) and holds no text: keyword hits' text comes back from `match_chunks`. Scores are bit-identical to rank_bm25.
+- **Streamed builds:** the index is built from passages streamed 500 at a time, without sorting or copying.
+- **Memory handed back:** `gc.collect()` and `malloc_trim` run after each build, and glibc is capped at 2 malloc arenas.
+- **No faiss on the pgvector paths:** faiss and rank_bm25 are only imported by the `faiss` backend.
+
+The FAISS backend used about 290 MB after startup and about 375 MB after queries.
+
+Projection, assuming the data-dependent part grows linearly with the passage count. That's conservative, since the vocabulary grows more slowly than the passages:
+- **Fixed part:** 156 MB of startup is imports and clients. The first questions add about 41 MB of one-time warm-up, whatever the data size.
+- **Data-dependent part:** at most 19 MB per current corpus (index arrays plus allocator residue). A rebuild needs up to 15 MB more on top.
+- **Formula:** warm-instance rebuild peak = 200 + 19 × (x − 1) + 15 × x MB.
+
+| Data | Startup | Warm | Rebuild peak |
+|---|---|---|---|
+| 1× (10,160 passages) | 156 | 200 | 215 (measured 207) |
+| 2.5× | 185 | 229 | 266 |
+| 4× | 213 | 257 | 317 |
+
+All of these fit a 512 MB instance with `WEB_CONCURRENCY=1`. Each extra uvicorn worker loads its own copy of everything, so don't raise `WEB_CONCURRENCY` on a 512 MB instance.
 
 ### Frontend on Vercel
 - Root directory: `src/frontend` (framework preset: Next.js)
