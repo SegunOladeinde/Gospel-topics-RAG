@@ -101,6 +101,30 @@ logging.config.dictConfig({
 })
 logger = logging.getLogger(__name__)
 
+
+# glibc gives each thread that allocates its own malloc arena, and freed
+# memory stays in the arena it came from. FastAPI runs sync work and our
+# to_thread calls on a pool of threads, so on Render (512 MB) RSS grew by
+# tens of MB per arena. Two arenas, set at import before any worker thread
+# starts, keep that in check. An explicit MALLOC_ARENA_MAX env var wins.
+M_ARENA_MAX = -8  # mallopt parameter number from glibc's malloc.h
+MALLOC_ARENAS = 2
+
+
+def limit_malloc_arenas(arenas: int = MALLOC_ARENAS) -> bool:
+    """Cap glibc's malloc arenas; True if applied (False off Linux/glibc)."""
+    if os.getenv("MALLOC_ARENA_MAX"):
+        return False
+    try:
+        import ctypes
+
+        return ctypes.CDLL("libc.so.6").mallopt(M_ARENA_MAX, arenas) == 1
+    except (OSError, AttributeError):
+        return False
+
+
+limit_malloc_arenas()
+
 # Load .env as early as possible, before any module-level `os.getenv()` call
 # below (e.g. ALLOWED_ORIGINS) -- those run once at import time, which is
 # *before* lifespan() executes, so if .env weren't loaded until lifespan()
