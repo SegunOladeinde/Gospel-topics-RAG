@@ -20,6 +20,8 @@ export interface ChatError {
   resetAt?: string | null;
 }
 
+export const BURST_LIMIT_MESSAGE = "Slow down a little, please try again in a few seconds.";
+
 // The backend accepts at most this many messages per request.
 export const MAX_REQUEST_MESSAGES = 20;
 
@@ -38,6 +40,11 @@ export function toChatError(status: number, body: unknown): ChatError {
       code: detail,
       resetAt: typeof data.reset_at === "string" ? data.reset_at : null,
     };
+  }
+  if (status === 429) {
+    // The backend's 10-requests-a-minute burst limit (slowapi), not the
+    // daily question limit: it clears on its own within a minute.
+    return { message: BURST_LIMIT_MESSAGE };
   }
   return { message: detail ?? `Request failed (${status})` };
 }

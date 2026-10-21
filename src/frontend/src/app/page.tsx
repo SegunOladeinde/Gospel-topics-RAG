@@ -29,6 +29,7 @@ export default function Home() {
   const {
     messages, input, setInput, isLoading, isLoadingConversation, error, usage,
     conversations, conversationId, isSignedIn, sendQuestion, handleNewChat, selectConversation,
+    deleteConversation,
   } = useChat();
 
   const isMobile = useIsMobile();
@@ -66,10 +67,18 @@ export default function Home() {
         onClose={closeMobileSidebar}
         isCollapsed={!isMobile && isSidebarCollapsed}
         onToggleCollapse={toggleSidebar}
-        onNewChat={handleNewChat}
+        onNewChat={() => {
+          handleNewChat();
+          closeMobileSidebar();
+        }}
         conversations={conversations}
         activeConversationId={conversationId}
-        onSelectConversation={selectConversation}
+        onSelectConversation={(id) => {
+          selectConversation(id);
+          closeMobileSidebar();
+        }}
+        onDeleteConversation={deleteConversation}
+        isBusy={isLoading}
         isSignedIn={isSignedIn}
         isMobile={isMobile}
       />

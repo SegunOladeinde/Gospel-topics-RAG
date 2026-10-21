@@ -4,6 +4,7 @@ import { describe, it } from "node:test";
 
 import { backendEndpoint } from "../src/lib/backendUrl.ts";
 import {
+  BURST_LIMIT_MESSAGE,
   MAX_REQUEST_MESSAGES,
   formatResetTime,
   limitMessage,
@@ -46,8 +47,14 @@ describe("toChatError", () => {
   it("passes other errors through as plain messages", () => {
     assert.deepEqual(toChatError(503, { detail: "Waking up the server" }), { message: "Waking up the server" });
     assert.deepEqual(toChatError(500, null), { message: "Request failed (500)" });
-    // The slowapi burst limit is also a 429 but not one of our codes.
-    assert.equal(toChatError(429, { error: "Rate limit exceeded" }).code, undefined);
+  });
+
+  it("turns the 10-a-minute burst limit into a friendly message", () => {
+    // slowapi's 429 body has no detail code, unlike the daily limits.
+    const error = toChatError(429, { error: "Rate limit exceeded: 10 per 1 minute" });
+    assert.equal(error.code, undefined);
+    assert.equal(error.message, BURST_LIMIT_MESSAGE);
+    assert.match(error.message, /try again in a few seconds/);
   });
 });
 

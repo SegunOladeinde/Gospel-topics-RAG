@@ -1,5 +1,6 @@
 "use client";
-import { BookOpen, MessageSquarePlus, X, ChevronLeft } from "lucide-react";
+import { useState } from "react";
+import { BookOpen, MessageSquarePlus, X, ChevronLeft, Trash2 } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import type { ConversationSummary } from "../types";
 
@@ -12,14 +13,30 @@ interface Props {
     conversations: ConversationSummary[];
     activeConversationId: string | null;
     onSelectConversation: (id: string) => void;
+    onDeleteConversation: (id: string) => Promise<boolean>;
+    // While an answer is on its way, chats can't be deleted.
+    isBusy: boolean;
     isSignedIn: boolean;
     isMobile: boolean;
 }
 
 export function Sidebar({
     isOpen, isCollapsed, onToggleCollapse, onClose, onNewChat,
-    conversations, activeConversationId, onSelectConversation, isSignedIn, isMobile
+    conversations, activeConversationId, onSelectConversation, onDeleteConversation,
+    isBusy, isSignedIn, isMobile
 }: Props) {
+    // The chat showing the "Delete this chat?" confirm step, if any.
+    const [confirmingId, setConfirmingId] = useState<string | null>(null);
+    const [failedId, setFailedId] = useState<string | null>(null);
+    const [deletingId, setDeletingId] = useState<string | null>(null);
+
+    const confirmDelete = async (id: string) => {
+        setDeletingId(id);
+        const ok = await onDeleteConversation(id);
+        setDeletingId(null);
+        setConfirmingId(null);
+        setFailedId(ok ? null : id);
+    };
 
     const widthClass = (!isMobile && isCollapsed) ? "w-[68px]" : "w-64";
 
@@ -77,22 +94,67 @@ export function Sidebar({
                     <ul className="space-y-0.5">
                         {conversations.map((conversation) => {
                             const isActive = conversation.id === activeConversationId;
+                            if (confirmingId === conversation.id) {
+                                const isDeleting = deletingId === conversation.id;
+                                return (
+                                    <li
+                                        key={conversation.id}
+                                        className="rounded-lg px-2.5 py-2 text-sm bg-red-50/80 dark:bg-red-500/10"
+                                    >
+                                        <p className="truncate text-slate-700 dark:text-neutral-300">Delete this chat?</p>
+                                        <div className="mt-1.5 flex gap-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => confirmDelete(conversation.id)}
+                                                disabled={isDeleting}
+                                                className="rounded-md bg-red-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-red-500 disabled:opacity-50"
+                                            >
+                                                {isDeleting ? "Deleting…" : "Delete"}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setConfirmingId(null)}
+                                                disabled={isDeleting}
+                                                className="rounded-md px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-black/5 dark:text-neutral-300 dark:hover:bg-white/10"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </li>
+                                );
+                            }
                             return (
-                                <li key={conversation.id}>
+                                <li key={conversation.id} className="group relative">
                                     <button
                                         type="button"
-                                        onClick={() => {
-                                            onSelectConversation(conversation.id);
-                                            if (isMobile) onClose();
-                                        }}
+                                        onClick={() => onSelectConversation(conversation.id)}
                                         aria-current={isActive ? "page" : undefined}
                                         title={conversation.title}
-                                        className={`w-full rounded-lg px-2.5 py-2 text-left text-sm transition-colors
+                                        className={`w-full rounded-lg py-2 pl-2.5 pr-8 text-left text-sm transition-colors
                                             ${isActive
                                                 ? "bg-white/60 text-slate-900 dark:bg-white/[0.08] dark:text-white"
                                                 : "text-slate-700 hover:bg-white/50 dark:text-neutral-300 dark:hover:bg-white/[0.05]"}`}
                                     >
                                         <p className="truncate">{conversation.title}</p>
+                                        {failedId === conversation.id && (
+                                            <p className="text-[11px] text-red-600 dark:text-red-400">Couldn&apos;t delete. Try again.</p>
+                                        )}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setFailedId(null);
+                                            setConfirmingId(conversation.id);
+                                        }}
+                                        disabled={isBusy}
+                                        aria-label={`Delete chat: ${conversation.title}`}
+                                        title="Delete chat"
+                                        className={`absolute right-1.5 top-2 rounded-md p-1 text-slate-400 transition-opacity
+                                            hover:bg-black/5 hover:text-red-600 dark:text-neutral-500 dark:hover:bg-white/10 dark:hover:text-red-400
+                                            focus-visible:opacity-100 disabled:cursor-not-allowed disabled:opacity-0
+                                            ${isMobile ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
+                                    >
+                                        <Trash2 size={14} />
                                     </button>
                                 </li>
                             );

@@ -143,6 +143,34 @@ export function useChat() {
         }
     };
 
+    // Saved chats are deleted on the server first; unsaved (tab-only) chats
+    // just disappear. Deleting the open chat leaves an empty new chat.
+    // Returns false if the server refused, so the sidebar can say so.
+    const deleteConversation = async (id: string): Promise<boolean> => {
+        const target = conversations.find((c) => c.id === id);
+        if (!target) return true;
+        if (target.saved) {
+            try {
+                const res = await fetch(`/api/conversations/${encodeURIComponent(id)}`, { method: "DELETE" });
+                // 404: already gone (another tab), which is what we wanted anyway.
+                if (!res.ok && res.status !== 404) return false;
+            } catch {
+                return false;
+            }
+        }
+        setConversations((prev) => prev.filter((c) => c.id !== id));
+        setChatCache((prev) => {
+            const next = { ...prev };
+            delete next[id];
+            return next;
+        });
+        if (activeIdRef.current === id && !isLoading) {
+            showConversation(null, []);
+            setError(null);
+        }
+        return true;
+    };
+
     const sendQuestion = async (question: string) => {
         if (!question.trim() || isLoading || isLoadingConversation) return;
 
@@ -238,5 +266,6 @@ export function useChat() {
         sendQuestion,
         handleNewChat,
         selectConversation,
+        deleteConversation,
     };
 }
