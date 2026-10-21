@@ -124,3 +124,19 @@ def get_conversation(db: Session, user_id: str, conversation_id: str) -> Convers
         ],
     )
 
+
+
+def delete_conversation(db: Session, user_id: str, conversation_id: str) -> bool:
+    """Delete one of the user's conversations and its messages.
+
+    Returns False if it doesn't exist or belongs to someone else. Commits;
+    raises SQLAlchemyError on failure.
+    """
+    conversation = _owned(db, user_id, conversation_id)
+    if conversation is None:
+        return False
+    # Delete messages explicitly: SQLite (tests) doesn't enforce ON DELETE CASCADE.
+    db.query(ChatMessage).filter(ChatMessage.conversation_id == conversation.id).delete()
+    db.delete(conversation)
+    db.commit()
+    return True

@@ -52,7 +52,7 @@ from typing import Literal
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_ipaddr
@@ -63,10 +63,12 @@ from src.backend.database import UserQueryLog, init_db
 from src.backend.history import (
     ConversationDetail,
     ConversationSummary,
+    delete_conversation,
     get_conversation,
     list_conversations,
     save_turn,
 )
+from src.backend.keyword_retriever import KeywordBM25Retriever
 from src.backend.source_links import SourceLink, source_link
 from src.backend.usage import Usage, get_usage
 from dataclasses import dataclass
@@ -108,8 +110,6 @@ if not os.getenv("OPENAI_API_KEY"):
     )
     raise RuntimeError("Missing required environment variable: OPENAI_API_KEY")
 
-# Note: in langchain >= 1.0, EnsembleRetriever was moved out of the main
-# `langchain` package and into the separate `langchain_classic` package.
 from langchain.retrievers import EnsembleRetriever
 from langchain_community.retrievers import BM25Retriever
 from langchain_community.vectorstores import FAISS
@@ -200,8 +200,12 @@ INTENT_CLASSIFIER_PROMPT = """You are an intent classification engine.
 Analyse the user's latest question in the context of the conversation history
 and return EXACTLY one of these three strings — nothing else:
 
-  CHITCHAT      — The user is greeting, thanking, complimenting, or making
-                  casual small-talk (e.g. "Hello", "Thanks!", "Great answer").
+  CHITCHAT      — The message is ONLY a greeting, thanks, compliment or
+                  casual small-talk, with no question or request at all
+                  (e.g. "Hello", "Thanks!", "Great answer").
+                  If small-talk is combined with ANY question or request
+                  (e.g. "Thanks! And what about tithing?"), it is NOT
+                  CHITCHAT: use RAG_FOLLOWUP or RAG_NEW_TOPIC.
 
   RAG_FOLLOWUP  — The user is asking a question that requires context from
                   the conversation history to make sense (e.g. "Why should I
@@ -232,10 +236,19 @@ class ContentSizeLimitMiddleware(BaseHTTPMiddleware):
 
     async def dispatch(self, request: Request, call_next):  # type: ignore[override]
         content_length = request.headers.get("content-length")
-        if content_length and int(content_length) > self._MAX_BYTES:
-            return StarletteResponse(
-                "Request body too large (max 1 MB).", status_code=413
-            )
+        if content_length is not None:
+            # A malformed header ("abc", "-1", "1e9") is the client's mistake:
+            # answer 400 rather than letting int() raise into a 500.
+            try:
+                size = int(content_length)
+            except ValueError:
+                size = -1
+            if size < 0:
+                return StarletteResponse("Invalid Content-Length header.", status_code=400)
+            if size > self._MAX_BYTES:
+                return StarletteResponse(
+                    "Request body too large (max 1 MB).", status_code=413
+                )
         return await call_next(request)
 
 
@@ -326,8 +339,10 @@ def load_retriever() -> BaseRetriever:
     # we load it back the same way.
     _verify_bm25_hash(BM25_INDEX_PATH)
     with open(BM25_INDEX_PATH, "rb") as bm25_file:
-        bm25_retriever: BM25Retriever = pickle.load(bm25_file)
-    bm25_retriever.k = CHUNKS_PER_RETRIEVER
+        bm25_index: BM25Retriever = pickle.load(bm25_file)
+    # Query it on content words only, and only keep real matches; see
+    # src/backend/keyword_retriever.py for why.
+    bm25_retriever = KeywordBM25Retriever(bm25=bm25_index, k=CHUNKS_PER_RETRIEVER)
 
     # `weights` controls how much each retriever's ranking counts towards
     # the final merged ranking. 0.5/0.5 means "trust them equally".
@@ -636,11 +651,67 @@ async def rewrite_to_standalone(
 
 _VALID_INTENTS = {"CHITCHAT", "RAG_FOLLOWUP", "RAG_NEW_TOPIC"}
 
-# Issue #5: in-process cache for classify_intent.
-# Key: (question, last_assistant_content) — captures the most intent-relevant
-# context without storing full history.  FIFO eviction at _INTENT_CACHE_MAX entries.
+# Issue #5: in-process cache for classify_intent, keyed on the question plus
+# a digest of the last INTENT_CACHE_TURNS messages: the same words can be a
+# follow-up in one conversation and a new topic in another. FIFO eviction at
+# _INTENT_CACHE_MAX entries.
 _INTENT_CACHE: dict[tuple[str, str], str] = {}
 _INTENT_CACHE_MAX = 256
+INTENT_CACHE_TURNS = 4
+
+# Phrases that make up pure small talk. A message counts as CHITCHAT only if
+# every clause in it is one of these (see is_pure_small_talk), so anything
+# with a real question or request in it always goes to retrieval.
+_SMALL_TALK_PHRASES = {
+    "hi", "hello", "hey", "hi there", "hello there", "hey there", "greetings",
+    "good morning", "good afternoon", "good evening", "good night",
+    "thanks", "thank you", "thanks a lot", "thanks so much", "thank you so much",
+    "thank you very much", "many thanks", "thx", "ty", "much appreciated",
+    "i appreciate it", "appreciate it",
+    "great", "great answer", "good answer", "nice", "awesome", "amazing",
+    "perfect", "wonderful", "excellent", "cool", "that helps", "that helped",
+    "that was helpful", "very helpful", "helpful", "got it", "i see",
+    "ok", "okay", "alright", "sounds good", "makes sense",
+    "bye", "goodbye", "see you", "see you later", "have a good day",
+    "god bless", "god bless you",
+}
+_SMALL_TALK_CONNECTORS = {"and", "also", "so", "very", "really", "again", "oh", "wow"}
+_SMALL_TALK_MAX_WORDS = max(len(phrase.split()) for phrase in _SMALL_TALK_PHRASES)
+_WORDS = re.compile(r"[a-z']+")
+
+
+def is_pure_small_talk(message: str) -> bool:
+    """True only if the message is nothing but greetings / thanks / praise.
+
+    The words must split cleanly into small-talk phrases (plus a few filler
+    words like "and" or "so"): "Thanks!", "Hi, thank you so much!" and "ok
+    thanks" are small talk; "Thanks! And what about tithing?" isn't, because
+    "what about tithing" isn't. A question mark always means it isn't.
+    """
+    if "?" in message:
+        return False
+    words = _WORDS.findall(message.lower())
+    if all(word in _SMALL_TALK_CONNECTORS for word in words):
+        return False  # empty, or only filler like "and" / "so"
+    # reachable[i]: the first i words split into phrases/connectors.
+    reachable = [True] + [False] * len(words)
+    for start in range(len(words)):
+        if not reachable[start]:
+            continue
+        if words[start] in _SMALL_TALK_CONNECTORS:
+            reachable[start + 1] = True
+        for end in range(start + 1, min(start + _SMALL_TALK_MAX_WORDS, len(words)) + 1):
+            if " ".join(words[start:end]) in _SMALL_TALK_PHRASES:
+                reachable[end] = True
+    return reachable[-1]
+
+
+def _intent_cache_key(question: str, history: list[Message]) -> tuple[str, str]:
+    recent = history[-INTENT_CACHE_TURNS:]
+    digest = hashlib.sha256(
+        "\x1e".join(f"{m.role}\x1f{m.content}" for m in recent).encode("utf-8")
+    ).hexdigest()
+    return question, digest
 
 
 async def classify_intent(
@@ -659,12 +730,18 @@ async def classify_intent(
     ``CHITCHAT``      — greeting / thanks / casual compliment; skip retrieval.
     ``RAG_FOLLOWUP``  — context-dependent follow-up; rewrite then retrieve.
     ``RAG_NEW_TOPIC`` — fresh gospel question; retrieve against raw question.
+
+    CHITCHAT is decided in code, not by the model: pure small talk (see
+    is_pure_small_talk) skips the OpenAI call entirely, and a CHITCHAT label
+    from the model for anything else is overridden, so a question tucked
+    behind a "thanks" still gets a grounded answer.
     """
-    # Cache lookup — skip the OpenAI call for repeated identical questions.
-    last_assistant = next(
-        (m.content for m in reversed(history) if m.role == "assistant"), ""
-    )
-    _cache_key = (question, last_assistant)
+    if is_pure_small_talk(question):
+        return "CHITCHAT"
+
+    # Cache lookup — skip the OpenAI call for a question already classified
+    # in the same recent context.
+    _cache_key = _intent_cache_key(question, history)
     if _cache_key in _INTENT_CACHE:
         cached = _INTENT_CACHE[_cache_key]
         logger.info("Intent cache hit: %r -> %r", question, cached)
@@ -692,6 +769,12 @@ async def classify_intent(
                 label,
             )
             label = "RAG_NEW_TOPIC"
+        elif label == "CHITCHAT":
+            # Not pure small talk (checked above), so there's a real question
+            # in it. With history it may lean on earlier turns; the follow-up
+            # branch rewrites it into a standalone query either way.
+            logger.info("Overriding CHITCHAT for a message with a question in it: %r", question)
+            label = "RAG_FOLLOWUP" if history else "RAG_NEW_TOPIC"
     except Exception:  # noqa: BLE001 - never block the pipeline
         logger.warning(
             "classify_intent failed; defaulting to RAG_NEW_TOPIC.",
@@ -989,6 +1072,35 @@ async def conversation(
     if detail is None:
         raise HTTPException(status_code=404, detail="Conversation not found.")
     return detail
+
+
+@app.delete(
+    "/api/v1/conversations/{conversation_id}",
+    status_code=204,
+    dependencies=[Depends(verify_api_key)],
+)
+@limiter.limit("60/minute")
+async def remove_conversation(
+    request: Request,
+    conversation_id: str,
+    x_user_id: str | None = Header(default="", alias="X-User-Id"),
+    db=Depends(get_db),
+) -> Response:
+    """Delete one of the signed-in user's saved chats. 404 if it doesn't exist
+    or belongs to someone else. Question counts are unaffected: they come from
+    user_query_logs, not from saved chats."""
+    user_id = (x_user_id or "").strip()
+    if db is None or not user_id:
+        raise HTTPException(status_code=404, detail="Conversation not found.")
+    try:
+        deleted = delete_conversation(db, user_id, conversation_id)
+    except SQLAlchemyError as exc:
+        rollback_quietly(db)
+        logger.exception("Failed to delete conversation")
+        raise HTTPException(status_code=503, detail="Chat history is unavailable right now.") from exc
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Conversation not found.")
+    return Response(status_code=204)
 
 
 @app.post(

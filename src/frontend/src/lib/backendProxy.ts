@@ -25,7 +25,7 @@ export const WAKING_UP_MESSAGE =
 interface ProxyOptions {
   // Relative to BACKEND_URL; null means BACKEND_URL itself (the query endpoint).
   path: string | string[] | null;
-  method: "GET" | "POST";
+  method: "GET" | "POST" | "DELETE";
   body?: unknown;
   userId: string | null;
   isAdmin: boolean;
@@ -85,6 +85,10 @@ export async function proxyToBackend(
       { detail: WAKING_UP_MESSAGE },
       { status: timedOut ? 504 : 503 }
     );
+  }
+
+  if (backendResponse.status === 204) {
+    return new NextResponse(null, { status: 204 });
   }
 
   const data = await backendResponse.json().catch(() => null);

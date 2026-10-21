@@ -24,3 +24,21 @@ export async function GET(
     isAdmin: false,
   });
 }
+
+// Delete one of the signed-in user's saved chats (404 if it isn't theirs).
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { userId } = await auth();
+  if (!userId) {
+    return NextResponse.json({ detail: "Conversation not found." }, { status: 404 });
+  }
+  const { id } = await params;
+  return proxyToBackend(request.headers, {
+    path: ["conversations", id],
+    method: "DELETE",
+    userId,
+    isAdmin: false,
+  });
+}
