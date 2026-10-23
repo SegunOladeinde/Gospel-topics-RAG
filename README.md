@@ -89,7 +89,7 @@ Passage search can run from Supabase Postgres instead of the FAISS/BM25 files, s
 |---|---|
 | Raw pages backup | private Storage bucket `raw-data`, written by `scripts/backup_raw.py` with a `manifest.json` (path, sha256, size per file). Re-runs upload only changed files |
 | Passage store | `rag_documents` (one row per page: collection, slug, real title, canonical URL, sha256) and `rag_chunks` (passage text, `halfvec(1536)` embedding with an HNSW cosine index, generated `tsvector` with a GIN index). Schema: [`sql/004_rag_store.sql`](sql/004_rag_store.sql), also applied by `init_db()` on startup. RLS on, no public policies |
-| Search | `hybrid_search(query_embedding, query_text, k, collections)`: semantic and IDF-weighted full-text top-k fused by reciprocal rank. `match_chunks(query_embedding, k, candidate_ids)`: semantic top-k plus the similarity of given passages (used with in-memory BM25). Only `postgres` and `service_role` may call them |
+| Search | `hybrid_search(query_embedding, query_text, k, collections)`: semantic and IDF-weighted full-text top-k fused by reciprocal rank. `match_chunks(query_embedding, k, candidate_ids, collections)`: semantic top-k plus the similarity of given passages (used with in-memory BM25), optionally within some collections. Only `postgres` and `service_role` may call them |
 | Ingestion | `scripts/ingest.py`, configured by [`data/collections.yaml`](data/collections.yaml) |
 
 `halfvec` was chosen over `vector`: text-embedding-3-small vectors survive the float16 round trip exactly (identical top-20 neighbours for every eval question) at half the storage.
@@ -133,6 +133,10 @@ When a run has written anything, it asks the backend to rebuild its in-memory ke
 On the 30-question retrieval eval (`uv run python scripts/eval_retrieval.py`, relevance lists in `tests/eval/questions.json`, results in `eval/retrieval_comparison.json`), `pgvector_bm25` was no worse than FAISS on any question and better on one; `pgvector` was worse on 9, because Postgres full-text ranking picks weaker keyword matches than BM25. `scripts/eval_baseline.py --backend ...` compares answers end to end.
 
 `pgvector_bm25`'s BM25 query leaves out collection names (built in, plus every name and label in `data/collections.yaml`) and generic verbs ("increase", "introduce", "help"...): they say where to look or how, not what about. On the eval that took it from 97 relevant / 29 off-topic sources to 99 / 26, worse on no question than either FAISS or the unfiltered version ("What does the Bible Dictionary say about grace?" no longer cites "Bible Dictionary: Introduction"). The FAISS backend's BM25 query is unchanged.
+
+**Institute manuals and Church History Topics (study collections):** `scripts/fetch_manuals.py` collects the Book of Mormon Student Manual (2018), the Foundations of the Restoration Class Preparation Material (2019; the course's student readings, as there is no student manual) and Church History Topics, with the Church's permission (≤ 1 request/s, resume-safe). Each page is cut at its headings (`src/backend/ingestion/sections.py`) and every section is its own document: a deep link to the heading (`...?lang=eng&id=title8#title8`), a title like "Alma 32:21. Faith and Hope", and the scripture references it discusses (in each passage's `metadata` and on a "Scriptures:" line). Every passage starts with its section line.
+
+These collections are `group: study` in `data/collections.yaml`. With one shared top-k, their 4,971 passages displaced older sources on 16 of 27 existing eval questions, so `pgvector_bm25` searches the groups separately (`GroupedRetriever`): the core collections keep their own semantic top-4 (filtered in SQL with `hnsw.iterative_scan` and `ef_search = 200`, which matched an exact search) and their own BM25, then up to 2 study passages are added when they are at least 0.60 similar to the question or at least as similar as the best core passage. `scripts/eval_collections.py` compares runs before and after (`--tune` scores caps 2-4 x thresholds 0.55/0.60, `eval/phase_d_tuning.json`): on the 45-question eval this setting kept every older source on 26 of 27 existing questions (the 27th lost a page the before-run had found through an inexact search), made 1 existing question worse and 13 of 15 new ones better, at about 1,600 prompt tokens of passages per question.
 
 **Keeping BM25 current without a restart:** newly ingested passages are found by semantic search at once. They reach the in-memory BM25 index when it's rebuilt:
 - after an ingest run (`POST /admin/reindex`, admin only), or
@@ -256,7 +260,7 @@ The query routes (`/api/query` and `/api/query/stream`) set `maxDuration = 300`,
 ```bash
 curl https://gospel-topics-rag.onrender.com/health
 # {"status":"ok","commit":"<short sha>","indexes_loaded":true,"db":"ok",
-#  "retriever":{"backend":"pgvector_bm25","chunks":10160,"keyword_index":{...}},"memory_mb":...}
+#  "retriever":{"backend":"pgvector_bm25","chunks":15131,"keyword_index":{...}},"memory_mb":...}
 ```
 - `commit` should match the latest commit on `main` (`git log -1 --format=%h`). If it doesn't, the new build hasn't gone live yet; check Render → Events.
 - `db` is `ok`, `disabled` (no `DATABASE_URL`), or `error` (database unreachable). `error` makes `status` read `degraded` but still returns HTTP 200, because questions are still answered and Render shouldn't restart the service.

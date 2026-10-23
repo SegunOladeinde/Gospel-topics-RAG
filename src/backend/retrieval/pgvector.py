@@ -71,22 +71,39 @@ class SqlTransport:
 
     _MATCH = text(
         "SELECT chunk_id, content, collection, slug, title, url, similarity, semantic_rank "
-        "FROM match_chunks(CAST(:embedding AS extensions.halfvec), :k, CAST(:ids AS BIGINT[]))"
+        "FROM match_chunks(CAST(:embedding AS extensions.halfvec), :k, CAST(:ids AS BIGINT[]), "
+        "CAST(:collections AS TEXT[]))"
+    )
+    # With a collection filter, HNSW would otherwise filter only its first
+    # ef_search (40) candidates, and return fewer or different passages when
+    # most of those are in other collections. pgvector 0.8 keeps scanning
+    # until the filtered top-k is complete, and a wider ef_search made the
+    # filtered top-4 match an exact search on every eval question that
+    # differed (40 missed e.g. Topical Guide "Nephites" for "Who was Nephi?").
+    # SET LOCAL lasts one transaction.
+    _FILTERED_SCAN = (
+        text("SET LOCAL hnsw.iterative_scan = strict_order"),
+        text("SET LOCAL hnsw.ef_search = 200"),
     )
     _PASSAGES = text(
         "SELECT c.id AS chunk_id, c.content, d.collection, d.slug, d.title, d.url "
         "FROM rag_chunks c JOIN rag_documents d ON d.id = c.document_id ORDER BY c.id"
     )
 
-    def _match(self, embedding, k, candidate_ids) -> list[dict]:
+    def _match(self, embedding, k, candidate_ids, collections=None) -> list[dict]:
         with self.session_factory() as db:
+            if collections:
+                for setting in self._FILTERED_SCAN:
+                    db.execute(setting)
             rows = db.execute(
-                self._MATCH, {"embedding": _vector_literal(embedding), "k": k, "ids": list(candidate_ids)}
+                self._MATCH,
+                {"embedding": _vector_literal(embedding), "k": k, "ids": list(candidate_ids),
+                 "collections": list(collections) if collections else None},
             ).mappings().all()
         return [dict(row) for row in rows]
 
-    async def match(self, embedding, k, candidate_ids) -> list[dict]:
-        return await asyncio.to_thread(self._match, embedding, k, candidate_ids)
+    async def match(self, embedding, k, candidate_ids, collections=None) -> list[dict]:
+        return await asyncio.to_thread(self._match, embedding, k, candidate_ids, collections)
 
     def count_chunks(self) -> int:
         with self.session_factory() as db:
@@ -97,12 +114,18 @@ class SqlTransport:
             return [dict(row) for row in db.execute(self._PASSAGES).mappings().all()]
 
     _PASSAGE_TEXT = text("SELECT id, content FROM rag_chunks ORDER BY id")
+    _PASSAGE_TEXT_IN = text("SELECT id, content FROM rag_chunks WHERE collection = ANY(:c) ORDER BY id")
 
-    def iter_passages(self, batch: int = 500) -> Iterator[tuple[int, str]]:
+    def iter_passages(self, batch: int = 500, collections=None) -> Iterator[tuple[int, str]]:
         """(chunk id, text) in id order, streamed batch by batch (server-side
-        cursor), so the passages are never all in memory at once."""
+        cursor), so the passages are never all in memory at once. Only the
+        given collections' passages when collections is set."""
         with self.session_factory() as db:
-            result = db.execute(self._PASSAGE_TEXT.execution_options(yield_per=batch))
+            if collections:
+                query = self._PASSAGE_TEXT_IN.execution_options(yield_per=batch)
+                result = db.execute(query, {"c": list(collections)})
+            else:
+                result = db.execute(self._PASSAGE_TEXT.execution_options(yield_per=batch))
             for chunk_id, content in result:
                 yield chunk_id, content
 
@@ -133,11 +156,13 @@ class RestTransport:
         response.raise_for_status()
         return response.json()
 
-    async def match(self, embedding, k, candidate_ids) -> list[dict]:
+    async def match(self, embedding, k, candidate_ids, collections=None) -> list[dict]:
+        # REST can't SET hnsw.iterative_scan, so a filtered search here is
+        # approximate the way SqlTransport's isn't (scripts only, not the app).
         response = await self.client.post(
             f"{self.base}/rpc/match_chunks",
             json={"query_embedding": _vector_literal(embedding), "match_count": k,
-                  "candidate_ids": list(candidate_ids)},
+                  "candidate_ids": list(candidate_ids), "collections": list(collections) if collections else None},
         )
         response.raise_for_status()
         return response.json()
@@ -163,14 +188,17 @@ class RestTransport:
         rows, docs = newest.json(), updated.json()
         return (self.count_chunks(), rows[0]["id"] if rows else 0, docs[0]["updated_at"] if docs else None)
 
-    def iter_passages(self, page: int = 1000) -> Iterator[tuple[int, str]]:
+    def iter_passages(self, page: int = 1000, collections=None) -> Iterator[tuple[int, str]]:
         """(chunk id, text) in id order, a page at a time."""
         start = 0
+        params = {"select": "id,content", "order": "id"}
+        if collections:
+            params["collection"] = "in.(" + ",".join(f'"{c}"' for c in collections) + ")"
         with httpx.Client(headers=self.headers, timeout=60) as client:
             while True:
                 response = client.get(
                     f"{self.base}/rag_chunks",
-                    params={"select": "id,content", "order": "id"},
+                    params=params,
                     headers={"Range": f"{start}-{start + page - 1}"},
                 )
                 response.raise_for_status()
@@ -316,8 +344,12 @@ class PgvectorBm25Retriever:
         passages: list[dict] | None = None,
         drop_phrases: tuple[str, ...] = (),
         drop_words: frozenset[str] = frozenset(),
+        collections: tuple[str, ...] | None = None,
     ):
+        """collections: search only these (semantic search filtered in SQL,
+        BM25 built from their passages alone); None searches everything."""
         self.transport = transport
+        self.collections = tuple(collections) if collections else None
         self.embeddings = embeddings
         self.k = k
         self.weights = weights
@@ -331,13 +363,19 @@ class PgvectorBm25Retriever:
             self.signature = self._current_signature()
             self._index = self._build_index(self._stream_passages())
         else:
-            self._index = self._build_index((row["chunk_id"], row["content"]) for row in passages)
+            self._index = self._build_index(
+                (row["chunk_id"], row["content"]) for row in passages if self._wanted(row.get("collection"))
+            )
+
+    def _wanted(self, collection: str | None) -> bool:
+        return self.collections is None or collection in self.collections
 
     def _stream_passages(self) -> Iterable[tuple[int, str]]:
         stream = getattr(self.transport, "iter_passages", None)
         if stream:
-            return stream()
-        return ((row["chunk_id"], row["content"]) for row in self.transport.load_passages())
+            return stream(collections=self.collections) if self.collections else stream()
+        return ((row["chunk_id"], row["content"]) for row in self.transport.load_passages()
+                if self._wanted(row.get("collection")))
 
     def _build_index(self, passages: Iterable[tuple[int, str]]) -> SparseBm25 | None:
         index = SparseBm25.build(passages, k=self.k, drop_phrases=self.drop_phrases, drop_words=self.drop_words)
@@ -369,16 +407,22 @@ class PgvectorBm25Retriever:
         release_memory()  # the old index, now unreferenced
         return index.size if index else 0
 
-    async def search(self, query: str) -> tuple[list[Document], list[Document], dict[int, float]]:
-        """The semantic hits, keyword hits and similarities before fusion (for evals)."""
+    async def search(
+        self, query: str, embedding: list[float] | None = None
+    ) -> tuple[list[Document], list[Document], dict[int, float]]:
+        """The semantic hits, keyword hits and similarities before fusion (for
+        evals and GroupedRetriever). embedding: the query's, if already known."""
         keyword = self.keyword  # read once: a rebuild may swap it meanwhile
         embedding, keyword_ids = await asyncio.gather(
-            self.embeddings.aembed_query(query),
+            self.embeddings.aembed_query(query) if embedding is None else asyncio.sleep(0, result=embedding),
             keyword.ainvoke_ids(query) if keyword else asyncio.sleep(0, result=[]),
         )
         # The keyword hits' text and metadata come back with the semantic
         # search; a passage deleted since the index was built is just skipped.
-        rows = await self.transport.match(embedding, self.k, keyword_ids)
+        if self.collections:
+            rows = await self.transport.match(embedding, self.k, keyword_ids, collections=self.collections)
+        else:
+            rows = await self.transport.match(embedding, self.k, keyword_ids)
         by_id = {r["chunk_id"]: r for r in rows}
         semantic = [_document(r) for r in sorted(
             (r for r in rows if r.get("semantic_rank")), key=lambda r: r["semantic_rank"])]
@@ -386,11 +430,70 @@ class PgvectorBm25Retriever:
         similarity = {r["chunk_id"]: r["similarity"] for r in rows}
         return semantic, keyword_docs, similarity
 
-    async def ainvoke(self, query: str) -> list[Document]:
-        semantic, keyword_docs, similarity = await self.search(query)
+    async def ainvoke(self, query: str, embedding: list[float] | None = None) -> list[Document]:
+        semantic, keyword_docs, similarity = await self.search(query, embedding)
         return fuse_with_cutoff(semantic, keyword_docs, similarity, self.weights, self.min_similarity)
+
+    async def ainvoke_scored(self, query: str, embedding: list[float] | None = None) -> list[tuple[Document, float]]:
+        """ainvoke(), with each passage's similarity to the question."""
+        semantic, keyword_docs, similarity = await self.search(query, embedding)
+        fused = fuse_with_cutoff(semantic, keyword_docs, similarity, self.weights, self.min_similarity)
+        return [(doc, similarity.get(doc.metadata["chunk_id"], 0.0)) for doc in fused]
 
     def chunk_counts(self) -> dict[str, int]:
         index = self._index
         total = index.size if index else 0
         return {"vector": total, "keyword": total}
+
+
+class GroupedRetriever:
+    """Two PgvectorBm25Retrievers over separate groups of collections.
+
+    The core group (the Bible Dictionary, Topical Guide and Gospel Topics)
+    is searched exactly as it was on its own: its own semantic top-k and its
+    own BM25, so collections added later can't crowd out its sources or
+    change its BM25 weights. The added group (the Institute manuals and
+    Church History Topics) is searched the same way, and up to max_added of
+    its passages follow the core ones when their similarity to the question
+    is at least min_similarity, or (relative_to_core) at least that of the
+    best core passage: when the core collections have nothing close, a
+    manual section that is the closest match still gets in. With one shared top-k instead, manual
+    passages displaced older sources on 16 of 27 existing eval questions
+    (scripts/eval_collections.py).
+
+    One embedding per question, shared by both searches, which run together.
+    """
+
+    name = "pgvector_bm25"
+
+    def __init__(self, core: PgvectorBm25Retriever, added: PgvectorBm25Retriever,
+                 max_added: int, min_similarity: float, relative_to_core: bool = False):
+        self.core = core
+        self.added = added
+        self.max_added = max_added
+        self.min_similarity = min_similarity
+        self.relative_to_core = relative_to_core
+        self.embeddings = core.embeddings
+
+    async def ainvoke(self, query: str) -> list[Document]:
+        embedding = await self.embeddings.aembed_query(query)
+        core, added = await asyncio.gather(
+            self.core.ainvoke_scored(query, embedding), self.added.ainvoke_scored(query, embedding)
+        )
+        floor = self.min_similarity
+        if self.relative_to_core and core:
+            floor = min(floor, max(similarity for _, similarity in core))
+        extra = [doc for doc, similarity in added if similarity >= floor][: self.max_added]
+        return [doc for doc, _ in core] + extra
+
+    def is_stale(self) -> bool:
+        return self.core.is_stale() or self.added.is_stale()
+
+    def rebuild_keyword_index(self) -> int:
+        """Rebuild both groups' BM25 indexes, one after the other (each is
+        swapped in as soon as it's built); returns the passage count."""
+        return self.core.rebuild_keyword_index() + self.added.rebuild_keyword_index()
+
+    def chunk_counts(self) -> dict[str, int]:
+        core, added = self.core.chunk_counts(), self.added.chunk_counts()
+        return {key: core[key] + added[key] for key in core}

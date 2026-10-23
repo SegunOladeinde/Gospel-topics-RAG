@@ -1,0 +1,1705 @@
+{
+ "passages": 10160,
+ "retrieval": {
+  "doctrine-baptism": {
+   "query": "What is baptism?",
+   "sources": [
+    "topical_guide/baptism",
+    "bible_dictionary/baptism",
+    "topics_and_questions/baptism",
+    "topics_and_questions/baptism-study-guide",
+    "bible_dictionary/confirmation",
+    "topical_guide/baptism-immersion"
+   ],
+   "labels": [
+    "Topical Guide: Baptism",
+    "Bible Dictionary: Baptism",
+    "Gospel Topics: Baptism",
+    "Gospel Topics: Baptism (Study Guide)",
+    "Bible Dictionary: Confirmation",
+    "Topical Guide: Baptism, Immersion"
+   ],
+   "strict": [
+    6,
+    0
+   ],
+   "full": [
+    6,
+    0
+   ]
+  },
+  "doctrine-sacrament-purpose": {
+   "query": "What is the purpose of the sacrament?",
+   "sources": [
+    "topics_and_questions/sacrament-study-guide",
+    "topics_and_questions/sacrament",
+    "topics_and_questions/sacrament-meeting"
+   ],
+   "labels": [
+    "Gospel Topics: Sacrament (Study Guide)",
+    "Gospel Topics: Sacrament",
+    "Gospel Topics: Sacrament Meeting"
+   ],
+   "strict": [
+    3,
+    0
+   ],
+   "full": [
+    3,
+    0
+   ]
+  },
+  "doctrine-moroni": {
+   "query": "Who was Moroni?",
+   "sources": [
+    "topics_and_questions/joseph-smiths-character",
+    "topics_and_questions/religion-vs-violence",
+    "topics_and_questions/abraham-book-of",
+    "topics_and_questions/book-of-mormon-and-dna-studies",
+    "topics_and_questions/restoration-of-the-church",
+    "topics_and_questions/scriptures",
+    "topics_and_questions/spiritual-gifts"
+   ],
+   "labels": [
+    "Gospel Topics: Joseph Smith’s Character",
+    "Gospel Topics: Religion vs. Violence",
+    "Gospel Topics: Origins of the Book of Abraham",
+    "Gospel Topics: Book of Mormon and DNA Studies",
+    "Gospel Topics: Restoration of the Church",
+    "Gospel Topics: Scriptures",
+    "Gospel Topics: Spiritual Gifts"
+   ],
+   "strict": [
+    5,
+    2
+   ],
+   "full": [
+    5,
+    2
+   ]
+  },
+  "doctrine-after-death": {
+   "query": "What happens after we die?",
+   "sources": [
+    "topical_guide/life-after-death",
+    "topics_and_questions/spirit-world-study-guide",
+    "topics_and_questions/postmortality",
+    "topical_guide/die",
+    "topics_and_questions/heaven",
+    "topics_and_questions/grace"
+   ],
+   "labels": [
+    "Topical Guide: Life after Death",
+    "Gospel Topics: Spirit World (Study Guide)",
+    "Gospel Topics: Postmortality",
+    "Topical Guide: Die",
+    "Gospel Topics: Heaven",
+    "Gospel Topics: Grace"
+   ],
+   "strict": [
+    5,
+    1
+   ],
+   "full": [
+    5,
+    1
+   ]
+  },
+  "doctrine-repentance-steps": {
+   "query": "List the steps of repentance",
+   "sources": [
+    "topics_and_questions/repentance-study-guide",
+    "topics_and_questions/repentance",
+    "bible_dictionary/repentance",
+    "topical_guide/repent"
+   ],
+   "labels": [
+    "Gospel Topics: Repentance (Study Guide)",
+    "Gospel Topics: Repentance",
+    "Bible Dictionary: Repentance",
+    "Topical Guide: Repent, Repentance"
+   ],
+   "strict": [
+    4,
+    0
+   ],
+   "full": [
+    4,
+    0
+   ]
+  },
+  "doctrine-temples": {
+   "query": "Why do we build temples?",
+   "sources": [
+    "topics_and_questions/temples",
+    "topics_and_questions/church-financial-administration",
+    "topics_and_questions/temples-study-guide",
+    "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
+   ],
+   "labels": [
+    "Gospel Topics: Temples",
+    "Gospel Topics: Church Financial Administration",
+    "Gospel Topics: Temples (Study Guide)",
+    "Gospel Topics: Temples of The Church of Jesus Christ of Latter-day Saints"
+   ],
+   "strict": [
+    4,
+    0
+   ],
+   "full": [
+    4,
+    0
+   ]
+  },
+  "followup-faith": {
+   "query": "How can I increase my faith in Jesus Christ?",
+   "sources": [
+    "topics_and_questions/faith-in-jesus-christ-study-guide",
+    "bible_dictionary/faith",
+    "topics_and_questions/faith-in-jesus-christ"
+   ],
+   "labels": [
+    "Gospel Topics: Faith in Jesus Christ (Study Guide)",
+    "Bible Dictionary: Faith",
+    "Gospel Topics: Faith in Jesus Christ"
+   ],
+   "strict": [
+    3,
+    0
+   ],
+   "full": [
+    3,
+    0
+   ]
+  },
+  "followup-tithing": {
+   "query": "Why is tithing set at ten percent?",
+   "sources": [
+    "topics_and_questions/tithing-study-guide",
+    "topical_guide/tithing",
+    "topics_and_questions/church-financial-administration",
+    "topics_and_questions/tithing",
+    "topical_guide/tenth"
+   ],
+   "labels": [
+    "Gospel Topics: Tithing (Study Guide)",
+    "Topical Guide: Tithing",
+    "Gospel Topics: Church Financial Administration",
+    "Gospel Topics: Tithing",
+    "Topical Guide: Tenth"
+   ],
+   "strict": [
+    5,
+    0
+   ],
+   "full": [
+    5,
+    0
+   ]
+  },
+  "followup-sacrament-scriptures": {
+   "query": "Can you share scriptures about the sacrament?",
+   "sources": [
+    "topics_and_questions/sacrament",
+    "topical_guide/sacrament",
+    "topics_and_questions/sacrament-study-guide",
+    "topics_and_questions/sacrament-meeting"
+   ],
+   "labels": [
+    "Gospel Topics: Sacrament",
+    "Topical Guide: Sacrament",
+    "Gospel Topics: Sacrament (Study Guide)",
+    "Gospel Topics: Sacrament Meeting"
+   ],
+   "strict": [
+    4,
+    0
+   ],
+   "full": [
+    4,
+    0
+   ]
+  },
+  "mixed-thanks-tithing": {
+   "query": "And what about tithing?",
+   "sources": [
+    "topics_and_questions/tithing",
+    "topics_and_questions/church-financial-administration",
+    "topical_guide/tithing",
+    "topics_and_questions/tithing-study-guide"
+   ],
+   "labels": [
+    "Gospel Topics: Tithing",
+    "Gospel Topics: Church Financial Administration",
+    "Topical Guide: Tithing",
+    "Gospel Topics: Tithing (Study Guide)"
+   ],
+   "strict": [
+    4,
+    0
+   ],
+   "full": [
+    4,
+    0
+   ]
+  },
+  "mixed-grace-with-history": {
+   "query": "What does the Bible Dictionary say about grace?",
+   "sources": [
+    "topics_and_questions/grace-study-guide",
+    "topical_guide/grace",
+    "bible_dictionary/grace",
+    "topical_guide/salvation-by-grace",
+    "topics_and_questions/grace"
+   ],
+   "labels": [
+    "Gospel Topics: Grace (Study Guide)",
+    "Topical Guide: Grace",
+    "Bible Dictionary: Grace",
+    "Topical Guide: Salvation by Grace",
+    "Gospel Topics: Grace"
+   ],
+   "strict": [
+    5,
+    0
+   ],
+   "full": [
+    5,
+    0
+   ]
+  },
+  "long-priesthood-authority": {
+   "query": "Why do Latter-day Saints believe that baptism must be performed by someone holding proper priesthood authority, and how does that relate to the Restoration, the ministry of John the Baptist, and the covenant we make to take upon ourselves the name of Jesus Christ, always remember Him and keep His commandments so that we may always have His Spirit with us? I would also like to understand how this authority was lost after the Apostles died and why it needed to be restored rather than simply continued by other churches.",
+   "sources": [
+    "topics_and_questions/restoration-of-the-priesthood-study-guide",
+    "topics_and_questions/restoration-of-the-priesthood",
+    "topics_and_questions/baptism-study-guide",
+    "topics_and_questions/restoration-of-the-church-study-guide",
+    "topics_and_questions/priesthood-keys-study-guide",
+    "topics_and_questions/sabbath-day-study-guide"
+   ],
+   "labels": [
+    "Gospel Topics: Restoration of the Priesthood (Study Guide)",
+    "Gospel Topics: Restoration of the Priesthood",
+    "Gospel Topics: Baptism (Study Guide)",
+    "Gospel Topics: Restoration of the Gospel (Study Guide)",
+    "Gospel Topics: Priesthood Keys (Study Guide)",
+    "Gospel Topics: Sabbath Day (Study Guide)"
+   ],
+   "strict": [
+    5,
+    1
+   ],
+   "full": [
+    5,
+    1
+   ]
+  },
+  "tithing-hard-times": {
+   "query": "Why should I pay tithing even when money is tight?",
+   "sources": [
+    "topics_and_questions/tithing-study-guide",
+    "topics_and_questions/church-financial-administration",
+    "topical_guide/tight",
+    "topics_and_questions/family-finances"
+   ],
+   "labels": [
+    "Gospel Topics: Tithing (Study Guide)",
+    "Gospel Topics: Church Financial Administration",
+    "Topical Guide: Tight",
+    "Gospel Topics: Family Finances"
+   ],
+   "strict": [
+    3,
+    1
+   ],
+   "full": [
+    3,
+    1
+   ]
+  },
+  "tithing-use": {
+   "query": "What is tithing money used for?",
+   "sources": [
+    "topics_and_questions/tithing-study-guide",
+    "topics_and_questions/tithing",
+    "topics_and_questions/church-financial-administration"
+   ],
+   "labels": [
+    "Gospel Topics: Tithing (Study Guide)",
+    "Gospel Topics: Tithing",
+    "Gospel Topics: Church Financial Administration"
+   ],
+   "strict": [
+    3,
+    0
+   ],
+   "full": [
+    3,
+    0
+   ]
+  },
+  "sacrament-prayers": {
+   "query": "What do the sacrament prayers promise?",
+   "sources": [
+    "topics_and_questions/sacrament",
+    "topics_and_questions/sacrament-study-guide",
+    "topics_and_questions/gifts-of-the-spirit-study-guide",
+    "topical_guide/promise",
+    "topics_and_questions/holy-ghost-gift-study-guide",
+    "topics_and_questions/sacrament-meeting"
+   ],
+   "labels": [
+    "Gospel Topics: Sacrament",
+    "Gospel Topics: Sacrament (Study Guide)",
+    "Gospel Topics: Gifts of the Spirit (Study Guide)",
+    "Topical Guide: Promise",
+    "Gospel Topics: Gift of the Holy Ghost (Study Guide)",
+    "Gospel Topics: Sacrament Meeting"
+   ],
+   "strict": [
+    4,
+    2
+   ],
+   "full": [
+    4,
+    2
+   ]
+  },
+  "sacrament-weekly": {
+   "query": "Why do we take the sacrament every week?",
+   "sources": [
+    "topics_and_questions/sacrament-study-guide",
+    "topics_and_questions/sacrament",
+    "topics_and_questions/sacrament-meeting"
+   ],
+   "labels": [
+    "Gospel Topics: Sacrament (Study Guide)",
+    "Gospel Topics: Sacrament",
+    "Gospel Topics: Sacrament Meeting"
+   ],
+   "strict": [
+    3,
+    0
+   ],
+   "full": [
+    3,
+    0
+   ]
+  },
+  "bom-nephi": {
+   "query": "Who was Nephi in the Book of Mormon?",
+   "sources": [
+    "topical_guide/nephites",
+    "topics_and_questions/book-of-mormon-study-guide",
+    "bible_dictionary/jeremiah",
+    "topics_and_questions/book-of-mormon-and-dna-studies",
+    "topics_and_questions/book-of-mormon-translation"
+   ],
+   "labels": [
+    "Topical Guide: Nephites",
+    "Gospel Topics: Book of Mormon (Study Guide)",
+    "Bible Dictionary: Jeremiah",
+    "Gospel Topics: Book of Mormon and DNA Studies",
+    "Gospel Topics: Book of Mormon Translation"
+   ],
+   "strict": [
+    4,
+    1
+   ],
+   "full": [
+    4,
+    1
+   ]
+  },
+  "bom-alma": {
+   "query": "Who was Alma the Younger and how did he change?",
+   "sources": [
+    "topics_and_questions/repentance-study-guide",
+    "topical_guide/man-new-spiritually-reborn",
+    "topical_guide/young",
+    "topical_guide/mighty",
+    "topics_and_questions/conversion-study-guide",
+    "topical_guide/learn",
+    "topical_guide/change"
+   ],
+   "labels": [
+    "Gospel Topics: Repentance (Study Guide)",
+    "Topical Guide: Man, New, Spiritually Reborn",
+    "Topical Guide: Young, Younger, Youngest",
+    "Topical Guide: Mighty, Mightier",
+    "Gospel Topics: Conversion to Jesus Christ (Study Guide)",
+    "Topical Guide: Learn, Learning",
+    "Topical Guide: Change"
+   ],
+   "strict": [
+    2,
+    5
+   ],
+   "full": [
+    2,
+    5
+   ]
+  },
+  "bom-king-benjamin": {
+   "query": "What did King Benjamin teach about service?",
+   "sources": [
+    "topical_guide/service",
+    "bible_dictionary/benjamin",
+    "topics_and_questions/service",
+    "topics_and_questions/missionary-work-study-guide",
+    "topics_and_questions/caring-for-those-in-need-study-guide"
+   ],
+   "labels": [
+    "Topical Guide: Service",
+    "Bible Dictionary: Benjamin",
+    "Gospel Topics: Service",
+    "Gospel Topics: Inviting All to Receive the Gospel (Study Guide)",
+    "Gospel Topics: Caring for Those in Need (Study Guide)"
+   ],
+   "strict": [
+    2,
+    3
+   ],
+   "full": [
+    2,
+    3
+   ]
+  },
+  "joseph-smith-who": {
+   "query": "Who was Joseph Smith?",
+   "sources": [
+    "topics_and_questions/joseph-smith",
+    "topics_and_questions/joseph-smith-study-guide",
+    "topics_and_questions/relief-society",
+    "topical_guide/joseph-smith",
+    "topical_guide/smith",
+    "topical_guide/smith-joseph"
+   ],
+   "labels": [
+    "Gospel Topics: Joseph Smith",
+    "Gospel Topics: Joseph Smith (Study Guide)",
+    "Gospel Topics: Relief Society",
+    "Topical Guide: Joseph Smith",
+    "Topical Guide: Smith",
+    "Topical Guide: Smith, Joseph"
+   ],
+   "strict": [
+    3,
+    3
+   ],
+   "full": [
+    3,
+    3
+   ]
+  },
+  "joseph-smith-first-vision": {
+   "query": "What happened in the First Vision?",
+   "sources": [
+    "topical_guide/first-vision",
+    "topics_and_questions/first-vision-study-guide",
+    "topics_and_questions/first-vision",
+    "topics_and_questions/first-vision-accounts"
+   ],
+   "labels": [
+    "Topical Guide: First Vision",
+    "Gospel Topics: First Vision (Study Guide)",
+    "Gospel Topics: First Vision",
+    "Gospel Topics: Multiple Accounts of the First Vision"
+   ],
+   "strict": [
+    4,
+    0
+   ],
+   "full": [
+    4,
+    0
+   ]
+  },
+  "bom-translation": {
+   "query": "How was the Book of Mormon translated?",
+   "sources": [
+    "topics_and_questions/book-of-mormon-translation",
+    "topics_and_questions/book-of-mormon-study-guide",
+    "topics_and_questions/spaulding-manuscript"
+   ],
+   "labels": [
+    "Gospel Topics: Book of Mormon Translation",
+    "Gospel Topics: Book of Mormon (Study Guide)",
+    "Gospel Topics: Spaulding Manuscript"
+   ],
+   "strict": [
+    2,
+    1
+   ],
+   "full": [
+    2,
+    1
+   ]
+  },
+  "temples-endowment": {
+   "query": "What is the temple endowment?",
+   "sources": [
+    "topics_and_questions/endowment",
+    "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints",
+    "topics_and_questions/endowment-and-sealing-study-guide",
+    "topical_guide/endowment"
+   ],
+   "labels": [
+    "Gospel Topics: Endowment",
+    "Gospel Topics: Temples of The Church of Jesus Christ of Latter-day Saints",
+    "Gospel Topics: Endowment and Sealing Ordinances (Study Guide)",
+    "Topical Guide: Endowment, Endow"
+   ],
+   "strict": [
+    4,
+    0
+   ],
+   "full": [
+    4,
+    0
+   ]
+  },
+  "temples-marriage": {
+   "query": "Why is temple marriage important?",
+   "sources": [
+    "topical_guide/temple-marriage",
+    "topics_and_questions/marriage-study-guide",
+    "topics_and_questions/temples",
+    "topics_and_questions/plural-marriage",
+    "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
+   ],
+   "labels": [
+    "Topical Guide: Temple Marriage",
+    "Gospel Topics: Marriage (Study Guide)",
+    "Gospel Topics: Temples",
+    "Gospel Topics: Plural Marriage",
+    "Gospel Topics: Temples of The Church of Jesus Christ of Latter-day Saints"
+   ],
+   "strict": [
+    4,
+    1
+   ],
+   "full": [
+    4,
+    1
+   ]
+  },
+  "wow-coffee-tea": {
+   "query": "What does the Word of Wisdom say about coffee and tea?",
+   "sources": [
+    "topics_and_questions/word-of-wisdom",
+    "topics_and_questions/word-of-wisdom-study-guide",
+    "topical_guide/hot-drinks"
+   ],
+   "labels": [
+    "Gospel Topics: Word of Wisdom",
+    "Gospel Topics: Word of Wisdom (Study Guide)",
+    "Topical Guide: Hot Drinks"
+   ],
+   "strict": [
+    2,
+    1
+   ],
+   "full": [
+    2,
+    1
+   ]
+  },
+  "followup-wow-commandment": {
+   "query": "Is the Word of Wisdom a commandment?",
+   "sources": [
+    "topics_and_questions/word-of-wisdom-study-guide",
+    "topics_and_questions/word-of-wisdom"
+   ],
+   "labels": [
+    "Gospel Topics: Word of Wisdom (Study Guide)",
+    "Gospel Topics: Word of Wisdom"
+   ],
+   "strict": [
+    2,
+    0
+   ],
+   "full": [
+    2,
+    0
+   ]
+  },
+  "followup-joseph-smith-saw": {
+   "query": "What did Joseph Smith see?",
+   "sources": [
+    "topics_and_questions/first-vision-accounts",
+    "topics_and_questions/joseph-smith-study-guide",
+    "topics_and_questions/restoration-of-the-church",
+    "topics_and_questions/relief-society",
+    "topics_and_questions/joseph-smith",
+    "topical_guide/smith-joseph",
+    "topical_guide/seer",
+    "topical_guide/smith"
+   ],
+   "labels": [
+    "Gospel Topics: Multiple Accounts of the First Vision",
+    "Gospel Topics: Joseph Smith (Study Guide)",
+    "Gospel Topics: Restoration of the Church",
+    "Gospel Topics: Relief Society",
+    "Gospel Topics: Joseph Smith",
+    "Topical Guide: Smith, Joseph",
+    "Topical Guide: Seer",
+    "Topical Guide: Smith"
+   ],
+   "strict": [
+    4,
+    4
+   ],
+   "full": [
+    4,
+    4
+   ]
+  },
+  "bom-alma32-faith": {
+   "query": "What does Alma 32 teach about faith?",
+   "sources": [
+    "topics_and_questions/faith-in-jesus-christ",
+    "bible_dictionary/faith",
+    "topics_and_questions/faith-in-jesus-christ-study-guide",
+    "topical_guide/faith"
+   ],
+   "labels": [
+    "Gospel Topics: Faith in Jesus Christ",
+    "Bible Dictionary: Faith",
+    "Gospel Topics: Faith in Jesus Christ (Study Guide)",
+    "Topical Guide: Faith"
+   ],
+   "strict": [
+    4,
+    0
+   ],
+   "full": [
+    4,
+    0
+   ]
+  },
+  "bom-nephi-laban": {
+   "query": "Why did Nephi kill Laban?",
+   "sources": [
+    "topics_and_questions/religion-vs-violence",
+    "topical_guide/kill",
+    "topical_guide/tyranny",
+    "bible_dictionary/jeremiah"
+   ],
+   "labels": [
+    "Gospel Topics: Religion vs. Violence",
+    "Topical Guide: Kill",
+    "Topical Guide: Tyranny",
+    "Bible Dictionary: Jeremiah"
+   ],
+   "strict": [
+    0,
+    4
+   ],
+   "full": [
+    0,
+    4
+   ]
+  },
+  "bom-moroni-promise": {
+   "query": "What is Moroni's promise at the end of the Book of Mormon?",
+   "sources": [
+    "topical_guide/promise",
+    "topics_and_questions/book-of-mormon-study-guide",
+    "topics_and_questions/joseph-smiths-character",
+    "topics_and_questions/book-of-mormon-translation",
+    "topics_and_questions/abraham-book-of"
+   ],
+   "labels": [
+    "Topical Guide: Promise",
+    "Gospel Topics: Book of Mormon (Study Guide)",
+    "Gospel Topics: Joseph Smith’s Character",
+    "Gospel Topics: Book of Mormon Translation",
+    "Gospel Topics: Origins of the Book of Abraham"
+   ],
+   "strict": [
+    2,
+    3
+   ],
+   "full": [
+    2,
+    3
+   ]
+  },
+  "bom-brother-of-jared": {
+   "query": "What did the brother of Jared see when the Lord touched the stones?",
+   "sources": [
+    "topical_guide/urim-and-thummim",
+    "topical_guide/sight",
+    "topical_guide/stone",
+    "topical_guide/brother",
+    "topical_guide/seer-stones",
+    "topical_guide/touch",
+    "topical_guide/seer"
+   ],
+   "labels": [
+    "Topical Guide: Urim and Thummim",
+    "Topical Guide: Sight",
+    "Topical Guide: Stone",
+    "Topical Guide: Brother",
+    "Topical Guide: Seer Stones",
+    "Topical Guide: Touch",
+    "Topical Guide: Seer"
+   ],
+   "strict": [
+    0,
+    7
+   ],
+   "full": [
+    0,
+    7
+   ]
+  },
+  "cht-liberty-jail": {
+   "query": "What happened at Liberty Jail?",
+   "sources": [
+    "topical_guide/liberty",
+    "bible_dictionary/libertines",
+    "topics_and_questions/prison-ministry"
+   ],
+   "labels": [
+    "Topical Guide: Liberty",
+    "Bible Dictionary: Libertines",
+    "Gospel Topics: Prison Ministry"
+   ],
+   "strict": [
+    0,
+    3
+   ],
+   "full": [
+    0,
+    3
+   ]
+  },
+  "cht-zions-camp": {
+   "query": "What was Zion's Camp?",
+   "sources": [
+    "bible_dictionary/zion",
+    "topical_guide/camp",
+    "topics_and_questions/zion",
+    "bible_dictionary/sabbath-days-journey",
+    "topical_guide/jerusalem-new"
+   ],
+   "labels": [
+    "Bible Dictionary: Zion",
+    "Topical Guide: Camp",
+    "Gospel Topics: Zion",
+    "Bible Dictionary: Sabbath day’s journey",
+    "Topical Guide: Jerusalem, New"
+   ],
+   "strict": [
+    2,
+    3
+   ],
+   "full": [
+    2,
+    3
+   ]
+  },
+  "cht-leave-nauvoo": {
+   "query": "Why did the Saints leave Nauvoo?",
+   "sources": [
+    "topics_and_questions/peace-and-violence-among-19th-century-latter-day-saints",
+    "topics_and_questions/joseph-smiths-character",
+    "topical_guide/leave",
+    "topics_and_questions/religious-freedom"
+   ],
+   "labels": [
+    "Gospel Topics: Peace and Violence among 19th-Century Latter-day Saints",
+    "Gospel Topics: Joseph Smith’s Character",
+    "Topical Guide: Leave, Left [ verb ]",
+    "Gospel Topics: Religious Freedom"
+   ],
+   "strict": [
+    0,
+    4
+   ],
+   "full": [
+    0,
+    4
+   ]
+  },
+  "cht-kirtland-dedication": {
+   "query": "What was the Kirtland Temple dedication like?",
+   "sources": [
+    "topics_and_questions/temples-study-guide",
+    "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints",
+    "topics_and_questions/temples",
+    "topics_and_questions/restoration-of-the-church",
+    "topics_and_questions/worship-study-guide",
+    "topics_and_questions/priesthood-keys-study-guide"
+   ],
+   "labels": [
+    "Gospel Topics: Temples (Study Guide)",
+    "Gospel Topics: Temples of The Church of Jesus Christ of Latter-day Saints",
+    "Gospel Topics: Temples",
+    "Gospel Topics: Restoration of the Church",
+    "Gospel Topics: Worship God the Father (Study Guide)",
+    "Gospel Topics: Priesthood Keys (Study Guide)"
+   ],
+   "strict": [
+    0,
+    6
+   ],
+   "full": [
+    0,
+    6
+   ]
+  },
+  "cht-emma-smith": {
+   "query": "Who was Emma Smith?",
+   "sources": [
+    "topics_and_questions/plural-marriage",
+    "topics_and_questions/book-of-mormon-geography",
+    "topics_and_questions/relief-society",
+    "topical_guide/smith-joseph",
+    "topical_guide/smith"
+   ],
+   "labels": [
+    "Gospel Topics: Plural Marriage",
+    "Gospel Topics: Book of Mormon Geography",
+    "Gospel Topics: Relief Society",
+    "Topical Guide: Smith, Joseph",
+    "Topical Guide: Smith"
+   ],
+   "strict": [
+    1,
+    4
+   ],
+   "full": [
+    1,
+    4
+   ]
+  },
+  "cht-word-of-wisdom-history": {
+   "query": "What is the Word of Wisdom's history?",
+   "sources": [
+    "topics_and_questions/word-of-wisdom-study-guide",
+    "topics_and_questions/peace-and-violence-among-19th-century-latter-day-saints",
+    "topics_and_questions/translation-and-historicity-of-the-book-of-abraham",
+    "topics_and_questions/word-of-wisdom",
+    "topics_and_questions/family-history-study-guide",
+    "topics_and_questions/first-vision-accounts"
+   ],
+   "labels": [
+    "Gospel Topics: Word of Wisdom (Study Guide)",
+    "Gospel Topics: Peace and Violence among 19th-Century Latter-day Saints",
+    "Gospel Topics: Translation and Historicity of the Book of Abraham",
+    "Gospel Topics: Word of Wisdom",
+    "Gospel Topics: Participating in Temple and Family History Work (Study Guide)",
+    "Gospel Topics: Multiple Accounts of the First Vision"
+   ],
+   "strict": [
+    2,
+    4
+   ],
+   "full": [
+    2,
+    4
+   ]
+  },
+  "restoration-first-vision-accounts": {
+   "query": "Why are there several accounts of the First Vision?",
+   "sources": [
+    "topics_and_questions/first-vision-accounts",
+    "topics_and_questions/first-vision-study-guide"
+   ],
+   "labels": [
+    "Gospel Topics: Multiple Accounts of the First Vision",
+    "Gospel Topics: First Vision (Study Guide)"
+   ],
+   "strict": [
+    2,
+    0
+   ],
+   "full": [
+    2,
+    0
+   ]
+  },
+  "followup-liberty-jail-lessons": {
+   "query": "What did the Lord teach Joseph Smith while he was at Liberty Jail?",
+   "sources": [
+    "topics_and_questions/joseph-smith-study-guide",
+    "topics_and_questions/joseph-smith",
+    "topics_and_questions/mormonism",
+    "topics_and_questions/joseph-smiths-character",
+    "topics_and_questions/relief-society"
+   ],
+   "labels": [
+    "Gospel Topics: Joseph Smith (Study Guide)",
+    "Gospel Topics: Joseph Smith",
+    "Gospel Topics: Mormonism",
+    "Gospel Topics: Joseph Smith’s Character",
+    "Gospel Topics: Relief Society"
+   ],
+   "strict": [
+    0,
+    5
+   ],
+   "full": [
+    0,
+    5
+   ]
+  },
+  "followup-alma32-seed": {
+   "query": "How does the seed comparison in Alma 32 work?",
+   "sources": [
+    "topics_and_questions/prophets-questions",
+    "topical_guide/plant",
+    "topical_guide/seed"
+   ],
+   "labels": [
+    "Gospel Topics: The Role of Prophets",
+    "Topical Guide: Plant",
+    "Topical Guide: Seed"
+   ],
+   "strict": [
+    0,
+    3
+   ],
+   "full": [
+    0,
+    3
+   ]
+  },
+  "mixed-thanks-zions-camp": {
+   "query": "What was Zion's Camp and why did it matter?",
+   "sources": [
+    "topics_and_questions/zion",
+    "topical_guide/camp",
+    "bible_dictionary/zion",
+    "topical_guide/jerusalem-new"
+   ],
+   "labels": [
+    "Gospel Topics: Zion",
+    "Topical Guide: Camp",
+    "Bible Dictionary: Zion",
+    "Topical Guide: Jerusalem, New"
+   ],
+   "strict": [
+    2,
+    2
+   ],
+   "full": [
+    2,
+    2
+   ]
+  },
+  "mixed-hello-emma-hymns": {
+   "query": "What did Emma Smith do for the Church's hymns?",
+   "sources": [
+    "topics_and_questions/plural-marriage",
+    "topics_and_questions/relief-society",
+    "topics_and_questions/mormonism",
+    "topical_guide/smith",
+    "topics_and_questions/womens-service-and-leadership-in-the-church",
+    "topical_guide/hymn"
+   ],
+   "labels": [
+    "Gospel Topics: Plural Marriage",
+    "Gospel Topics: Relief Society",
+    "Gospel Topics: Mormonism",
+    "Topical Guide: Smith",
+    "Gospel Topics: Women’s Service and Leadership in the Church",
+    "Topical Guide: Hymn"
+   ],
+   "strict": [
+    0,
+    6
+   ],
+   "full": [
+    0,
+    6
+   ]
+  }
+ },
+ "answers": {
+  "doctrine-baptism": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Baptism is a sacred ordinance in the gospel of Jesus Christ, representing the first step toward salvation and exaltation. It involves immersion in water, which symbolizes the death of a person's sinful life and their rebirth into a spiritual life dedicated to God. This ordinance is performed by someone who holds the proper authority from Jesus Christ.\n\nAccording to the Gospel Topics, baptism is necessary for an individual to become a member of The Church of Jesus Christ of Latter-day Saints and to enter the celestial kingdom (John 3:5). It is also a covenant where individuals take upon themselves the name of Jesus Christ, commit to keep His commandments, and serve Him throughout their lives. This covenant is renewed each time members partake of the sacrament.\n\nThe Bible Dictionary explains that baptism must be followed by the laying on of hands for the gift of the Holy Ghost to be complete. This two-part process emphasizes the importance of both water baptism and the spiritual rebirth that comes through the Holy Ghost.\n\nIn summary, baptism is an essential ordinance that signifies a commitment to follow Jesus Christ, and it is performed by immersion in water, reflecting both a physical and spiritual transformation. Personal prayer and the guidance of the Holy Spirit can help you understand its significance in your life.",
+   "labels": [
+    "Topical Guide: Baptism",
+    "Bible Dictionary: Baptism",
+    "Gospel Topics: Baptism",
+    "Gospel Topics: Baptism (Study Guide)",
+    "Bible Dictionary: Confirmation",
+    "Topical Guide: Baptism, Immersion"
+   ],
+   "cited_chapters": [
+    "John 3"
+   ],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "doctrine-sacrament-purpose": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "The purpose of the sacrament is deeply rooted in remembrance and renewal. It serves as a priesthood ordinance where Church members partake of bread and water each week to remember Jesus Christ’s atoning sacrifice. The broken bread symbolizes His body and physical suffering, while the water represents His blood, shed in anguish. By partaking of the sacrament worthily, members renew their covenants with the Lord, retain a remission of their sins, and recommit themselves to follow Jesus Christ.\n\nAdditionally, the sacrament is an essential part of worship and spiritual development. It allows individuals to express their willingness to take upon themselves the name of Jesus Christ, always remember Him, and keep His commandments. This act is not just a momentary ritual; it is a promise to remember Him beyond the ordinance itself. In return, the Lord renews the promised remission of sins and grants the companionship of the Holy Spirit, which is one of the greatest gifts we can receive during our mortal journey. \n\nEngaging in this sacred ordinance can truly become a spiritual highlight in our lives, fostering deep gratitude for all that Jesus has done for us.",
+   "labels": [
+    "Gospel Topics: Sacrament (Study Guide)",
+    "Gospel Topics: Sacrament",
+    "Gospel Topics: Sacrament Meeting"
+   ],
+   "cited_chapters": [],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "doctrine-moroni": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Moroni is a significant figure in Latter-day Saint belief, serving as a messenger sent by the Lord to Joseph Smith. He first appeared to Joseph in September 1823, prophesying about future events and informing him about the gold plates containing the Book of Mormon record (Gospel Topics: Restoration of the Church). Moroni was the last prophet in the Book of Mormon and, as a resurrected being, delivered these plates to Joseph Smith on September 22, 1827 (Gospel Topics: Scriptures).\n\nIn addition to his role in the Restoration, Moroni is also known for his teachings and the spiritual gifts he emphasized. He encouraged individuals to seek knowledge and witness through the Holy Spirit, as noted in Moroni 10:4, which invites all to ponder the mercies of God and to pray for confirmation of truth. His character is further highlighted by the prophecy that Joseph Smith's name would be known for both good and evil among all nations, which has indeed come to pass over the last 200 years (Gospel Topics: Joseph Smith’s Character). \n\nIf you have more questions about Moroni or related topics, feel free to ask!",
+   "labels": [
+    "Gospel Topics: Joseph Smith’s Character",
+    "Gospel Topics: Religion vs. Violence",
+    "Gospel Topics: Origins of the Book of Abraham",
+    "Gospel Topics: Book of Mormon and DNA Studies",
+    "Gospel Topics: Restoration of the Church",
+    "Gospel Topics: Scriptures",
+    "Gospel Topics: Spiritual Gifts"
+   ],
+   "cited_chapters": [
+    "Moroni 10",
+    "September 1823",
+    "September 22"
+   ],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "doctrine-after-death": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "After we die, our spirits go to the spirit world, where we await our resurrection. This is a place of waiting, working, learning, and for the righteous, resting from care and sorrow. The gospel of Jesus Christ continues to be taught in the spirit world, and it is a time when every soul has the opportunity to receive the gospel, especially those who did not have the chance during their mortal lives.\n\nThe period after death is referred to as postmortality, which signifies our eternal existence beyond this life. Our spirits will remain in the spirit world until the resurrection, when our spirit and body will reunite. At that time, we will be judged and assigned to a kingdom of glory, which will depend on our conversion and obedience to the Lord's commandments.\n\nIt's comforting to know that Heavenly Father has prepared a plan for our salvation, ensuring that life on earth is not the end. Each of us is precious to Him, and through Jesus Christ, there is a way for all to attain salvation. If you have more questions or thoughts about this topic, feel free to share! Remember, personal prayer and the Holy Spirit are the ultimate witnesses of truth.",
+   "labels": [
+    "Topical Guide: Life after Death",
+    "Gospel Topics: Spirit World (Study Guide)",
+    "Gospel Topics: Postmortality",
+    "Topical Guide: Die",
+    "Gospel Topics: Heaven",
+    "Gospel Topics: Grace"
+   ],
+   "cited_chapters": [],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "doctrine-repentance-steps": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "The steps of repentance, as outlined in the resources, include the following elements:\n\n1. **Faith in Heavenly Father and Jesus Christ**: To receive forgiveness, we must first act on our faith in God and rely on the Savior's power to cleanse us from sin.\n\n2. **Sorrow for Sin**: We need to recognize our sins and feel \"godly sorrow\" for disobeying God. This sorrow leads to a sincere desire to seek forgiveness.\n\n3. **Confession**: We must confess our sins to Heavenly Father through prayer, admitting our mistakes and asking for His help. For serious sins, it may also be necessary to speak with a bishop or branch president for guidance.\n\nThese steps are essential for sincere repentance and are emphasized in the Gospel Topics on Repentance and the Bible Dictionary. Remember, personal prayer and the Holy Spirit are vital in this process, as they can provide the ultimate witness of truth and guidance.",
+   "labels": [
+    "Gospel Topics: Repentance (Study Guide)",
+    "Gospel Topics: Repentance",
+    "Bible Dictionary: Repentance",
+    "Topical Guide: Repent, Repentance"
+   ],
+   "cited_chapters": [],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "doctrine-temples": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Temples are built because they are literally the houses of the Lord, serving as holy places of worship where individuals can make sacred covenants with God. This is a significant aspect of Heavenly Father's plan of salvation, as temples are essential for individuals to receive eternal life with God and their families. Modern-day prophets have emphasized that temples are gateways to the greatest blessings God has in store for us, and they play a crucial role in bringing about the “immortality and eternal life of man.”\n\nThe Church dedicates time, effort, and resources to building temples around the world to make these blessings more accessible to members. Each temple is constructed with the best materials and skilled craftsmanship, reflecting our love for God. Temples also bless communities and nations, as they bring additional godly power into the world, helping to counteract the adversary's influence.\n\nIn addition to being places for personal worship and covenant-making, temples allow Church members to perform ordinances on behalf of deceased ancestors, offering them the opportunity to accept these ordinances and receive salvation. This work for the dead is a vital part of the temple's purpose, further illustrating why temples are so important in our faith. \n\nOverall, the emphasis on building temples is rooted in their sacred role in God's plan and the blessings they provide to individuals, families, and communities.",
+   "labels": [
+    "Gospel Topics: Temples",
+    "Gospel Topics: Church Financial Administration",
+    "Gospel Topics: Temples (Study Guide)",
+    "Gospel Topics: Temples of The Church of Jesus Christ of Latter-day Saints"
+   ],
+   "cited_chapters": [],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "followup-faith": {
+   "intent": "RAG_FOLLOWUP",
+   "answer": "Faith in Jesus Christ is a principle of action and power, as noted in the teachings of the Apostle Paul and Alma. It involves trusting in His infinite power, wisdom, and love, even when we don't fully understand everything. The Gospel Topics explain that faith is not just a passive belief; it requires action and is nurtured through prayer, studying the scriptures, and keeping commandments.\n\nTo increase your faith, President Russell M. Nelson emphasized that it takes effort. He reassured us that the Lord does not require perfect faith for us to access His perfect power, but He does ask us to believe. Engaging with the scriptures and the words of latter-day prophets can help you feel motivated and deepen your understanding of Jesus Christ, which in turn strengthens your faith.\n\nElder David A. Bednar teaches that acting in faith involves taking steps forward, even when the path isn't entirely clear. This aligns with the experience of Peter walking on water, where even a little faith allowed him to do something extraordinary with Christ's help (Matthew 14:25–33). \n\nAlma also taught that if we plant the seed of the gospel in our hearts and nourish it with faith, we can grow our testimony (Alma 32:21–43). So, consider what actions you can take to exercise your faith, whether it's through prayer, service, or studying the gospel. Remember, personal prayer and the guidance of the Holy Spirit are essential in this journey.",
+   "labels": [
+    "Gospel Topics: Faith in Jesus Christ (Study Guide)",
+    "Bible Dictionary: Faith",
+    "Gospel Topics: Faith in Jesus Christ"
+   ],
+   "cited_chapters": [
+    "Alma 32",
+    "Matthew 14"
+   ],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "followup-tithing": {
+   "intent": "RAG_FOLLOWUP",
+   "answer": "Tithing is the practice of giving one-tenth of our income to the Lord, as a way to support His work and express gratitude for our blessings. The Bible indicates that this law was followed by God's people in ancient times, and it was restored in modern times through the Prophet Joseph Smith. By paying tithing, members of The Church of Jesus Christ of Latter-day Saints demonstrate their faith and trust in the Lord rather than in material possessions.\n\nThe widow's offering, as described in Mark 12:43-44, illustrates that the value of a contribution is not solely based on its monetary amount but on the sacrifice and faith behind it. Even a small amount can be significant when given with a willing heart. This teaches us that tithing is about our commitment to God and the willingness to consecrate what we have for His purposes, regardless of the size of our contribution.\n\nAdditionally, the blessings that come from paying tithing are emphasized in teachings from leaders like President Jeffrey R. Holland, who shared examples of faithfulness in tithing even during difficult times. This shows that tithing can lead to spiritual growth and blessings in our lives. \n\nUltimately, personal prayer and the guidance of the Holy Spirit are essential in understanding and living this principle.",
+   "labels": [
+    "Gospel Topics: Tithing (Study Guide)",
+    "Gospel Topics: Tithing",
+    "Topical Guide: Tithing",
+    "Gospel Topics: Church Financial Administration"
+   ],
+   "cited_chapters": [
+    "Mark 12"
+   ],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "followup-sacrament-scriptures": {
+   "intent": "RAG_FOLLOWUP",
+   "answer": "The sacrament is a sacred ordinance that Jesus Christ instituted during the Last Supper with His Apostles, where He took bread and wine and instructed them to partake in remembrance of His body and blood (Matthew 26:26–28; Mark 14:22–24; Luke 22:19–20). This ordinance is a vital part of worship in The Church of Jesus Christ of Latter-day Saints, allowing members to renew their covenants with God each week.\n\nWhen we partake of the sacrament, the bread symbolizes Christ's body, which was broken for us, and the water represents His blood, shed for our sins (3 Nephi 18:7). This act serves as a reminder of His Atonement and helps us retain a remission of our sins as we recommit ourselves to follow Him (Gospel Topics: Sacrament). \n\nAdditionally, the sacrament is a time for reflection and gratitude, helping us draw closer to Jesus Christ and remember His teachings and sacrifice (Gospel Topics: Sacrament Study Guide). It's a beautiful opportunity to renew our commitment to take upon ourselves His name and keep His commandments.",
+   "labels": [
+    "Gospel Topics: Sacrament",
+    "Topical Guide: Sacrament",
+    "Gospel Topics: Sacrament (Study Guide)",
+    "Gospel Topics: Sacrament Meeting"
+   ],
+   "cited_chapters": [
+    "3 Nephi 18",
+    "Luke 22",
+    "Mark 14",
+    "Matthew 26"
+   ],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "chitchat-thanks": {
+   "intent": "CHITCHAT",
+   "answer": "You're very welcome! I'm glad to be here with you. How can I assist you today?",
+   "labels": [],
+   "cited_chapters": [],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "chitchat-hello": {
+   "intent": "CHITCHAT",
+   "answer": "Hello! It's so nice to hear from you! How's your day going?",
+   "labels": [],
+   "cited_chapters": [],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "chitchat-praise": {
+   "intent": "CHITCHAT",
+   "answer": "You're very welcome! I'm glad you liked it. If you have any more questions or thoughts to share, feel free to ask!",
+   "labels": [],
+   "cited_chapters": [],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "mixed-thanks-tithing": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Tithing is a significant principle in the gospel, rooted in both ancient and modern teachings. It involves giving one-tenth of our income to the Lord through His Church. This practice is not just a financial obligation; it reflects our gratitude to God and our trust in Him rather than in material possessions. By paying tithing, members contribute to the growth of the Church and help others learn about the gospel (Gospel Topics: Tithing).\n\nHistorically, the law of tithing was observed by God's people, as seen in the Bible, and was restored in our day through the Prophet Joseph Smith (Gospel Topics: Church Financial Administration). The funds collected from tithing are used for various purposes, including building temples, supporting missionary work, and maintaining Church-run educational institutions (Gospel Topics: Tithing Study Guide).\n\nMoreover, the act of paying tithing is a demonstration of faith. Just as the widow who gave her two mites showed great sacrifice, our contributions, regardless of their size, can be meaningful when given with a sincere heart (Gospel Topics: Tithing Study Guide). The Lord promises blessings to those who faithfully pay their tithing, as noted in Malachi 3:10, which encourages us to trust in His promises.\n\nIf you have more questions or want to explore specific aspects of tithing further, feel free to ask! Remember, personal prayer and the guidance of the Holy Spirit are essential in understanding these principles deeply.",
+   "labels": [
+    "Gospel Topics: Tithing",
+    "Gospel Topics: Church Financial Administration",
+    "Topical Guide: Tithing",
+    "Gospel Topics: Tithing (Study Guide)"
+   ],
+   "cited_chapters": [
+    "Malachi 3"
+   ],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "mixed-grace-with-history": {
+   "intent": "RAG_FOLLOWUP",
+   "answer": "The Bible Dictionary explains that grace is a divine means of help or strength given through the bounteous mercy and love of Jesus Christ. It emphasizes that it is through the grace of the Lord Jesus, made possible by His atoning sacrifice, that all mankind will be raised in immortality. This means that everyone will receive their bodies from the grave in a condition of everlasting life.\n\nAdditionally, the Bible Dictionary notes that through grace, individuals can receive strength and assistance to do good works that they might not be able to accomplish on their own. This grace acts as an enabling power, allowing people to strive for eternal life and exaltation after they have done their best efforts. It's a beautiful reminder of how grace is intertwined with our ability to repent and be forgiven, highlighting the profound love and mercy of our Savior. \n\nIf you have more questions about grace or the Atonement, feel free to ask!",
+   "labels": [
+    "Gospel Topics: Grace (Study Guide)",
+    "Topical Guide: Grace",
+    "Bible Dictionary: Grace",
+    "Topical Guide: Salvation by Grace",
+    "Gospel Topics: Grace"
+   ],
+   "cited_chapters": [],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "long-priesthood-authority": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Latter-day Saints believe that baptism must be performed by someone holding proper priesthood authority because this authority is essential for the ordinance to be valid and recognized by God. The Bible Dictionary explains that God has commanded that baptism be performed by one holding priesthood authority, as seen in passages like 3 Nephi 11:21–28 and Doctrine and Covenants 20:72–74. This authority was restored to Joseph Smith and Oliver Cowdery by John the Baptist, who conferred the Aaronic Priesthood upon them, allowing them to baptize and ordain each other (Joseph Smith—History 1:68–73).\n\nThe Restoration of the priesthood was necessary because, after the deaths of Christ's Apostles, the priesthood authority and the fullness of the gospel were lost due to wickedness and a rejection of the truth (Gospel Topics: Restoration of the Priesthood). This loss meant that the proper authority to perform essential ordinances, including baptism, was no longer available on the earth. The Restoration, initiated by Heavenly Father and Jesus Christ in the early 1800s, reestablished this authority through divine messengers, beginning with John the Baptist and later with Peter, James, and John, who restored the Melchizedek Priesthood (Gospel Topics: Restoration of the Priesthood).\n\nRegarding the covenant we make during baptism, when we are baptized, we take upon ourselves the name of Jesus Christ, commit to keep His commandments, and promise to always remember Him. This covenant is significant because it allows us to receive the Holy Spirit, which brings guidance and sanctification (Gospel Topics: Sabbath Day). The priesthood authority is what enables us to enter into this covenant properly, ensuring that we are acting in accordance with God's will.\n\nIn summary, the belief in the necessity of priesthood authority for baptism is deeply rooted in the Restoration of the gospel and the priesthood, which was lost after the Apostles' deaths and needed to be restored to ensure that God's ordinances could be performed correctly. Personal prayer and the Holy Spirit can provide further confirmation of these truths.",
+   "labels": [
+    "Gospel Topics: Restoration of the Priesthood (Study Guide)",
+    "Gospel Topics: Restoration of the Priesthood",
+    "Gospel Topics: Baptism (Study Guide)",
+    "Gospel Topics: Restoration of the Gospel (Study Guide)",
+    "Gospel Topics: Priesthood Keys (Study Guide)",
+    "Gospel Topics: Sabbath Day (Study Guide)"
+   ],
+   "cited_chapters": [
+    "3 Nephi 11",
+    "D&C 20",
+    "History 1"
+   ],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "tithing-hard-times": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Paying tithing, even when money is tight, can be a profound act of faith and trust in the Lord. The Gospel Topics on Tithing remind us that while we are only asked to give 10 percent of our income, the true value of our contribution lies in the sacrifice we make. Just like the widow who gave all she had, our willingness to pay tithing, regardless of our financial situation, demonstrates our commitment to God and His kingdom (Mark 12:43-44).\n\nMoreover, when we exercise faith and pay tithing, we can expect blessings from the Lord. President Jeffrey R. Holland shared the inspiring example of Mary Fielding Smith, who continued to pay her tithing even after the loss of her husband. Her faithfulness in difficult times serves as a powerful reminder that blessings often come as we remain steadfast in our commitments (Gospel Topics: Tithing).\n\nAdditionally, Malachi 3:8–12 emphasizes that the Lord promises great blessings for those who obey the law of tithing. Elder Neil L. Andersen also noted that the blessings from paying tithing can be both temporal and spiritual, and they may come in ways that are subtle and easy to overlook. By being observant and recognizing these blessings, we can deepen our gratitude and draw closer to Christ (Gospel Topics: Tithing).\n\nUltimately, paying tithing is not just about the financial aspect; it's about building our faith and trust in the Lord, knowing that He will provide for our needs as we prioritize our commitment to Him. Personal prayer and the guidance of the Holy Spirit can help you discern how to approach tithing in your own life.",
+   "labels": [
+    "Gospel Topics: Tithing (Study Guide)",
+    "Gospel Topics: Church Financial Administration",
+    "Topical Guide: Tight",
+    "Gospel Topics: Family Finances"
+   ],
+   "cited_chapters": [
+    "Malachi 3",
+    "Mark 12"
+   ],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "tithing-use": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Tithing money is used for several important purposes within The Church of Jesus Christ of Latter-day Saints. According to the Gospel Topics on Tithing, these funds help build and maintain temples and meetinghouses, support missionary work, and sponsor Church-run educational institutions. Essentially, tithing is a way for members to contribute to the work of the Lord on the earth, ensuring that the Church can fulfill its divine mission as it grows throughout the world.\n\nAdditionally, the Church emphasizes that tithing is not just about financial contributions; it also reflects a member's gratitude to God and their faith in Him. By paying tithing, members help further the work of the Lord and provide opportunities for others to learn about the gospel (Gospel Topics: Tithing). \n\nIt's a beautiful way to participate in building the kingdom of God! If you have more questions about tithing or its significance, feel free to ask.",
+   "labels": [
+    "Gospel Topics: Tithing (Study Guide)",
+    "Gospel Topics: Tithing",
+    "Gospel Topics: Church Financial Administration"
+   ],
+   "cited_chapters": [],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "sacrament-prayers": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "The sacrament prayers promise several important commitments and blessings. When we partake of the sacrament, we promise to take upon ourselves the name of Jesus Christ, to always remember Him, and to keep His commandments. This is outlined in the prayers found in Doctrine and Covenants 20:77 and 79.\n\nIn return for our promises, the Lord promises us the remission of our sins and the companionship of the Holy Ghost. This means that as we worthily partake of the sacrament, we can always have His Spirit to be with us, which is one of the greatest gifts we can receive during our mortal journey. This reciprocal relationship emphasizes the importance of both our commitments and the divine blessings that follow.\n\nIt's a beautiful reminder of how the sacrament serves as a renewal of our baptismal covenants and helps us stay connected to Christ and His teachings. If you have any more questions about the sacrament or its significance, feel free to ask!",
+   "labels": [
+    "Gospel Topics: Sacrament",
+    "Gospel Topics: Sacrament (Study Guide)",
+    "Gospel Topics: Gifts of the Spirit (Study Guide)",
+    "Topical Guide: Promise",
+    "Gospel Topics: Gift of the Holy Ghost (Study Guide)",
+    "Gospel Topics: Sacrament Meeting"
+   ],
+   "cited_chapters": [
+    "D&C 20"
+   ],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "sacrament-weekly": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Taking the sacrament every week is a vital practice for members of The Church of Jesus Christ of Latter-day Saints because it serves as a sacred ordinance that helps us remember Jesus Christ and His atoning sacrifice. Each week, as we partake of the bread and water, we are reminded of His body and blood, which He freely gave for all of us. This act is not just a ritual; it is an opportunity to renew our covenants with the Lord, retain a remission of our sins, and recommit ourselves to follow Him.\n\nAdditionally, participating in the sacrament allows us to reflect on our lives, repent of our sins, and prepare our hearts with humility and a spirit of repentance. It is a time to witness to God that we will remember His Son beyond the short time of the ordinance and to express our willingness to take upon ourselves the name of Jesus Christ and keep His commandments. In return, the Lord promises to renew the remission of our sins and grant us the companionship of the Holy Spirit, which is one of the greatest gifts we can receive during our mortal journey. \n\nSo, the weekly observance of the sacrament is a profound way to draw closer to Jesus Christ and strengthen our spiritual commitments.",
+   "labels": [
+    "Gospel Topics: Sacrament (Study Guide)",
+    "Gospel Topics: Sacrament",
+    "Gospel Topics: Sacrament Meeting"
+   ],
+   "cited_chapters": [],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "bom-nephi": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Nephi is a significant figure in the Book of Mormon, known as a prophet and the son of Lehi. He played a crucial role in the early chapters of the Book of Mormon, particularly in leading his family from Jerusalem to the promised land in the Americas. Nephi is often recognized for his faith and obedience to God, as he was instrumental in obtaining the brass plates from Laban, which contained important scriptures, including some of Jeremiah's prophecies (as noted in the Bible Dictionary).\n\nNephi's writings are foundational to the Book of Mormon, and he emphasizes the importance of testifying of Jesus Christ throughout his accounts. The title page of the Book of Mormon highlights that it is a record of the people of Nephi, underscoring his significance in the narrative and the spiritual teachings contained within the book. His leadership and faithfulness set the stage for the Nephite civilization, which is central to the Book of Mormon's history and teachings. \n\nIf you have more questions about Nephi or other aspects of the Book of Mormon, feel free to ask! Remember, personal prayer and the guidance of the Holy Spirit are essential in seeking understanding and truth.",
+   "labels": [
+    "Topical Guide: Nephites",
+    "Gospel Topics: Book of Mormon (Study Guide)",
+    "Bible Dictionary: Jeremiah",
+    "Gospel Topics: Book of Mormon and DNA Studies",
+    "Gospel Topics: Book of Mormon Translation"
+   ],
+   "cited_chapters": [],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "bom-alma": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Alma the Younger was initially known for his rebellious nature and his efforts to destroy the Church of God. He is described as the son of Alma the Elder, who was a prophet and leader among the Nephites. His transformation is a powerful example of repentance and conversion.\n\nAlma's change began when he was visited by an angel, which led him to reflect deeply on his actions. He cried out for mercy and sought to understand what he needed to do to be born of God (Alma 22:15). This moment marked the beginning of his journey toward repentance and spiritual rebirth. He later expressed that he had indeed been born of God (Alma 36:23), indicating a profound change in his heart and spirit.\n\nAfter his conversion, Alma the Younger became a mighty servant of the Lord, preaching the gospel and helping others to experience the same change he had undergone. He taught that those who repent and come unto Christ can be spiritually reborn and receive the joy that comes from following Him (Mosiah 5:2; Alma 5:14). His story illustrates that through sincere repentance and faith in Jesus Christ, anyone can change and become a new person, filled with the attributes of kindness, love, and humility. \n\nThis transformation is a testament to the power of the Savior to help us change and grow, as we strive to become more like Him. Personal prayer and the guidance of the Holy Spirit are essential in this process, as they can provide the ultimate witness of truth and direction in our lives.",
+   "labels": [
+    "Gospel Topics: Repentance (Study Guide)",
+    "Topical Guide: Man, New, Spiritually Reborn",
+    "Topical Guide: Young, Younger, Youngest",
+    "Topical Guide: Mighty, Mightier",
+    "Gospel Topics: Conversion to Jesus Christ (Study Guide)",
+    "Topical Guide: Learn, Learning",
+    "Topical Guide: Change"
+   ],
+   "cited_chapters": [
+    "Alma 22",
+    "Alma 36",
+    "Alma 5",
+    "Mosiah 5"
+   ],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "bom-king-benjamin": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "King Benjamin taught profound principles about service in his address to his people. He emphasized that when we serve our fellow beings, we are, in essence, serving God. This is beautifully captured in Mosiah 2:17, where he states, \"when ye are in the service of your fellow beings, ye are only in the service of your God.\" This teaching highlights the interconnectedness of our service to others and our devotion to God.\n\nAdditionally, King Benjamin encouraged his people to bear one another's burdens and to help those in need, which aligns with the covenant made at baptism to \"mourn with those that mourn\" and \"comfort those that stand in need of comfort.\" This reflects the Savior's example of love and service during His ministry, as noted in the Gospel Topics on Service.\n\nKing Benjamin's teachings remind us that service is not just an act of kindness but a sacred duty that brings us closer to God and fulfills our covenant responsibilities. How do you feel about the idea that serving others is a way to serve God?",
+   "labels": [
+    "Topical Guide: Service",
+    "Bible Dictionary: Benjamin",
+    "Gospel Topics: Service",
+    "Gospel Topics: Inviting All to Receive the Gospel (Study Guide)",
+    "Gospel Topics: Caring for Those in Need (Study Guide)"
+   ],
+   "cited_chapters": [
+    "Mosiah 2"
+   ],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "joseph-smith-who": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Joseph Smith Jr. was born in 1805 in Vermont, USA, and he is known as the prophet chosen by God to restore the gospel of Jesus Christ in our day. As a young boy, he sought to know which church was true and, following the counsel he found in the Bible, he prayed to God. This earnest prayer led to a remarkable vision in which Heavenly Father and Jesus Christ appeared to him, instructing him not to join any existing churches because they were teaching incorrect doctrines.\n\nThroughout his life, Joseph Smith received sacred visions and revelations, translated the Book of Mormon by the gift and power of God, and organized The Church of Jesus Christ of Latter-day Saints, serving as its first President. He was also given priesthood authority from heavenly messengers. Despite facing significant persecution for his testimony, he remained steadfast until his martyrdom in 1844 alongside his brother Hyrum.\n\nAdditionally, Joseph Smith's mission was foretold by Joseph of Egypt, who prophesied about him and his important work, highlighting that God prepared him for this divine calling. The blessings promised in this prophecy have been realized through the Restoration of the gospel. \n\nIf you have more questions about Joseph Smith or his teachings, feel free to ask!",
+   "labels": [
+    "Gospel Topics: Joseph Smith",
+    "Gospel Topics: Joseph Smith (Study Guide)",
+    "Gospel Topics: Relief Society",
+    "Topical Guide: Joseph Smith",
+    "Topical Guide: Smith",
+    "Topical Guide: Smith, Joseph"
+   ],
+   "cited_chapters": [],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "joseph-smith-first-vision": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "The First Vision is a pivotal event in the history of the Restoration of the gospel of Jesus Christ. In the spring of 1820, a young Joseph Smith, seeking guidance about which church to join, prayed in a grove of trees near his home in New York. In response to his sincere prayer, God the Father and Jesus Christ appeared to him. This moment marked the beginning of the Restoration, as Joseph was called to be a prophet and received divine instruction.\n\nDuring the vision, Joseph described how the Father introduced the Son, who then conversed with him. This emphasizes the central role of Jesus Christ in the vision and the importance of personal revelation. The accounts of the First Vision highlight that God responds to His children when they are in distress, reinforcing the idea that the heavens are open and God is speaking to man again.\n\nThe First Vision not only established the foundation for the Restoration but also revealed essential truths about the nature of God and the need for a restoration of Christ's Church. It serves as a powerful testimony of Joseph Smith's experience and the divine guidance he received. If you have any specific questions about the First Vision or its implications, feel free to ask!",
+   "labels": [
+    "Topical Guide: First Vision",
+    "Gospel Topics: First Vision (Study Guide)",
+    "Gospel Topics: First Vision",
+    "Gospel Topics: Multiple Accounts of the First Vision"
+   ],
+   "cited_chapters": [],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "bom-translation": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "The Book of Mormon was translated by Joseph Smith through a divine process, described as being accomplished \"by the gift and power of God.\" Joseph, who was only 23 years old and had limited formal education, translated the text at an impressive rate of about eight pages per day, completing the entire translation in approximately 85 days. He did not use traditional methods or notes, nor did he have any understanding of ancient languages. Instead, he dictated the translation to scribes, relying entirely on divine revelation (Gospel Topics: Book of Mormon Translation; Gospel Topics: Book of Mormon (Study Guide)).\n\nThe translation process was facilitated by the Lord, who \"speaketh unto men according to their language, unto their understanding,\" allowing Joseph to produce a text that powerfully testifies of Jesus Christ (Gospel Topics: Book of Mormon Translation). This miraculous event underscores Joseph Smith's prophetic calling and the Restoration of the gospel, as the Book of Mormon serves as another testament of Jesus Christ alongside the Bible (Gospel Topics: Book of Mormon (Study Guide)). \n\nIf you're seeking to know for yourself about the truth of the Book of Mormon, personal prayer and the guidance of the Holy Spirit can be invaluable in your journey.",
+   "labels": [
+    "Gospel Topics: Book of Mormon Translation",
+    "Gospel Topics: Book of Mormon (Study Guide)",
+    "Gospel Topics: Spaulding Manuscript"
+   ],
+   "cited_chapters": [],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "temples-endowment": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "The temple endowment is a sacred religious ceremony administered in the temples of The Church of Jesus Christ of Latter-day Saints. It is available to adult Church members who are prepared for this important experience. During the endowment, participants receive instruction, make sacred covenants with God, and are promised blessings that provide power, purpose, and protection in their daily lives. \n\nThe endowment teaches about significant aspects of God's plan, including the Creation, the Fall of Adam and Eve, and the plan of redemption through Jesus Christ. It helps individuals understand their journey back to the presence of God and encourages them to follow the Savior, striving to become more like Him. By honoring the covenants made during the endowment, members qualify for the covenant of eternal marriage, which leads to the precious gift of eternal life (Gospel Topics: Endowment).\n\nAdditionally, the endowment is described as a gift from God that allows participants to deepen their covenant relationship with Him. The covenants made during this ceremony include commitments to follow His standards of morality, integrity, and service to others (Gospel Topics: Endowment). Ultimately, the endowment serves as a means for Church members to receive God's power and protection throughout their lives (Gospel Topics: Endowment). \n\nIf you have more questions about the endowment or related topics, feel free to ask!",
+   "labels": [
+    "Gospel Topics: Endowment",
+    "Gospel Topics: Temples of The Church of Jesus Christ of Latter-day Saints",
+    "Gospel Topics: Endowment and Sealing Ordinances (Study Guide)",
+    "Topical Guide: Endowment, Endow"
+   ],
+   "cited_chapters": [],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "temples-marriage": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Temple marriage is important for several reasons, as highlighted in various teachings of The Church of Jesus Christ of Latter-day Saints. First and foremost, a temple marriage, also referred to as celestial marriage, is a sacred ordinance where a husband and wife are sealed to one another for eternity. This sealing allows their marriage to last beyond this life, provided they remain faithful to the covenants they make (Gospel Topics: Temples).\n\nAdditionally, temple marriage is seen as a divine institution ordained by God, emphasizing that marriage between a man and a woman is essential for fulfilling His plan (Gospel Topics: Marriage). The effort put into maintaining a healthy and strong marriage is significant, as it requires work, patience, humility, forgiveness, and dedication. However, the rewards of such a marriage are profound, as President Russell M. Nelson has taught that celestial marriage brings greater possibilities for happiness than any other relationship (Gospel Topics: Marriage).\n\nMoreover, children born to parents who are sealed in the temple are considered to be born in the covenant, automatically becoming part of an eternal family. This highlights the eternal nature of family relationships established through temple ordinances (Gospel Topics: Temples).\n\nIn summary, temple marriage is vital because it not only binds couples together for eternity but also creates a foundation for eternal families, fulfilling God's plan for His children. Personal prayer and the guidance of the Holy Spirit can further help individuals understand the significance of temple marriage in their lives.",
+   "labels": [
+    "Topical Guide: Temple Marriage",
+    "Gospel Topics: Marriage (Study Guide)",
+    "Gospel Topics: Temples",
+    "Gospel Topics: Plural Marriage",
+    "Gospel Topics: Temples of The Church of Jesus Christ of Latter-day Saints"
+   ],
+   "cited_chapters": [],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "wow-coffee-tea": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "The Word of Wisdom, as revealed to the Prophet Joseph Smith, specifically prohibits the consumption of tea and coffee. This guidance is part of a broader revelation that encourages healthy practices and warns against substances that are harmful to the body. The teachings emphasize that these drinks are not good for us, aligning with the overall principles of the Word of Wisdom, which promotes health and well-being. \n\nAdditionally, Church leaders have reinforced this teaching, encouraging members to avoid substances that impair judgment or are harmful, which includes coffee and tea. Following these guidelines is seen as essential for receiving the full blessings of the gospel, including participation in sacred ordinances. If you have more questions about the Word of Wisdom or its implications, feel free to ask!",
+   "labels": [
+    "Gospel Topics: Word of Wisdom",
+    "Gospel Topics: Word of Wisdom (Study Guide)",
+    "Topical Guide: Hot Drinks"
+   ],
+   "cited_chapters": [],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "followup-wow-commandment": {
+   "intent": "RAG_FOLLOWUP",
+   "answer": "The Word of Wisdom is indeed considered a commandment for members of The Church of Jesus Christ of Latter-day Saints. While it was originally given “not by commandment or constraint” (Doctrine and Covenants 89:2), Church leaders have since taught that obeying the Word of Wisdom is essential for receiving the full blessings of the restored gospel, including baptism, missionary service, and temple ordinances. \n\nThe principles outlined in the Word of Wisdom promote both physical and spiritual well-being, and following them can lead to increased health, wisdom, knowledge, and protection (Doctrine and Covenants 89:18–21). So, while it started as a guideline, it has evolved into a commandment that is taken seriously within the faith. \n\nIf you have more questions about how this applies in daily life or specific practices, feel free to ask!",
+   "labels": [
+    "Gospel Topics: Word of Wisdom (Study Guide)",
+    "Gospel Topics: Word of Wisdom"
+   ],
+   "cited_chapters": [
+    "D&C 89"
+   ],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "followup-joseph-smith-saw": {
+   "intent": "RAG_FOLLOWUP",
+   "answer": "Joseph Smith experienced a profound vision known as the First Vision when he was just 14 years old. In this vision, he saw two heavenly beings: God the Father and Jesus Christ. Three of his four accounts clearly describe these two personages, while one account mentions that he also saw angels. His earliest account, written in 1832, is less detailed and refers to \"the Lord,\" which could mean he was focusing on Jesus Christ or referring to both divine beings collectively.\n\nIn this vision, Joseph prayed to know which church to join, and he was told not to join any of the existing churches because they were teaching incorrect doctrines. This pivotal moment marked the beginning of his prophetic mission and the Restoration of the gospel of Jesus Christ. \n\nIf you have more questions about Joseph Smith or his experiences, feel free to ask!",
+   "labels": [
+    "Gospel Topics: Multiple Accounts of the First Vision",
+    "Gospel Topics: Joseph Smith (Study Guide)",
+    "Gospel Topics: Restoration of the Church",
+    "Gospel Topics: Relief Society",
+    "Gospel Topics: Joseph Smith",
+    "Topical Guide: Smith, Joseph",
+    "Topical Guide: Seer",
+    "Topical Guide: Smith"
+   ],
+   "cited_chapters": [],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "bom-alma32-faith": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Alma 32 provides profound insights into the nature of faith. It teaches that faith is not merely a passive belief but an active principle that requires action. Alma explains that faith is to hope for things which are not seen but are true (Alma 32:21). This means that faith involves a confident expectation of things that we cannot currently see but believe to be true.\n\nAlma also uses the metaphor of a seed to illustrate how faith can grow within us. He encourages us to plant the word of God in our hearts and to nourish it with our faith. As we do this, our faith can grow and eventually lead to a strong testimony of the gospel (Alma 32:28-43). This nurturing process involves diligence and patience, as we look forward to the fruits of our faith.\n\nMoreover, Alma emphasizes that faith is not about having a perfect knowledge but rather about exercising our faith unto repentance and action (Alma 34:17). This aligns with the idea that faith in Jesus Christ motivates us to do good works, obey commandments, and overcome temptation (Gospel Topics: Faith in Jesus Christ).\n\nIn summary, Alma 32 teaches that faith is a dynamic and growing principle that requires our active participation, leading us to hope, action, and ultimately, a deeper understanding of the gospel. If you have any more questions or thoughts about faith, feel free to share!",
+   "labels": [
+    "Gospel Topics: Faith in Jesus Christ",
+    "Bible Dictionary: Faith",
+    "Gospel Topics: Faith in Jesus Christ (Study Guide)",
+    "Topical Guide: Faith"
+   ],
+   "cited_chapters": [
+    "Alma 32",
+    "Alma 34"
+   ],
+   "manual_chapters": [],
+   "cites_manual_ref": null,
+   "cites_expected": true
+  },
+  "bom-nephi-laban": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Nephi killed Laban because he received a direct commandment from God to do so. This act was not something Nephi desired; rather, it was a revelation he felt compelled to follow. Elder Dale G. Renlund emphasized that Nephi's motivation was not for personal gain but to secure the brass plates, which contained the scriptures necessary for a future nation and covenant people. This episode is indeed a rare exception to the commandment \"Thou shalt not kill,\" which remained the standard for Nephi and all of God's people (Exodus 20:13; Mosiah 13:21). \n\nIt's important to recognize that Nephi's actions were framed within a divine directive, highlighting the complexity of such situations in scripture. Personal prayer and the guidance of the Holy Spirit can provide further insight into understanding these challenging narratives.",
+   "labels": [
+    "Gospel Topics: Religion vs. Violence",
+    "Topical Guide: Kill",
+    "Topical Guide: Tyranny",
+    "Bible Dictionary: Jeremiah"
+   ],
+   "cited_chapters": [
+    "Exodus 20",
+    "Mosiah 13"
+   ],
+   "manual_chapters": [],
+   "cites_manual_ref": null,
+   "cites_expected": false
+  },
+  "bom-moroni-promise": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Moroni's promise at the end of the Book of Mormon is a powerful invitation to all who read the book. He encourages individuals to ponder the mercies of God and to pray with a sincere heart, with real intent, asking God if the Book of Mormon is true. He assures that if they do so, they will receive a witness from the Holy Ghost, confirming the truth of the book (Moroni 10:4-5). This promise emphasizes the importance of personal revelation and the role of the Holy Spirit in gaining a testimony of the gospel.\n\nAdditionally, the promise of eternal life is highlighted in 1 John 2:25, where it states that God has promised us eternal life. This aligns with the overarching theme of the Book of Mormon, which testifies of Jesus Christ and the blessings that come through Him.\n\nIf you have any more questions about this promise or how to apply it in your life, feel free to ask! Remember, personal prayer and the guidance of the Holy Spirit are essential in seeking truth.",
+   "labels": [
+    "Topical Guide: Promise",
+    "Gospel Topics: Book of Mormon (Study Guide)",
+    "Gospel Topics: Joseph Smith’s Character",
+    "Gospel Topics: Book of Mormon Translation",
+    "Gospel Topics: Origins of the Book of Abraham"
+   ],
+   "cited_chapters": [
+    "1 John 2",
+    "Moroni 10"
+   ],
+   "manual_chapters": [],
+   "cites_manual_ref": null,
+   "cites_expected": true
+  },
+  "bom-brother-of-jared": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "When the Lord touched the stones, the brother of Jared beheld the light of the Lord shining forth from them. This experience is described in Ether 3:4, where it mentions that the brother of Jared asked the Lord to touch the stones with His finger, and as a result, he saw the Lord's finger and the light that emanated from the stones. This profound moment not only demonstrated the power of the Lord but also affirmed the brother of Jared's role as a seer, as he was able to witness divine manifestations through the Urim and Thummim, which were given to him (D&C 17:1). \n\nIt's a beautiful reminder of how faith and divine interaction can lead to profound spiritual insights. If you have more questions about this or related topics, feel free to ask!",
+   "labels": [
+    "Topical Guide: Urim and Thummim",
+    "Topical Guide: Sight",
+    "Topical Guide: Stone",
+    "Topical Guide: Brother",
+    "Topical Guide: Seer Stones",
+    "Topical Guide: Touch",
+    "Topical Guide: Seer"
+   ],
+   "cited_chapters": [
+    "D&C 17",
+    "Ether 3"
+   ],
+   "manual_chapters": [],
+   "cites_manual_ref": null,
+   "cites_expected": true
+  },
+  "cht-liberty-jail": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Liberty Jail holds significant importance in Church history, particularly as a place of trial and revelation for the Prophet Joseph Smith and his companions. While the passages you've provided don't detail the events that occurred there, we can draw on the broader context of liberty and freedom in the gospel.\n\nLiberty Jail was where Joseph Smith was imprisoned under harsh conditions, and during this time, he received profound revelations that are now part of the Doctrine and Covenants. These revelations emphasized the principles of liberty, both spiritual and temporal. For instance, the concept of being free to choose liberty and eternal life is highlighted in 2 Nephi 2:27, which reflects the gospel's teachings on agency and the importance of freedom.\n\nAdditionally, the idea of proclaiming liberty and setting the oppressed free resonates with the experiences of those in Liberty Jail. The scriptures speak of the Lord's promise to bring liberty to the captives (Isaiah 61:1), which can be seen as a spiritual parallel to the physical captivity Joseph faced.\n\nIf you're interested in more specific details about the revelations received during that time or the circumstances surrounding the imprisonment, I would encourage you to explore the Doctrine and Covenants, particularly sections 121-123, which provide insights into Joseph Smith's experiences and the teachings he received while in Liberty Jail. Remember, personal prayer and the guidance of the Holy Spirit can help you gain deeper understanding and witness of these truths.",
+   "labels": [
+    "Topical Guide: Liberty",
+    "Bible Dictionary: Libertines",
+    "Gospel Topics: Prison Ministry"
+   ],
+   "cited_chapters": [
+    "2 Nephi 2",
+    "Isaiah 61"
+   ],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "cht-zions-camp": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Zion's Camp refers to a significant event in early Church history, specifically a group of Latter-day Saints who were organized by Joseph Smith in 1834. The purpose of this camp was to assist the Saints who had been driven from their homes in Jackson County, Missouri, and to help establish Zion, which is often understood as a place of safety and purity, as defined in latter-day revelation (D&C 97:21).\n\nThe camp consisted of about 200 men who traveled from Kirtland, Ohio, to Missouri. Their journey was marked by various challenges, including hardships and trials, but it was also a time of spiritual growth and unity among the participants. The concept of Zion is deeply tied to the idea of building a community of the pure in heart, as emphasized in the Gospel Topics on Zion.\n\nWhile Zion's Camp did not achieve its immediate goal of reclaiming the land for the Saints, it played a crucial role in strengthening the faith of those involved and laid the groundwork for future efforts to establish Zion, including the eventual building of the New Jerusalem in Jackson County, Missouri (D&C 45:66-67). \n\nIf you have more questions about Zion's Camp or related topics, feel free to ask!",
+   "labels": [
+    "Bible Dictionary: Zion",
+    "Topical Guide: Camp",
+    "Gospel Topics: Zion",
+    "Bible Dictionary: Sabbath day’s journey",
+    "Topical Guide: Jerusalem, New"
+   ],
+   "cited_chapters": [
+    "D&C 45",
+    "D&C 97"
+   ],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "cht-leave-nauvoo": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "The Saints left Nauvoo primarily due to renewed conflict and persecution from non–Latter-day Saints and dissenters. After initially finding peace in Illinois, tensions escalated, culminating in the brutal martyrdom of Joseph Smith and his brother Hyrum by a mob in June 1844. Despite the governor's promise to protect them, the situation deteriorated, leading to immense pressure on the Saints. In February 1846, the main body of the Saints began their exodus from Nauvoo, facing harsh conditions and significant suffering along the way. Many elderly and poor Saints were forcibly expelled from Nauvoo in September 1846, and the desecration of the temple further highlighted the violence they faced. The experience of being driven from Missouri had taught them the importance of seeking safety and community, which ultimately led to their departure from Nauvoo (Gospel Topics: Peace and Violence among 19th-Century Latter-day Saints).",
+   "labels": [
+    "Gospel Topics: Peace and Violence among 19th-Century Latter-day Saints",
+    "Gospel Topics: Joseph Smith’s Character",
+    "Topical Guide: Leave, Left [ verb ]",
+    "Gospel Topics: Religious Freedom"
+   ],
+   "cited_chapters": [
+    "February 1846",
+    "June 1844",
+    "September 1846"
+   ],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "cht-kirtland-dedication": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "The dedication of the Kirtland Temple in 1836 was a significant event in the history of the Church. Joseph Smith offered a dedicatory prayer, which was revealed to him, expressing a desire that all who entered the temple would feel God's power (Doctrine and Covenants 109:13). This prayer highlights the sacred purpose of the temple as a place where individuals can experience the divine presence.\n\nDuring this dedication, remarkable spiritual experiences occurred. Notably, the Savior appeared to Joseph Smith and Oliver Cowdery, along with heavenly messengers such as Moses, Elias, and Elijah, who conferred important priesthood keys (Doctrine and Covenants 110:1–16). These keys are essential for carrying out the work of salvation and exaltation, including the sealing power that allows families to be united eternally.\n\nThe Kirtland Temple was not only a physical structure but also a spiritual beacon for the Saints, requiring significant sacrifices to build, yet promising many blessings in return (Doctrine and Covenants 97:8–16). This dedication marked the beginning of a new era of worship and covenant-making in the restored gospel.\n\nHave you had any personal experiences in the temple that resonate with the feelings of God's power or blessings?",
+   "labels": [
+    "Gospel Topics: Temples (Study Guide)",
+    "Gospel Topics: Temples of The Church of Jesus Christ of Latter-day Saints",
+    "Gospel Topics: Temples",
+    "Gospel Topics: Restoration of the Church",
+    "Gospel Topics: Worship God the Father (Study Guide)",
+    "Gospel Topics: Priesthood Keys (Study Guide)"
+   ],
+   "cited_chapters": [
+    "D&C 109",
+    "D&C 110",
+    "D&C 97"
+   ],
+   "manual_chapters": [],
+   "cites_manual_ref": null,
+   "cites_expected": true
+  },
+  "cht-emma-smith": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Emma Smith was the wife of Joseph Smith, the Prophet and founder of The Church of Jesus Christ of Latter-day Saints. She played a significant role in the early Church, notably as the first president of the Relief Society, which was organized in March 1842. Joseph Smith emphasized that the organization of the Relief Society was essential for the Church's completeness, stating that it was to be patterned after the priesthood (as noted in the Relief Society section).\n\nRegarding plural marriage, Emma's feelings were complex. While she did not leave a record of her own thoughts on the matter, accounts from others indicate that she opposed plural marriage, except for a brief period when she consented to at least four of Joseph's plural sealings. Ultimately, she rejected the practice, and despite the emotional challenges it brought to their marriage, she and Joseph remained deeply committed to one another (as discussed in the Plural Marriage section). \n\nIf you have more questions about Emma Smith or her experiences, feel free to ask!",
+   "labels": [
+    "Gospel Topics: Plural Marriage",
+    "Gospel Topics: Book of Mormon Geography",
+    "Gospel Topics: Relief Society",
+    "Topical Guide: Smith, Joseph",
+    "Topical Guide: Smith"
+   ],
+   "cited_chapters": [
+    "March 1842"
+   ],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "cht-word-of-wisdom-history": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "The Word of Wisdom has a significant history that began with a revelation given to the Prophet Joseph Smith on February 27, 1833. This revelation is recorded in Doctrine and Covenants 89. It was initially presented “not by commandment or constraint,” indicating that it was meant to guide rather than to impose strict rules (Doctrine and Covenants 89:2). \n\nThe Word of Wisdom outlines healthy practices, encouraging the consumption of grains, fruits, and wholesome herbs, while advising against harmful substances such as tobacco, alcohol, tea, and coffee. Over time, Church leaders have emphasized that following the Word of Wisdom is essential for receiving the full blessings of the gospel, including participation in baptism, missionary service, and temple ordinances.\n\nHistorically, the revelation was significant not only for its health guidelines but also as a reflection of God's love for His children, showing that He cares about both their physical and spiritual well-being. The teachings encourage members to use wisdom and prayerful judgment in making health-related choices, which highlights the importance of personal agency in following this law.\n\nIf you have more questions about the Word of Wisdom or its implications, feel free to ask!",
+   "labels": [
+    "Gospel Topics: Word of Wisdom (Study Guide)",
+    "Gospel Topics: Peace and Violence among 19th-Century Latter-day Saints",
+    "Gospel Topics: Translation and Historicity of the Book of Abraham",
+    "Gospel Topics: Word of Wisdom",
+    "Gospel Topics: Participating in Temple and Family History Work (Study Guide)",
+    "Gospel Topics: Multiple Accounts of the First Vision"
+   ],
+   "cited_chapters": [
+    "D&C 89",
+    "February 27"
+   ],
+   "manual_chapters": [],
+   "cites_manual_ref": null,
+   "cites_expected": true
+  },
+  "restoration-first-vision-accounts": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Joseph Smith left multiple accounts of the First Vision for several reasons. First, he recorded four distinct accounts during his lifetime, and in addition, five contemporaries wrote about the experience after hearing him speak of it. These various accounts provide different emphases and details, which together give us a more complete picture of this miraculous event. \n\nPeople often highlight different aspects of their experiences depending on their audience or purpose for sharing, and Joseph's accounts exemplify this. While they vary in emphasis, they consistently tell the same story. This is similar to the multiple accounts of Paul’s conversion found in the New Testament, which also show variations in detail while maintaining a core message.\n\nThe differences in Joseph's accounts allow us to appreciate the depth of his testimony and the significance of the vision. As noted, the major differences are found in the earliest account from 1832, which varies from the others on a few points. Overall, these multiple accounts enrich our understanding of the First Vision and Joseph Smith's experience.",
+   "labels": [
+    "Gospel Topics: Multiple Accounts of the First Vision",
+    "Gospel Topics: First Vision (Study Guide)"
+   ],
+   "cited_chapters": [],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "followup-liberty-jail-lessons": {
+   "intent": "RAG_FOLLOWUP",
+   "answer": "While Joseph Smith was imprisoned in Liberty Jail, he experienced profound trials and received significant revelations from the Lord. During this time, he was taught about the nature of suffering and the importance of enduring afflictions with faith. The Lord reassured him that his trials were part of a divine plan and that he would ultimately be strengthened through them.\n\nIn Doctrine and Covenants 121:7–8, the Lord told Joseph, “My son, peace be unto thy soul; thine adversity and thine afflictions shall be but a small moment.” This message emphasizes that while trials may seem overwhelming, they are temporary and serve a greater purpose. The Lord also reminded Joseph that he would be given the strength to endure and that his faithfulness would lead to blessings.\n\nAdditionally, Joseph was taught about the importance of patience and the need to trust in God's timing. The revelations received during this period not only comforted him but also provided guidance for the Church and its members as they faced their own challenges. \n\nIt's a powerful reminder that even in our darkest moments, we can find hope and strength through faith in God. Personal prayer and the Holy Spirit can help us gain our own witness of these truths.",
+   "labels": [
+    "Gospel Topics: Joseph Smith (Study Guide)",
+    "Gospel Topics: Joseph Smith",
+    "Gospel Topics: Mormonism",
+    "Gospel Topics: Joseph Smith’s Character",
+    "Gospel Topics: Relief Society"
+   ],
+   "cited_chapters": [
+    "D&C 121"
+   ],
+   "manual_chapters": [],
+   "cites_manual_ref": null,
+   "cites_expected": true
+  },
+  "followup-alma32-seed": {
+   "intent": "RAG_FOLLOWUP",
+   "answer": "Alma's comparison of faith to a seed is a powerful metaphor that illustrates how faith can grow and develop within us. He explains that if we allow the word of God to be planted in our hearts, and if it is a true or good seed, it will begin to swell within us. This swelling is a sign that the seed is good, as it enlarges our souls, enlightens our understanding, and becomes delightful to us (Alma 32:28-30).\n\nWhen we exercise our faith to plant this seed, we are essentially taking action on the teachings of the prophets. Alma encourages us to experiment upon the word, which means we can try living the principles taught by the prophets and observe the blessings that come as a result. This process of planting and nurturing our faith helps us recognize the goodness of the word and strengthens our belief in the guidance provided by living prophets (Gospel Topics: The Role of Prophets).\n\nIn essence, just as a seed needs care and attention to grow, our faith requires nurturing through action and experience. As we cultivate our faith, we can witness its growth and the blessings that follow, reinforcing our trust in the teachings of the gospel.",
+   "labels": [
+    "Gospel Topics: The Role of Prophets",
+    "Topical Guide: Plant",
+    "Topical Guide: Seed"
+   ],
+   "cited_chapters": [
+    "Alma 32"
+   ],
+   "manual_chapters": [],
+   "cites_manual_ref": null,
+   "cites_expected": true
+  },
+  "mixed-thanks-zions-camp": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Zion's Camp was a significant event in the early history of The Church of Jesus Christ of Latter-day Saints. It was organized in 1834 by Joseph Smith to assist the Saints who had been driven from their homes in Jackson County, Missouri, which is referred to as Zion in many revelations (D&C 58:49–50; 62:4). The camp aimed to gather the members and help them reclaim their lands and establish Zion.\n\nThe importance of Zion's Camp lies in its role in strengthening the faith of the participants and preparing them for future challenges. It was a time of trial and testing, where many learned about sacrifice, unity, and the principles of the gospel. The experiences gained during this journey helped to solidify the leadership of Joseph Smith and the resolve of the Saints to build up Zion, both in a spiritual sense as \"the pure in heart\" (D&C 97:21) and in a physical sense through the establishment of communities and temples.\n\nOverall, Zion's Camp was a pivotal moment that emphasized the commitment of the early Saints to their faith and their desire to create a place of refuge and righteousness.",
+   "labels": [
+    "Gospel Topics: Zion",
+    "Topical Guide: Camp",
+    "Bible Dictionary: Zion",
+    "Topical Guide: Jerusalem, New"
+   ],
+   "cited_chapters": [
+    "D&C 58",
+    "D&C 97"
+   ],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "mixed-hello-emma-hymns": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Hi there! Emma Smith played a significant role in the early development of the Church's hymns. She was instrumental in compiling a collection of hymns for the Church, which was a vital part of worship and community life. In fact, the Doctrine and Covenants mentions that she was to make a selection of sacred hymns (D&C 25:11). This effort not only enriched the spiritual experience of the members but also helped establish a tradition of hymnody within the Church. \n\nIf you have more questions about Emma Smith or the hymns, feel free to ask!",
+   "labels": [
+    "Gospel Topics: Plural Marriage",
+    "Gospel Topics: Relief Society",
+    "Gospel Topics: Mormonism",
+    "Topical Guide: Smith",
+    "Gospel Topics: Women’s Service and Leadership in the Church",
+    "Topical Guide: Hymn"
+   ],
+   "cited_chapters": [
+    "D&C 25"
+   ],
+   "manual_chapters": [],
+   "cites_manual_ref": null,
+   "cites_expected": true
+  }
+ }
+}

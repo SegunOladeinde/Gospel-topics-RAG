@@ -18,6 +18,8 @@ class CollectionConfig:
     title_source: str = "first_line"  # or "slug"
     url_source: str = "source_line"  # or "pattern"
     resolve_redirects: bool = False
+    sections: bool = False  # raw files are cut into sections (ingestion/sections.py)
+    group: str = "core"  # retrieval group: "core", or "study" (searched separately, see GroupedRetriever)
     chunk_size: int = 1000
     chunk_overlap: int = 200
 
@@ -40,6 +42,8 @@ def load_config(path: Path = DEFAULT_CONFIG, root: Path = PROJECT_ROOT) -> Inges
             raise ValueError(f"{entry['name']}: title_source must be first_line or slug")
         if merged.get("url_source", "source_line") not in ("source_line", "pattern"):
             raise ValueError(f"{entry['name']}: url_source must be source_line or pattern")
+        if merged.get("group", "core") not in ("core", "study"):
+            raise ValueError(f"{entry['name']}: group must be core or study")
         if "{slug}" not in merged["url_pattern"]:
             raise ValueError(f"{entry['name']}: url_pattern needs a {{slug}} placeholder")
         merged["raw_path"] = root / merged["raw_path"]

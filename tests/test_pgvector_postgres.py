@@ -19,6 +19,7 @@ from src.backend.ingestion.config import CollectionConfig, IngestConfig
 from src.backend.ingestion.documents import load_documents
 from src.backend.ingestion.pipeline import run_ingestion
 from src.backend.ingestion.stores import SqlRagStore
+import src.backend.main as backend
 from src.backend.main import app
 from src.backend.retrieval import PgvectorRetriever, SqlTransport
 from src.backend.retrieval.keyword import full_text_query
@@ -194,9 +195,25 @@ async def test_match_chunks_returns_semantic_hits_and_candidate_similarities(dat
     assert by_id[baptism["chunk_id"]]["similarity"] < semantic[0]["similarity"]
 
 
+@pytest.mark.anyio
+async def test_match_chunks_filtered_to_collections_with_an_exact_scan(database, collection):
+    """The grouped retriever's filtered search: SET LOCAL hnsw.iterative_scan and
+    ef_search are accepted, and only the given collections come back."""
+    ingest(collection, SqlRagStore(database))
+    transport = SqlTransport(database)
+    rows = await transport.match(fake_vector("tithing"), 4, [], collections=[collection.name])
+    assert rows and {r["collection"] for r in rows} == {collection.name}
+    assert sorted((r for r in rows if r["semantic_rank"]), key=lambda r: r["semantic_rank"])[0]["slug"] == "tithing"
+    assert await transport.match(fake_vector("tithing"), 4, [], collections=["no_such_collection"]) == []
+    passages = list(transport.iter_passages(collections=[collection.name]))
+    assert passages and len(passages) == sum(1 for p in transport.load_passages() if p["collection"] == collection.name)
+
+
 def test_real_startup_with_the_pgvector_bm25_backend(monkeypatch, real_startup, database, collection):
     ingest(collection, SqlRagStore(database))
     monkeypatch.setenv("RETRIEVER_BACKEND", "pgvector_bm25")
+    # The test collection isn't in data/collections.yaml's groups: search everything as one.
+    monkeypatch.setattr(backend, "collection_groups", lambda: ((), ()))
     monkeypatch.setenv("APP_API_KEY", "test-key")
     get_session_factory.cache_clear()
 

@@ -22,7 +22,20 @@ COLLECTIONS: dict[str, tuple[str, str]] = {
     "bible_dictionary": ("Bible Dictionary", f"{BASE_URL}/scriptures/bd/{{slug}}?lang=eng"),
     "topical_guide": ("Topical Guide", f"{BASE_URL}/scriptures/tg/{{slug}}?lang=eng"),
     "topics_and_questions": ("Gospel Topics", f"{BASE_URL}/manual/gospel-topics/{{slug}}?lang=eng"),
+    "institute_bom": (
+        "Institute Manual (Book of Mormon)",
+        f"{BASE_URL}/manual/book-of-mormon-student-manual-2018/{{slug}}?lang=eng",
+    ),
+    "institute_restoration": (
+        "Institute Manual (Restoration)",
+        f"{BASE_URL}/manual/foundations-of-the-restoration-class-preparation-material-2019/{{slug}}?lang=eng",
+    ),
+    "church_history_topics": ("Church History Topics", f"{BASE_URL}/history/topics/{{slug}}?lang=eng"),
 }
+# Sectioned collections' ids are "<page>--<section>" (ingestion/documents.py);
+# without a stored URL, the fallback link goes to the page.
+SECTIONED = {"institute_bom", "institute_restoration", "church_history_topics"}
+_SECTION_SEPARATOR = "--"
 
 # Slugs on the site are lowercase words joined by single hyphens. Anything
 # else (e.g. a "_" left behind by describe_source's sanitising) wouldn't
@@ -62,6 +75,8 @@ def source_link(source_id: str) -> SourceLink:
         return SourceLink(id=source_id, label=source_id, url=None)
 
     collection_name, url_template = COLLECTIONS[collection]
+    if collection in SECTIONED:
+        slug = slug.split(_SECTION_SEPARATOR, 1)[0]
     if slug.endswith(_STUDY_GUIDE_SUFFIX) and len(slug) > len(_STUDY_GUIDE_SUFFIX):
         title = f"{_title_from_slug(slug.removesuffix(_STUDY_GUIDE_SUFFIX))} (Study Guide)"
     else:

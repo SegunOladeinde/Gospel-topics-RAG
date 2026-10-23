@@ -15,7 +15,13 @@ only when they're used, so the pgvector backends never load them.
 """
 
 from src.backend.retrieval.base import Retriever
-from src.backend.retrieval.pgvector import PgvectorBm25Retriever, PgvectorRetriever, RestTransport, SqlTransport
+from src.backend.retrieval.pgvector import (
+    GroupedRetriever,
+    PgvectorBm25Retriever,
+    PgvectorRetriever,
+    RestTransport,
+    SqlTransport,
+)
 
 
 def __getattr__(name: str):
@@ -32,6 +38,7 @@ def __getattr__(name: str):
 
 
 __all__ = [
+    "GroupedRetriever",
     "HybridRetriever",
     "PgvectorBm25Retriever",
     "PgvectorRetriever",

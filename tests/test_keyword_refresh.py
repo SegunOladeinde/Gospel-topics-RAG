@@ -11,7 +11,7 @@ from rank_bm25 import BM25Okapi
 
 import src.backend.main as backend
 from src.backend.main import app
-from src.backend.retrieval import PgvectorBm25Retriever, SqlTransport
+from src.backend.retrieval import GroupedRetriever, PgvectorBm25Retriever, SqlTransport
 from src.backend.retrieval.keyword import (
     COLLECTION_PHRASES,
     GENERIC_VERBS,
@@ -104,13 +104,18 @@ def test_filter_drops_collection_names_and_generic_verbs():
 
 def test_load_retriever_gives_pgvector_bm25_the_filter(real_startup, monkeypatch):
     monkeypatch.setenv("RETRIEVER_BACKEND", "pgvector_bm25")
-    monkeypatch.setattr(SqlTransport, "iter_passages", lambda self: ((r["chunk_id"], r["content"]) for r in PASSAGES))
+    monkeypatch.setattr(SqlTransport, "iter_passages", lambda self, batch=500, collections=None: (
+        (r["chunk_id"], r["content"]) for r in PASSAGES if not collections or r["collection"] in collections))
     monkeypatch.setattr(SqlTransport, "signature", lambda self: (4, 4, None))
     retriever = backend.load_retriever(MagicMock())
-    assert isinstance(retriever, PgvectorBm25Retriever)
+    # data/collections.yaml has study collections, so the core ones are searched on their own.
+    assert isinstance(retriever, GroupedRetriever)
+    core = retriever.core
+    assert isinstance(core, PgvectorBm25Retriever)
     # From data/collections.yaml as well as the built-in list.
-    assert {"bible dictionary", "topics and questions", "gospel topics"} <= set(retriever.keyword.drop_phrases)
-    assert retriever.keyword.drop_words == GENERIC_VERBS
+    assert {"bible dictionary", "topics and questions", "gospel topics", "church history topics"} <= set(
+        core.keyword.drop_phrases)
+    assert core.keyword.drop_words == GENERIC_VERBS
 
 
 # --- rebuilding the index ---------------------------------------------------

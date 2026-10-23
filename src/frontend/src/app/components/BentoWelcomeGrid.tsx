@@ -1,5 +1,5 @@
 "use client";
-import { BookOpen, Sparkles, Star, Heart, ArrowUpRight } from "lucide-react";
+import { BookOpen, Sparkles, Sprout, Landmark, ArrowUpRight } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 interface BentoCard {
@@ -32,18 +32,18 @@ const CARDS: BentoCard[] = [
         delay: "80ms",
     },
     {
-        icon: Star,
-        question: "What does the Topical Guide say about faith?",
-        description: "Faith, hope, and works",
+        icon: Sprout,
+        question: "What does Alma 32 teach about faith?",
+        description: "Book of Mormon institute manual",
         colSpan: "col-span-1",
         iconColor: "text-amber-500",
         iconBg: "bg-amber-500/20",
         delay: "160ms",
     },
     {
-        icon: Heart,
-        question: "How does the Law of Chastity relate to temple covenants?",
-        description: "Purity, covenant living, and eternal progression",
+        icon: Landmark,
+        question: "What happened at Liberty Jail?",
+        description: "Church History Topics",
         colSpan: "col-span-1 md:col-span-2",
         iconColor: "text-rose-500",
         iconBg: "bg-rose-500/20",
