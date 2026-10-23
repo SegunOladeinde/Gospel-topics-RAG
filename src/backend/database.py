@@ -134,6 +134,8 @@ class ChatMessage(Base):
     role = Column(String, nullable=False)  # "user" or "assistant"
     content = Column(Text, nullable=False)
     sources = Column(JSON, nullable=False, default=list)  # source ids, or {id, label, url} links
+    # Answers only: every claim was checked against the sources and supported.
+    verified = Column(Boolean, nullable=False, default=False, server_default=false())
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
@@ -182,21 +184,27 @@ def apply_rag_schema(engine) -> bool:
         return False
 
 
+# Columns added after their table was first created: (table, column, definition).
+# Mirrors sql/002_add_is_admin_to_user_query_logs.sql and sql/005_add_verified_to_chat_messages.sql.
+ADDED_COLUMNS = (
+    ("user_query_logs", "is_admin", "BOOLEAN NOT NULL DEFAULT false"),
+    ("chat_messages", "verified", "BOOLEAN NOT NULL DEFAULT false"),
+)
+
+
 def add_missing_columns(engine) -> None:
-    """Add columns introduced after user_query_logs was first created.
+    """Add columns introduced after their table was first created.
 
     create_all() never alters a table that already exists, so a database set
-    up before a column was added needs it added here. Mirrors
-    sql/002_add_is_admin_to_user_query_logs.sql.
+    up before a column was added needs it added here.
     """
-    columns = {column["name"] for column in inspect(engine).get_columns("user_query_logs")}
-    if "is_admin" in columns:
-        return
-    with engine.begin() as connection:
-        connection.execute(
-            text("ALTER TABLE user_query_logs ADD COLUMN is_admin BOOLEAN NOT NULL DEFAULT false")
-        )
-    logger.info("Added is_admin column to user_query_logs.")
+    inspector = inspect(engine)
+    for table, column, definition in ADDED_COLUMNS:
+        if column in {c["name"] for c in inspector.get_columns(table)}:
+            continue
+        with engine.begin() as connection:
+            connection.execute(text(f"ALTER TABLE {table} ADD COLUMN {column} {definition}"))
+        logger.info("Added %s column to %s.", column, table)
 
 
 def init_db() -> sessionmaker | None:

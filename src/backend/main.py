@@ -80,6 +80,7 @@ from src.backend.retrieval import (
 from src.backend.retrieval.keyword import GENERIC_VERBS, collection_phrases
 from src.backend.retrieval.refresh import KeywordIndexRefresher
 from src.backend.citations import USED_MARKER, Correction, UsedMarkerFilter, check_references, split_used
+from src.backend.claims import NOT_FOUND, ClaimCheck, check_claims, declined
 from src.backend.source_links import SourceLink, source_link, source_link_for
 from src.backend.usage import Usage, get_usage
 from dataclasses import dataclass, field
@@ -214,10 +215,13 @@ SYSTEM_PROMPT = (
     "and Church history deeply. "
     "When the user asks follow-up questions, acknowledge what was said "
     "before and build naturally on the conversation. "
-    "Base every answer strictly on the reference passages that come with "
-    "each question, and don't add doctrine they don't support. If they "
-    "don't cover the question, say honestly that you don't have enough "
-    "to answer it well, rather than speculating. "
+    "Answer ONLY from the numbered reference passages that come with each "
+    "question: use no outside knowledge, and don't speculate or fill gaps. "
+    "Every statement you make must be supported by those passages. Never "
+    "invent names, dates, numbers, places or quotations; use only the ones "
+    "the passages give. If the passages don't answer the question, reply "
+    f"exactly \"{NOT_FOUND}\" and then suggest one related question they "
+    "could answer, in a single short sentence; don't describe the passages. "
     "Write as if you simply know the material: never mention the passages "
     "themselves, the \"context\", \"documents\", \"sources provided\", or "
     "\"the text above\". Instead, cite naturally by name when it helps, "
@@ -764,6 +768,10 @@ class QueryResponse(BaseModel):
         default_factory=list,
         description="Each source with a readable label and its churchofjesuschrist.org URL.",
     )
+    verified: bool = Field(
+        default=False,
+        description="Every claim in the answer was checked against its sources and supported.",
+    )
 
     @model_validator(mode="after")
     def _links_from_ids(self) -> "QueryResponse":
@@ -1287,9 +1295,8 @@ async def remove_conversation(
 
 
 ANSWER_FAILED_DETAIL = "Failed to generate an answer. Please try again shortly."
-NO_MATERIAL_ANSWER = (
-    "I couldn't find anything in the available LDS source material to answer that question."
-)
+# No passages at all: the same reply the model gives when they don't cover it.
+NO_MATERIAL_ANSWER = NOT_FOUND
 
 
 @dataclass
@@ -1309,19 +1316,24 @@ class PreparedAnswer:
 
 @dataclass
 class FinalAnswer:
-    """The answer as shown and saved: references checked, and only the sources it used."""
+    """The answer as shown and saved: references and claims checked, and only the sources it used."""
 
     answer: str
     sources: list[str]
     links: list[SourceLink]
     corrections: list[Correction] = field(default_factory=list)
+    claims: ClaimCheck | None = None
+
+    @property
+    def verified(self) -> bool:
+        return bool(self.claims and self.claims.verified)
 
 
 # Shown when the model names no passages (no USED line): the first few sources.
 FALLBACK_SOURCES = 3
 
 
-def finalize_answer(raw: str, prepared: PreparedAnswer) -> FinalAnswer:
+async def finalize_answer(raw: str, prepared: PreparedAnswer, chat_model) -> FinalAnswer:
     """From the model's full output to the answer users see.
 
     1. The USED line says which numbered passages the answer drew on.
@@ -1329,27 +1341,37 @@ def finalize_answer(raw: str, prepared: PreparedAnswer) -> FinalAnswer:
        (citations.check_references): corrected or removed if they don't
        support it, each change logged. A passage that supports a reference
        counts as used even if the model didn't list it.
-    3. Only the used passages' sources are shown (and saved); with none
-       named, the first FALLBACK_SOURCES sources.
+    3. Every claim is checked against the used passages (claims.check_claims,
+       one small model call): unsupported ones are rewritten or removed, and
+       mostly unsupported answers become the "couldn't find this" reply.
+    4. Only the used passages' sources are shown (and saved); with none
+       named, the first FALLBACK_SOURCES. A "couldn't find this" reply shows none.
     """
     text, used = split_used(raw)
     documents = prepared.documents
     if not documents:
         return FinalAnswer(text, prepared.sources, prepared.links)
+    if declined(text):
+        return FinalAnswer(text, [], [])
     check = check_references(text, [d.page_content for d in documents])
     for correction in check.corrections:
         logger.info("Corrected reference %r -> %r: %s", correction.original, correction.replacement or "(removed)",
                     correction.reason)
     chosen = {n - 1 for n in used or [] if 1 <= n <= len(documents)} | check.supporting
-    if chosen:
-        shown = [d for i, d in enumerate(documents) if i in chosen]
-        return FinalAnswer(check.answer, collect_unique_sources(shown), collect_unique_links(shown), check.corrections)
-    return FinalAnswer(
-        check.answer,
-        collect_unique_sources(documents)[:FALLBACK_SOURCES],
-        collect_unique_links(documents)[:FALLBACK_SOURCES],
-        check.corrections,
-    )
+    shown = [d for i, d in enumerate(documents) if i in chosen] if chosen else []
+    if shown:
+        sources, links = collect_unique_sources(shown), collect_unique_links(shown)
+    else:
+        shown = documents
+        sources = collect_unique_sources(documents)[:FALLBACK_SOURCES]
+        links = collect_unique_links(documents)[:FALLBACK_SOURCES]
+    # With each passage's source name, so "Gospel Topics explains..." can be checked too.
+    labelled = [f"{source_link_for(describe_source(d), d.metadata.get('title'), d.metadata.get('url')).label}\n"
+                f"{d.page_content}" for d in shown]
+    claims = await check_claims(check.answer, labelled, chat_model, suggestion=links[0].label if links else None)
+    if claims.declined:
+        return FinalAnswer(claims.answer, [], [], check.corrections, claims)
+    return FinalAnswer(claims.answer, sources, links, check.corrections, claims)
 
 
 def admit_question(payload: QueryRequest, caller: Caller, db) -> JSONResponse | None:
@@ -1485,7 +1507,7 @@ def log_query(db, caller: Caller) -> None:
 
 def record_answer(
     db, caller: Caller, payload: QueryRequest, answer: str, sources: list[str],
-    links: list[SourceLink] | None = None,
+    links: list[SourceLink] | None = None, verified: bool = False,
 ) -> QueryResponse:
     """Log the query, save the turn to the user's history, and build the
     response with their updated allowance. DB failures are logged, never
@@ -1498,7 +1520,7 @@ def record_answer(
             try:
                 conversation_id = save_turn(
                     db, caller.identifier, payload.conversation_id,
-                    payload.messages[-1].content, answer, links or sources,
+                    payload.messages[-1].content, answer, links or sources, verified=verified,
                 )
             except SQLAlchemyError:
                 rollback_quietly(db)
@@ -1509,7 +1531,8 @@ def record_answer(
             rollback_quietly(db)
             logger.exception("Failed to read usage after answering")
     return QueryResponse(
-        answer=answer, sources=sources, source_links=links or [], conversation_id=conversation_id, usage=usage
+        answer=answer, sources=sources, source_links=links or [], conversation_id=conversation_id, usage=usage,
+        verified=verified,
     )
 
 
@@ -1557,8 +1580,8 @@ async def query(
     except Exception as exc:  # noqa: BLE001
         logger.error("Chat completion failed for question=%r", question, exc_info=exc)
         raise HTTPException(status_code=502, detail=ANSWER_FAILED_DETAIL) from exc
-    final = finalize_answer(str(response.content), prepared)
-    return record_answer(db, caller, payload, final.answer, final.sources, final.links)
+    final = await finalize_answer(str(response.content), prepared, chat_model)
+    return record_answer(db, caller, payload, final.answer, final.sources, final.links, final.verified)
 
 
 @app.post("/admin/reindex", status_code=202, dependencies=[Depends(verify_api_key)])
@@ -1629,8 +1652,9 @@ async def query_stream(
     """Same as /api/v1/query, but the answer streams as server-sent events:
 
         event: token  data: {"text": "..."}       one per chunk of the answer
-        event: done   data: <QueryResponse JSON>  the final answer (references checked),
-                                                  the sources it used, conversation_id, usage
+        event: done   data: <QueryResponse JSON>  the final answer (references and claims
+                                                  checked), the sources it used, whether it's
+                                                  verified, conversation_id, usage
         event: error  data: {"detail": "..."}     generation failed mid-answer
 
     Refusals (bad key, too long, out of questions) come back as ordinary
@@ -1712,8 +1736,8 @@ async def query_stream(
             if not finished and not failed and parts:
                 log_query(db, caller)
 
-        final = finalize_answer("".join(parts), prepared)
-        response = record_answer(db, caller, payload, final.answer, final.sources, final.links)
+        final = await finalize_answer("".join(parts), prepared, chat_model)
+        response = record_answer(db, caller, payload, final.answer, final.sources, final.links, final.verified)
         yield sse_event("done", response.model_dump(mode="json"))
 
     return StreamingResponse(

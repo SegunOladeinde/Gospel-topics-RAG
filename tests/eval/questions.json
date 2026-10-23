@@ -166,5 +166,10 @@
    "relevant": ["church_history_topics/zions-camp*", "church_history_topics/jackson-county-violence*", "institute_restoration/lesson-12-*", "church_history_topics/quorum-of-the-twelve*", "church_history_topics/quorum-of-the-seventy*", "*/zion*"]},
   {"id": "mixed-hello-emma-hymns", "since": "phase-d", "kind": "mixed", "question": "Hi! What did Emma Smith do for the Church's hymns?",
    "relevant": ["church_history_topics/hymns*", "church_history_topics/emma-hale-smith*", "*/hymns*", "*/music*", "*/emma*"],
-   "cites": ["D&C 25"]}
+   "cites": ["D&C 25"]},
+  {"id": "decline-lagos-population", "since": "grounded", "kind": "decline", "question": "What is the population of Lagos?", "expect": "decline"},
+  {"id": "decline-world-cup-2024", "since": "grounded", "kind": "decline", "question": "Who won the 2024 World Cup?", "expect": "decline"},
+  {"id": "decline-conference-oct-2026", "since": "grounded", "kind": "decline", "question": "What did President Nelson say in the October 2026 general conference?", "expect": "decline"},
+  {"id": "decline-boiling-point", "since": "grounded", "kind": "decline", "question": "What is the boiling point of water at sea level in Fahrenheit?", "expect": "decline"},
+  {"id": "decline-ikeja-bishop", "since": "grounded", "kind": "decline", "question": "Who is the current bishop of the Ikeja ward in Lagos?", "expect": "decline"}
 ]

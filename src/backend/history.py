@@ -30,6 +30,7 @@ class StoredMessage(BaseModel):
     content: str
     sources: list[str]
     source_links: list[SourceLink]
+    verified: bool = False
 
 
 class ConversationDetail(ConversationSummary):
@@ -74,6 +75,7 @@ def save_turn(
     question: str,
     answer: str,
     sources: Sequence[str | SourceLink],
+    verified: bool = False,
 ) -> str:
     """Append one question + answer, creating the conversation if needed.
 
@@ -97,7 +99,7 @@ def save_turn(
             ChatMessage(conversation_id=conversation.id, role="user", content=question, sources=[], created_at=now),
             ChatMessage(
                 conversation_id=conversation.id, role="assistant", content=answer,
-                sources=[_stored_source(source) for source in sources], created_at=now,
+                sources=[_stored_source(source) for source in sources], verified=verified, created_at=now,
             ),
         ]
     )
@@ -136,6 +138,7 @@ def get_conversation(db: Session, user_id: str, conversation_id: str) -> Convers
                 content=message.content,
                 sources=[_source_id(entry) for entry in message.sources or []],
                 source_links=[_link(entry) for entry in message.sources or []],
+                verified=bool(message.verified),
             )
             for message in messages
         ],

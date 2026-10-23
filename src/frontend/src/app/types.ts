@@ -15,6 +15,8 @@ export interface Message {
   streaming?: boolean;
   // Stopped (or cut off) before the answer finished.
   stopped?: boolean;
+  // Every claim was checked against the sources and supported (backend claims.py).
+  verified?: boolean;
 }
 
 // One entry in the sidebar. saved=false for chats that only live in this tab

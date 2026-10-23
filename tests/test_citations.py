@@ -105,3 +105,10 @@ def test_doctrine_and_covenants_sections_named_in_prose_support_the_chapter():
     # A lesson's own "Section 1:" heading isn't a D&C section.
     lesson = "Doctrine and Covenants lesson. Section 1: What troubles did the Saints face?"
     assert check_references("See D&C 1.", [lesson]).verified == 0
+
+
+def test_a_manual_sections_name_is_not_checked_as_a_citation():
+    answer = 'Laban had to perish (Institute Manual (Book of Mormon): 1 Nephi 4:10). "One man should perish" (1 Nephi 4:13).'
+    check = check_references(answer, ['The Spirit said, "It is better that one man should perish" (1 Nephi 4:13).'])
+    assert (check.total, check.verified, check.corrections) == (1, 1, [])
+    assert check.answer == answer

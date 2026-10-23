@@ -271,3 +271,21 @@ def test_non_streaming_answer_is_finalised_the_same_way(client):
                            headers={"X-API-Key": VALID_KEY}).json()
     assert body["answer"] == "It was a hard winter."
     assert body["sources"] == ["church_history_topics/liberty-jail"]
+
+
+def test_a_fully_supported_answer_is_marked_verified_and_saved_so(client, db):
+    from types import SimpleNamespace
+
+    from src.backend.claims import Verdicts
+
+    class Checker:
+        async def ainvoke(self, messages):
+            raw = SimpleNamespace(usage_metadata={"input_tokens": 10, "output_tokens": 5})
+            return {"parsed": Verdicts(sentences=[{"n": 1, "v": "S"}]), "raw": raw}
+
+    model = _model(chunks=("Faith is trust in Christ.", "\nUSED: [1]"))
+    model.with_structured_output = lambda schema, include_raw=False: Checker()
+    done = _events(_stream(client, user_id="s11", model=model).text)[-1][1]
+    assert done["verified"] is True and done["answer"] == "Faith is trust in Christ."
+    saved = db.query(ChatMessage).filter_by(conversation_id=done["conversation_id"], role="assistant").one()
+    assert saved.verified is True

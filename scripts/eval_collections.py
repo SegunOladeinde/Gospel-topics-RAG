@@ -40,6 +40,7 @@ with --answers one or two chat calls per question.
 import argparse
 import asyncio
 import fnmatch
+import inspect
 import json
 import re
 import sys
@@ -65,7 +66,7 @@ from src.backend.main import (  # noqa: E402
 )
 from src.backend.citations import check_references, split_used  # noqa: E402
 from src.backend.retrieval.pgvector import GroupedRetriever, SqlTransport  # noqa: E402
-from src.backend.source_links import source_link_for  # noqa: E402
+from src.backend.source_links import source_link, source_link_for  # noqa: E402
 
 sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
 from eval_retrieval import CachedEmbeddings, prepare_inputs  # noqa: E402
@@ -106,32 +107,47 @@ async def answer(item: dict, retriever: Capturing, chat) -> dict:
     retriever.last = []
     history = [Message(**m) for m in item.get("history", [])]
     prepared = await backend.prepare_answer(item["question"], history, retriever, chat)
-    raw, corrections = None, []
+    raw, corrections, claim_check, verified = None, [], None, False
     shown = list(prepared.sources or [])
+    shown_labels = [link.label for link in prepared.links or []]
     if prepared.fixed_answer is not None:
         text = prepared.fixed_answer
     else:
         text = raw = (await chat.ainvoke(prepared.llm_messages)).content
         finalize = getattr(backend, "finalize_answer", None)  # absent before the answer-accuracy change
         if finalize:
-            final = finalize(raw, prepared)
+            final = finalize(raw, prepared, chat) if inspect.signature(finalize).parameters.get("chat_model") \
+                else finalize(raw, prepared)
+            if inspect.isawaitable(final):
+                final = await final
             text, shown = final.answer, final.sources
+            shown_labels = [link.label for link in final.links]
             corrections = [vars(c) for c in final.corrections]
+            verified = getattr(final, "verified", False)
+            claims = getattr(final, "claims", None)
+            if claims is not None:
+                claim_check = {key: getattr(claims, key) for key in (
+                    "checked", "supported", "unsupported", "declined", "seconds", "input_tokens", "output_tokens")}
+                claim_check["changes"] = [vars(c) for c in claims.changes]
     manual_refs = set()
     for doc in retriever.last if prepared.sources else []:
         if doc.metadata.get("source", "").startswith("institute_"):
             first = doc.page_content.split("\n\n", 2)
             manual_refs |= chapters(" ".join(first[:2]))  # the section line and its "Scriptures:" line
     cited = chapters(text)
-    passages = [{"source": describe_source(d), "content": d.page_content}
+    passages = [{"source": describe_source(d), "content": d.page_content,
+                 "label": source_link_for(describe_source(d), d.metadata.get("title"), d.metadata.get("url")).label}
                 for d in (retriever.last if prepared.sources else [])]
     result = {
         "intent": prepared.intent,
         "answer": text,
         "raw_answer": raw,  # the model's own output, before the USED line and reference checks
         "corrections": corrections,
+        "claim_check": claim_check,
+        "verified": verified,
         "labels": [link.label for link in prepared.links or []],
         "shown_sources": shown,  # the source chips under the answer
+        "shown_labels": shown_labels,
         "passages": passages,  # what the model was given, for checking its references
         "cited_chapters": sorted(cited),
         "manual_chapters": sorted(manual_refs),
@@ -193,6 +209,108 @@ def accuracy_report(before: dict, after: dict, items: list[dict]) -> dict:
     }
     print(json.dumps(summary, indent=1))
     return summary
+
+
+# The app's claim checker runs gpt-4o-mini; faithfulness is judged by a
+# different, larger model with the same labels, so the checker doesn't mark
+# its own work. Eval only: the app never calls it.
+JUDGE_MODEL = "gpt-4o"
+MINI_USD_PER_MILLION = (0.15, 0.60)  # gpt-4o-mini input, output
+
+
+async def faithfulness(answers: dict, judge) -> dict:
+    """Per answer: claims the judge finds supported by the shown sources' passages."""
+    from src.backend.claims import check_claims
+
+    async def one(qid, a):
+        # Labelled like the app's own check, so "Gospel Topics explains..." can be judged too.
+        shown_passages = [f"{p.get('label') or source_link(p['source']).label}\n{p['content']}"
+                          for p in a["passages"] if p["source"] in a["shown_sources"]]
+        if not shown_passages:
+            return qid, None
+        check = await check_claims(a["answer"], shown_passages, judge)
+        return qid, {"supported": check.supported, "unsupported": check.unsupported, "checked": check.checked,
+                     "unsupported_sentences": [c.sentence for c in check.changes]}
+
+    results = await asyncio.gather(*(one(qid, a) for qid, a in answers.items()))
+    return {qid: r for qid, r in results if r is not None}
+
+
+async def grounding_report(before: dict, after: dict, items: list[dict]) -> dict:
+    judge = ChatOpenAI(model=JUDGE_MODEL, temperature=0)
+    fb, fa = await faithfulness(before, judge), await faithfulness(after, judge)
+
+    def pooled(rows):
+        s = sum(r["supported"] for r in rows.values())
+        u = sum(r["unsupported"] for r in rows.values())
+        return {"supported_claims": f"{s}/{s + u}", "percent": round(100 * s / (s + u), 1) if s + u else None,
+                "answers_fully_supported": sum(1 for r in rows.values() if r["checked"] and not r["unsupported"])}
+
+    print(f"\n{'question':<36}{'faithful before':>16}{'faithful after':>16}  verified")
+    for item in items:
+        qid = item["id"]
+        b, a = fb.get(qid), fa.get(qid)
+        cell = lambda r: f"{r['supported']}/{r['supported'] + r['unsupported']}" if r else "-"  # noqa: E731
+        print(f"{qid:<36}{cell(b):>16}{cell(a):>16}  {after[qid].get('verified', False)}")
+
+    from src.backend.claims import declined as is_decline
+
+    decline_items = [i for i in items if i.get("expect") == "decline"]
+    declines = {i["id"]: {"declined_before": is_decline(before[i["id"]]["answer"]),
+                          "declined_after": is_decline(after[i["id"]]["answer"]),
+                          "sources_after": after[i["id"]]["shown_sources"],
+                          "answer_after": after[i["id"]]["answer"]} for i in decline_items}
+    answerable = [i["id"] for i in items if i.get("expect") != "decline" and i["kind"] != "chitchat"]
+    over = [q for q in answerable if is_decline(after[q]["answer"])]
+    checks = [a["claim_check"] for a in after.values() if a.get("claim_check") and a["claim_check"]["checked"]]
+    seconds = sorted(c["seconds"] for c in checks)
+    cost = [(c["input_tokens"] * MINI_USD_PER_MILLION[0] + c["output_tokens"] * MINI_USD_PER_MILLION[1]) / 1e6
+            for c in checks]
+    summary = {
+        "faithfulness": {"before": pooled(fb), "after": pooled(fa), "judge": JUDGE_MODEL},
+        "declines": {"before": f"{sum(d['declined_before'] for d in declines.values())}/{len(declines)}",
+                     "after": f"{sum(d['declined_after'] for d in declines.values())}/{len(declines)}",
+                     "per_question": declines},
+        "answerable_questions_declined_after": over,
+        "verified_after": f"{sum(1 for q in answerable if after[q].get('verified'))}/{len(answerable)}",
+        "claim_check": {
+            "answers_checked": len(checks),
+            "seconds_median": round(seconds[len(seconds) // 2], 2) if seconds else None,
+            "seconds_p90": round(seconds[int(len(seconds) * 0.9)], 2) if seconds else None,
+            "usd_per_question_avg": round(sum(cost) / len(cost), 5) if cost else None,
+            "claims_changed": sum(len(c["changes"]) for c in checks),
+            "answers_replaced_by_not_found": sum(1 for c in checks if c["declined"]),
+        },
+    }
+    print(json.dumps({k: v for k, v in summary.items() if k != "declines"} |
+                     {"declines": {k: v for k, v in summary["declines"].items() if k != "per_question"}}, indent=1))
+    return summary
+
+
+def export_human_review(path: Path, answers: dict, items: list[dict], count: int = 20) -> None:
+    """A markdown file of answers and their sources, to check by hand."""
+    order = [i for i in items if i["kind"] != "chitchat"]
+    # Every new and decline question, then existing ones, up to `count`.
+    picked = ([i for i in order if i.get("since") or i.get("expect")] + [i for i in order if not i.get("since")])
+    picked = list({i["id"]: i for i in picked}.values())[:count]
+    lines = ["# Answers to check by hand", "",
+             "For each: is every statement supported by the sources listed? Are the sources the right ones?", ""]
+    for n, item in enumerate(picked, start=1):
+        a = answers[item["id"]]
+        lines += [f"## {n}. {item['question']}", ""]
+        if item.get("history"):
+            lines += ["_Earlier in the chat:_ " + " / ".join(m["content"] for m in item["history"]), ""]
+        lines += [a["answer"], "", f"**Verified against sources:** {'yes' if a.get('verified') else 'no'}", ""]
+        lines += ["**Sources shown:**"] + [f"- {label}" for label in a.get("shown_labels", [])] + [""] \
+            if a.get("shown_labels") else ["**Sources shown:** none", ""]
+        changes = (a.get("claim_check") or {}).get("changes", []) + a.get("corrections", [])
+        if changes:
+            lines += ["**Changed by the checks:**"]
+            lines += [f"- {c.get('sentence', c.get('original'))!r} -> {c.get('replacement') or '(removed)'!r}"
+                      for c in changes] + [""]
+        lines += ["**Your verdict:** ☐ all supported ☐ something unsupported ☐ wrong sources", ""]
+    path.write_text("\n".join(lines), encoding="utf-8")
+    print(f"wrote {path}")
 
 
 def patterns(item: dict) -> list[str]:
@@ -257,6 +375,9 @@ async def main() -> None:
     parser.add_argument("output", type=Path)
     parser.add_argument("--answers", action="store_true", help="also generate and check full answers")
     parser.add_argument("--compare", type=Path, help="an earlier run to compare retrieval with")
+    parser.add_argument("--faithfulness-compare", type=Path,
+                        help="an earlier --answers run: judge claims, declines, claim-check cost (and accuracy)")
+    parser.add_argument("--human-review", type=Path, help="write 20 answers and their sources to this markdown file")
     parser.add_argument("--accuracy-compare", type=Path,
                         help="an earlier --answers run: compare shown-source relevance and verified references")
     parser.add_argument("--tune", action="store_true",
@@ -305,6 +426,13 @@ async def main() -> None:
             a = result["answers"][item["id"]]
             print(f"  answered {item['id']:<36} cites expected: {a.get('cites_expected', '-')!s:<5} "
                   f"cites a manual ref: {a['cites_manual_ref']!s}", flush=True)
+
+    if args.faithfulness_compare and "answers" in result:
+        earlier = json.loads(args.faithfulness_compare.read_text(encoding="utf-8"))["answers"]
+        result["accuracy"] = accuracy_report(earlier, result["answers"], items)
+        result["grounding"] = await grounding_report(earlier, result["answers"], items)
+    if args.human_review and "answers" in result:
+        export_human_review(args.human_review, result["answers"], items)
 
     if args.accuracy_compare and "answers" in result:
         earlier = json.loads(args.accuracy_compare.read_text(encoding="utf-8"))["answers"]

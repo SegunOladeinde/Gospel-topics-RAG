@@ -119,6 +119,29 @@ def test_init_db_creates_table_and_is_idempotent(monkeypatch, tmp_path):
         engine.dispose()
 
 
+def test_init_db_adds_verified_to_existing_chat_messages(monkeypatch, tmp_path):
+    """Chat messages saved before claim checks existed get verified = false at startup."""
+    db_path = tmp_path / "old_chat.db"
+    old_engine = create_engine(f"sqlite:///{db_path}")
+    with old_engine.begin() as connection:
+        connection.execute(text(
+            "CREATE TABLE chat_messages (id VARCHAR PRIMARY KEY, conversation_id VARCHAR NOT NULL, "
+            "role VARCHAR NOT NULL, content TEXT NOT NULL, sources JSON NOT NULL, created_at TIMESTAMP)"
+        ))
+        connection.execute(text("INSERT INTO chat_messages VALUES ('m1', 'c1', 'assistant', 'Hi', '[]', NULL)"))
+    old_engine.dispose()
+
+    monkeypatch.setenv("DATABASE_URL", f"sqlite:///{db_path}")
+    engine = init_db().kw["bind"]
+    try:
+        assert "verified" in {c["name"] for c in inspect(engine).get_columns("chat_messages")}
+        with engine.connect() as connection:
+            assert connection.execute(text("SELECT verified FROM chat_messages")).scalar() in (0, False)
+        add_missing_columns(engine)  # idempotent
+    finally:
+        engine.dispose()
+
+
 def test_init_db_adds_is_admin_to_an_existing_table(monkeypatch, tmp_path):
     """A table created before is_admin existed gets the column at startup."""
     db_path = tmp_path / "old.db"

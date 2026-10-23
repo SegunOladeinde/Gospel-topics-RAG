@@ -140,6 +140,8 @@ _STOPWORDS = set("""
     they this those through under until very were what when where which while whom will with
     would your yours lord jesus christ shall unto thee thou""".split())
 _NEARBY = 400  # characters around a quotation in which its reference is looked for
+# Text just before a reference that makes it a source's name, e.g. "(Institute Manual (Book of Mormon): ".
+_SOURCE_TITLE = re.compile(r"Institute Manual(?: \([^)]*\))?:\s*$")
 
 
 @dataclass(frozen=True)
@@ -266,6 +268,8 @@ def check_references(answer: str, passages: list[str]) -> ReferenceCheck:
     edits: list[tuple[Reference, str, str]] = []  # (reference, replacement, reason), applied last
 
     for reference in find_references(answer):
+        if _SOURCE_TITLE.search(answer, 0, reference.start):
+            continue  # a manual section's name ("Institute Manual: 1 Nephi 4:10"), not a citation
         result.total += 1
         claim = _claim(answer, reference)
         supporting = [(i, ref) for i, ref in evidence if ref.covers(reference)]

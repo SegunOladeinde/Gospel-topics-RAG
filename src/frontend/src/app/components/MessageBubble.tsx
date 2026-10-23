@@ -1,4 +1,5 @@
 "use client";
+import { ShieldCheck } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import type { Message, SourceLink } from "../types";
 import { CopyButton } from "./CopyButton";
@@ -89,6 +90,15 @@ export function MessageBubble({ message }: Props) {
 
                 {!isUser && (
                     <div className="relative z-10 mt-3 -mb-1.5 -mr-2 flex items-center justify-end gap-2">
+                        {message.verified && !message.streaming && (
+                            <span
+                                className="mr-auto inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400"
+                                title="Every statement in this answer was checked against the sources shown."
+                            >
+                                <ShieldCheck size={13} aria-hidden="true" />
+                                Verified against sources
+                            </span>
+                        )}
                         {message.stopped && message.content && (
                             <span className="text-xs text-slate-500 dark:text-neutral-500">Stopped</span>
                         )}

@@ -21,6 +21,7 @@ interface QueryDone {
     source_links?: SourceLink[];
     conversation_id?: string | null;
     usage?: Usage | null;
+    verified?: boolean;
 }
 
 interface StoredMessage {
@@ -28,6 +29,7 @@ interface StoredMessage {
     content: string;
     sources: string[];
     source_links: SourceLink[];
+    verified?: boolean;
 }
 
 function makeTitle(question: string): string {
@@ -148,6 +150,7 @@ export function useChat() {
                 content: m.content,
                 sources: m.sources,
                 sourceLinks: m.source_links,
+                verified: m.verified ?? false,
             }));
             setChatCache((prev) => ({ ...prev, [id]: loaded }));
             // Only show it if the user hasn't moved on to another chat meanwhile.
@@ -300,6 +303,7 @@ export function useChat() {
                 content: data.answer || answer || "No answer was returned.",
                 sources: data.sources ?? [],
                 sourceLinks: data.source_links,
+                verified: data.verified ?? false,
             });
             if (data.usage !== undefined) setUsage(data.usage);
 
