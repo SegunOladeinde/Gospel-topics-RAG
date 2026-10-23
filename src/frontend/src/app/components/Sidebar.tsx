@@ -182,7 +182,7 @@ export function Sidebar({
 
             {!isCollapsed && (
                 <div className="space-y-2 border-t border-white/40 px-5 py-4 dark:border-white/[0.05]">
-                    <p className="text-[11px] leading-relaxed text-slate-500 dark:text-neutral-500">Grounded in scraped LDS source material.</p>
+                    <p className="text-[11px] leading-relaxed text-slate-500 dark:text-neutral-500">Grounded in the Bible Dictionary, Topical Guide, Gospel Topics, the Institute manuals (Book of Mormon, Foundations of the Restoration) and Church History Topics.</p>
                     <p className="text-[11px] leading-relaxed text-slate-500 dark:text-neutral-500">Not affiliated with The Church of Jesus Christ of Latter-day Saints.</p>
                 </div>
             )}

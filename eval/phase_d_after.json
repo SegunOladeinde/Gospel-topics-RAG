@@ -1,0 +1,2848 @@
+{
+ "passages": 15131,
+ "retrieval": {
+  "doctrine-baptism": {
+   "query": "What is baptism?",
+   "sources": [
+    "topical_guide/baptism",
+    "bible_dictionary/baptism",
+    "topics_and_questions/baptism",
+    "topics_and_questions/baptism-study-guide",
+    "topical_guide/baptism-immersion",
+    "institute_restoration/lesson-7-class-preparation-material-restoration-of-the-priesthood--section-3-how-do-priesthood-ordinances-help-us-access-the-sa"
+   ],
+   "labels": [
+    "Topical Guide: Baptism",
+    "Bible Dictionary: Baptism",
+    "Gospel Topics: Baptism",
+    "Gospel Topics: Baptism (Study Guide)",
+    "Topical Guide: Baptism, Immersion",
+    "Institute Manual (Restoration): Lesson 7, Section 3: How do priesthood ordinances help us access the Savior’s atoning power?"
+   ],
+   "strict": [
+    5,
+    1
+   ],
+   "full": [
+    5,
+    1
+   ]
+  },
+  "doctrine-sacrament-purpose": {
+   "query": "What is the purpose of the sacrament?",
+   "sources": [
+    "topics_and_questions/sacrament-study-guide",
+    "topics_and_questions/sacrament",
+    "church_history_topics/sacrament-meetings--the-sacrament",
+    "topics_and_questions/sacrament-meeting"
+   ],
+   "labels": [
+    "Gospel Topics: Sacrament (Study Guide)",
+    "Gospel Topics: Sacrament",
+    "Church History Topics: Sacrament Meetings — The Sacrament",
+    "Gospel Topics: Sacrament Meeting"
+   ],
+   "strict": [
+    4,
+    0
+   ],
+   "full": [
+    4,
+    0
+   ]
+  },
+  "doctrine-moroni": {
+   "query": "Who was Moroni?",
+   "sources": [
+    "institute_bom/chapter-53-moroni-1-6--moroni-1-1-3-moroni",
+    "institute_bom/chapter-53-moroni-1-6--moroni-2-5-the-importance-of-ordinances-in-the-church-of-jes",
+    "institute_bom/chapter-49-mormon-7-9--mormon-8-1-6-moroni",
+    "institute_bom/chapter-54-moroni-7",
+    "institute_bom/chapter-33-alma-43-51--alma-48-19-no-less-serviceable"
+   ],
+   "labels": [
+    "Institute Manual (Book of Mormon): Moroni 1:1–3. Moroni",
+    "Institute Manual (Book of Mormon): Moroni 2–5. The Importance of Ordinances in the Church of Jesus Christ",
+    "Institute Manual (Book of Mormon): Mormon 8:1–6. Moroni",
+    "Institute Manual (Book of Mormon): Chapter 54: Moroni 7 — Introduction",
+    "Institute Manual (Book of Mormon): Alma 48:19. “No Less Serviceable”"
+   ],
+   "strict": [
+    0,
+    5
+   ],
+   "full": [
+    4,
+    1
+   ]
+  },
+  "doctrine-after-death": {
+   "query": "What happens after we die?",
+   "sources": [
+    "topical_guide/life-after-death",
+    "topics_and_questions/spirit-world-study-guide",
+    "topics_and_questions/postmortality",
+    "topical_guide/die",
+    "institute_bom/chapter-32-alma-40-42",
+    "topics_and_questions/grace",
+    "topics_and_questions/heaven"
+   ],
+   "labels": [
+    "Topical Guide: Life after Death",
+    "Gospel Topics: Spirit World (Study Guide)",
+    "Gospel Topics: Postmortality",
+    "Topical Guide: Die",
+    "Institute Manual (Book of Mormon): Chapter 32: Alma 40–42 — Introduction",
+    "Gospel Topics: Grace",
+    "Gospel Topics: Heaven"
+   ],
+   "strict": [
+    5,
+    2
+   ],
+   "full": [
+    6,
+    1
+   ]
+  },
+  "doctrine-repentance-steps": {
+   "query": "List the steps of repentance",
+   "sources": [
+    "topics_and_questions/repentance-study-guide",
+    "topics_and_questions/repentance",
+    "institute_bom/chapter-38-helaman-13-16--helaman-14-11-that-ye-might-know-the-conditions-of-repentanc",
+    "bible_dictionary/repentance"
+   ],
+   "labels": [
+    "Gospel Topics: Repentance (Study Guide)",
+    "Gospel Topics: Repentance",
+    "Institute Manual (Book of Mormon): Helaman 14:11. “That Ye Might Know the Conditions of Repentance”",
+    "Bible Dictionary: Repentance"
+   ],
+   "strict": [
+    3,
+    1
+   ],
+   "full": [
+    4,
+    0
+   ]
+  },
+  "doctrine-temples": {
+   "query": "Why do we build temples?",
+   "sources": [
+    "topics_and_questions/temples",
+    "topics_and_questions/church-financial-administration",
+    "topics_and_questions/temples-study-guide",
+    "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
+   ],
+   "labels": [
+    "Gospel Topics: Temples",
+    "Gospel Topics: Church Financial Administration",
+    "Gospel Topics: Temples (Study Guide)",
+    "Gospel Topics: Temples of The Church of Jesus Christ of Latter-day Saints"
+   ],
+   "strict": [
+    4,
+    0
+   ],
+   "full": [
+    4,
+    0
+   ]
+  },
+  "followup-faith": {
+   "query": "How can I increase my faith in Jesus Christ?",
+   "sources": [
+    "topics_and_questions/faith-in-jesus-christ-study-guide",
+    "institute_bom/chapter-30-alma-32-35--alma-32-21-faith-and-hope",
+    "topics_and_questions/faith-in-jesus-christ",
+    "bible_dictionary/faith"
+   ],
+   "labels": [
+    "Gospel Topics: Faith in Jesus Christ (Study Guide)",
+    "Institute Manual (Book of Mormon): Alma 32:21. Faith and Hope",
+    "Gospel Topics: Faith in Jesus Christ",
+    "Bible Dictionary: Faith"
+   ],
+   "strict": [
+    3,
+    1
+   ],
+   "full": [
+    4,
+    0
+   ]
+  },
+  "followup-tithing": {
+   "query": "Why is tithing set at ten percent?",
+   "sources": [
+    "topics_and_questions/tithing-study-guide",
+    "topical_guide/tithing",
+    "topics_and_questions/church-financial-administration",
+    "topics_and_questions/tithing",
+    "topical_guide/tenth"
+   ],
+   "labels": [
+    "Gospel Topics: Tithing (Study Guide)",
+    "Topical Guide: Tithing",
+    "Gospel Topics: Church Financial Administration",
+    "Gospel Topics: Tithing",
+    "Topical Guide: Tenth"
+   ],
+   "strict": [
+    5,
+    0
+   ],
+   "full": [
+    5,
+    0
+   ]
+  },
+  "followup-sacrament-scriptures": {
+   "query": "Can you share scriptures about the sacrament?",
+   "sources": [
+    "topics_and_questions/sacrament",
+    "topical_guide/sacrament",
+    "institute_bom/chapter-8-2-nephi-4-8--2-nephi-4-15-16-my-soul-delighteth-in-the-scriptures",
+    "topics_and_questions/sacrament-study-guide",
+    "church_history_topics/sacrament-meetings--the-sacrament"
+   ],
+   "labels": [
+    "Gospel Topics: Sacrament",
+    "Topical Guide: Sacrament",
+    "Institute Manual (Book of Mormon): 2 Nephi 4:15–16. “My Soul Delighteth in the Scriptures”",
+    "Gospel Topics: Sacrament (Study Guide)",
+    "Church History Topics: Sacrament Meetings — The Sacrament"
+   ],
+   "strict": [
+    4,
+    1
+   ],
+   "full": [
+    4,
+    1
+   ]
+  },
+  "mixed-thanks-tithing": {
+   "query": "And what about tithing?",
+   "sources": [
+    "topics_and_questions/tithing",
+    "topics_and_questions/church-financial-administration",
+    "topical_guide/tithing",
+    "topics_and_questions/tithing-study-guide"
+   ],
+   "labels": [
+    "Gospel Topics: Tithing",
+    "Gospel Topics: Church Financial Administration",
+    "Topical Guide: Tithing",
+    "Gospel Topics: Tithing (Study Guide)"
+   ],
+   "strict": [
+    4,
+    0
+   ],
+   "full": [
+    4,
+    0
+   ]
+  },
+  "mixed-grace-with-history": {
+   "query": "What does the Bible Dictionary say about grace?",
+   "sources": [
+    "topics_and_questions/grace-study-guide",
+    "topical_guide/grace",
+    "bible_dictionary/grace",
+    "topical_guide/salvation-by-grace",
+    "topics_and_questions/grace"
+   ],
+   "labels": [
+    "Gospel Topics: Grace (Study Guide)",
+    "Topical Guide: Grace",
+    "Bible Dictionary: Grace",
+    "Topical Guide: Salvation by Grace",
+    "Gospel Topics: Grace"
+   ],
+   "strict": [
+    5,
+    0
+   ],
+   "full": [
+    5,
+    0
+   ]
+  },
+  "long-priesthood-authority": {
+   "query": "Why do Latter-day Saints believe that baptism must be performed by someone holding proper priesthood authority, and how does that relate to the Restoration, the ministry of John the Baptist, and the covenant we make to take upon ourselves the name of Jesus Christ, always remember Him and keep His commandments so that we may always have His Spirit with us? I would also like to understand how this authority was lost after the Apostles died and why it needed to be restored rather than simply continued by other churches.",
+   "sources": [
+    "topics_and_questions/restoration-of-the-priesthood-study-guide",
+    "topics_and_questions/restoration-of-the-priesthood",
+    "topics_and_questions/baptism-study-guide",
+    "church_history_topics/restoration-of-the-melchizedek-priesthood",
+    "topics_and_questions/priesthood-keys-study-guide",
+    "topics_and_questions/restoration-of-the-church-study-guide",
+    "institute_restoration/lesson-7-class-preparation-material-restoration-of-the-priesthood--section-1-how-did-the-lord-restore-priesthood-authority-to-t"
+   ],
+   "labels": [
+    "Gospel Topics: Restoration of the Priesthood (Study Guide)",
+    "Gospel Topics: Restoration of the Priesthood",
+    "Gospel Topics: Baptism (Study Guide)",
+    "Church History Topics: Restoration of the Melchizedek Priesthood",
+    "Gospel Topics: Priesthood Keys (Study Guide)",
+    "Gospel Topics: Restoration of the Gospel (Study Guide)",
+    "Institute Manual (Restoration): Lesson 7, Section 1: How did the Lord restore priesthood authority to the earth?"
+   ],
+   "strict": [
+    7,
+    0
+   ],
+   "full": [
+    7,
+    0
+   ]
+  },
+  "tithing-hard-times": {
+   "query": "Why should I pay tithing even when money is tight?",
+   "sources": [
+    "topics_and_questions/tithing-study-guide",
+    "topical_guide/tight",
+    "topics_and_questions/church-financial-administration",
+    "institute_bom/chapter-45-3-nephi-23-26--3-nephi-24-8-12-tithes-and-offerings",
+    "topics_and_questions/family-finances"
+   ],
+   "labels": [
+    "Gospel Topics: Tithing (Study Guide)",
+    "Topical Guide: Tight",
+    "Gospel Topics: Church Financial Administration",
+    "Institute Manual (Book of Mormon): 3 Nephi 24:8–12. Tithes and Offerings",
+    "Gospel Topics: Family Finances"
+   ],
+   "strict": [
+    3,
+    2
+   ],
+   "full": [
+    3,
+    2
+   ]
+  },
+  "tithing-use": {
+   "query": "What is tithing money used for?",
+   "sources": [
+    "topics_and_questions/tithing-study-guide",
+    "topics_and_questions/tithing",
+    "topics_and_questions/church-financial-administration"
+   ],
+   "labels": [
+    "Gospel Topics: Tithing (Study Guide)",
+    "Gospel Topics: Tithing",
+    "Gospel Topics: Church Financial Administration"
+   ],
+   "strict": [
+    3,
+    0
+   ],
+   "full": [
+    3,
+    0
+   ]
+  },
+  "sacrament-prayers": {
+   "query": "What do the sacrament prayers promise?",
+   "sources": [
+    "institute_bom/chapter-44-3-nephi-20-22--3-nephi-20-8-9-the-sacramental-promise-of-being-filled-with",
+    "topics_and_questions/sacrament",
+    "topics_and_questions/sacrament-study-guide",
+    "topics_and_questions/gifts-of-the-spirit-study-guide",
+    "topical_guide/promise",
+    "institute_bom/chapter-43-3-nephi-18-19--suggested-assignments"
+   ],
+   "labels": [
+    "Institute Manual (Book of Mormon): 3 Nephi 20:8–9. The Sacramental Promise of Being Filled with the Spirit",
+    "Gospel Topics: Sacrament",
+    "Gospel Topics: Sacrament (Study Guide)",
+    "Gospel Topics: Gifts of the Spirit (Study Guide)",
+    "Topical Guide: Promise",
+    "Institute Manual (Book of Mormon): Chapter 43: 3 Nephi 18–19 — Suggested Assignments"
+   ],
+   "strict": [
+    2,
+    4
+   ],
+   "full": [
+    3,
+    3
+   ]
+  },
+  "sacrament-weekly": {
+   "query": "Why do we take the sacrament every week?",
+   "sources": [
+    "topics_and_questions/sacrament-study-guide",
+    "topics_and_questions/sacrament",
+    "church_history_topics/sacrament-meetings--weekly-meetings"
+   ],
+   "labels": [
+    "Gospel Topics: Sacrament (Study Guide)",
+    "Gospel Topics: Sacrament",
+    "Church History Topics: Sacrament Meetings — Weekly Meetings"
+   ],
+   "strict": [
+    3,
+    0
+   ],
+   "full": [
+    3,
+    0
+   ]
+  },
+  "bom-nephi": {
+   "query": "Who was Nephi in the Book of Mormon?",
+   "sources": [
+    "institute_bom/chapter-12-2-nephi-25-27",
+    "church_history_topics/lost-manuscript-of-the-book-of-mormon",
+    "institute_bom/chapter-10-2-nephi-11-16--2-nephi-12-16-isaiah-in-the-book-of-mormon",
+    "institute_bom/chapter-13-2-nephi-28-30--2-nephi-28-2-this-book-shall-be-of-great-worth",
+    "institute_bom/chapter-2-1-nephi-1-5--1-nephi-4-10-nephi-commanded-to-kill-laban",
+    "church_history_topics/critics-of-the-book-of-mormon",
+    "institute_bom/chapter-7-2-nephi-1-3--2-nephi-3-18-who-are-the-different-people-spoken-of",
+    "institute_restoration/lesson-6-class-preparation-material-the-book-of-mormon-the-keystone-of-our-religion--section-1-what-are-some-evidences-of-the-truthfulness-and-im"
+   ],
+   "labels": [
+    "Institute Manual (Book of Mormon): Chapter 12: 2 Nephi 25–27 — Introduction",
+    "Church History Topics: Lost Manuscript of the Book of Mormon",
+    "Institute Manual (Book of Mormon): 2 Nephi 12–16. Isaiah in the Book of Mormon",
+    "Institute Manual (Book of Mormon): 2 Nephi 28:2. This “Book Shall Be of Great Worth”",
+    "Institute Manual (Book of Mormon): 1 Nephi 4:10. Nephi Commanded to Kill Laban",
+    "Church History Topics: Critics of the Book of Mormon",
+    "Institute Manual (Book of Mormon): 2 Nephi 3:18. Who Are the Different People Spoken of?",
+    "Institute Manual (Restoration): Lesson 6, Section 1: What are some evidences of the truthfulness and importance of the Book of Mormon?"
+   ],
+   "strict": [
+    0,
+    8
+   ],
+   "full": [
+    5,
+    3
+   ]
+  },
+  "bom-alma": {
+   "query": "Who was Alma the Younger and how did he change?",
+   "sources": [
+    "institute_bom/chapter-23-alma-1-4--alma-4-9-12-a-great-stumbling-block",
+    "institute_bom/chapter-38-helaman-13-16--helaman-14-11-that-ye-might-know-the-conditions-of-repentanc",
+    "institute_bom/chapter-23-alma-1-4",
+    "institute_bom/chapter-31-alma-36-39--alma-36-23-24-evidence-that-a-person-has-been-born-again",
+    "institute_bom/chapter-27-alma-17-22--alma-20-30-a-more-hardened-and-a-more-stiff-necked-people",
+    "topical_guide/young",
+    "institute_bom/chapter-26-alma-13-16--alma-15-2-3-zeezrom",
+    "topics_and_questions/repentance-study-guide"
+   ],
+   "labels": [
+    "Institute Manual (Book of Mormon): Alma 4:9–12. “A Great Stumbling-Block”",
+    "Institute Manual (Book of Mormon): Helaman 14:11. “That Ye Might Know the Conditions of Repentance”",
+    "Institute Manual (Book of Mormon): Chapter 23: Alma 1–4 — Introduction",
+    "Institute Manual (Book of Mormon): Alma 36:23–24. Evidence That a Person Has Been Born Again",
+    "Institute Manual (Book of Mormon): Alma 20:30. “A More Hardened and a More Stiff-Necked People”",
+    "Topical Guide: Young, Younger, Youngest",
+    "Institute Manual (Book of Mormon): Alma 15:2–3. Zeezrom",
+    "Gospel Topics: Repentance (Study Guide)"
+   ],
+   "strict": [
+    1,
+    7
+   ],
+   "full": [
+    6,
+    2
+   ]
+  },
+  "bom-king-benjamin": {
+   "query": "What did King Benjamin teach about service?",
+   "sources": [
+    "institute_bom/chapter-18-mosiah-1-3",
+    "topical_guide/service",
+    "institute_bom/chapter-17-enos-words-of-mormon--omni-1-23-25-king-benjamin-received-the-small-plates",
+    "institute_bom/chapter-18-mosiah-1-3--mosiah-2-17-service",
+    "topics_and_questions/service"
+   ],
+   "labels": [
+    "Institute Manual (Book of Mormon): Chapter 18: Mosiah 1–3 — Introduction",
+    "Topical Guide: Service",
+    "Institute Manual (Book of Mormon): Omni 1:23–25. King Benjamin Received the Small Plates",
+    "Institute Manual (Book of Mormon): Mosiah 2:17. Service",
+    "Gospel Topics: Service"
+   ],
+   "strict": [
+    2,
+    3
+   ],
+   "full": [
+    4,
+    1
+   ]
+  },
+  "joseph-smith-who": {
+   "query": "Who was Joseph Smith?",
+   "sources": [
+    "topics_and_questions/joseph-smith",
+    "institute_restoration/lesson-24-class-preparation-material-the-prophet-joseph-smith-a-choice-seer--section-3-how-should-i-respond-when-i-encounter-negative-inf",
+    "topics_and_questions/joseph-smith-study-guide",
+    "institute_restoration/lesson-23-class-preparation-material-the-prophetic-mission-and-the-martyrdom-of-joseph-smith--section-3-how-has-the-prophetic-mission-of-joseph-smith-bles",
+    "topical_guide/joseph-smith",
+    "church_history_topics/joseph-fielding-smith"
+   ],
+   "labels": [
+    "Gospel Topics: Joseph Smith",
+    "Institute Manual (Restoration): Lesson 24, Section 3: How should I respond when I encounter negative information about the Prophet Joseph Smith?",
+    "Gospel Topics: Joseph Smith (Study Guide)",
+    "Institute Manual (Restoration): Lesson 23, Section 3: How has the prophetic mission of Joseph Smith blessed my life?",
+    "Topical Guide: Joseph Smith",
+    "Church History Topics: Joseph Fielding Smith"
+   ],
+   "strict": [
+    3,
+    3
+   ],
+   "full": [
+    5,
+    1
+   ]
+  },
+  "joseph-smith-first-vision": {
+   "query": "What happened in the First Vision?",
+   "sources": [
+    "topical_guide/first-vision",
+    "institute_restoration/lesson-2-class-preparation-material-the-first-vision--section-2-how-do-the-multiple-accounts-of-joseph-smith-s-fir",
+    "topics_and_questions/first-vision",
+    "institute_restoration/lesson-2-class-preparation-material-the-first-vision--section-1-what-truths-can-we-learn-from-joseph-smith-s-first",
+    "topics_and_questions/first-vision-study-guide"
+   ],
+   "labels": [
+    "Topical Guide: First Vision",
+    "Institute Manual (Restoration): Lesson 2, Section 2: How do the multiple accounts of Joseph Smith’s First Vision provide greater insight into this sacred event?",
+    "Gospel Topics: First Vision",
+    "Institute Manual (Restoration): Lesson 2, Section 1: What truths can we learn from Joseph Smith’s First Vision?",
+    "Gospel Topics: First Vision (Study Guide)"
+   ],
+   "strict": [
+    3,
+    2
+   ],
+   "full": [
+    5,
+    0
+   ]
+  },
+  "bom-translation": {
+   "query": "How was the Book of Mormon translated?",
+   "sources": [
+    "church_history_topics/book-of-mormon-translation",
+    "topics_and_questions/book-of-mormon-study-guide",
+    "topics_and_questions/book-of-mormon-translation",
+    "topics_and_questions/spaulding-manuscript",
+    "church_history_topics/critics-of-the-book-of-mormon"
+   ],
+   "labels": [
+    "Church History Topics: Book of Mormon Translation",
+    "Gospel Topics: Book of Mormon (Study Guide)",
+    "Gospel Topics: Book of Mormon Translation",
+    "Gospel Topics: Spaulding Manuscript",
+    "Church History Topics: Critics of the Book of Mormon"
+   ],
+   "strict": [
+    3,
+    2
+   ],
+   "full": [
+    3,
+    2
+   ]
+  },
+  "temples-endowment": {
+   "query": "What is the temple endowment?",
+   "sources": [
+    "institute_restoration/lesson-20-class-preparation-material-temple-ordinances-and-worship--section-3-how-can-i-and-those-i-love-be-blessed-by-the-templ",
+    "topics_and_questions/endowment",
+    "topical_guide/endowment",
+    "topics_and_questions/temples-of-the-church-of-jesus-christ-of-latter-day-saints"
+   ],
+   "labels": [
+    "Institute Manual (Restoration): Lesson 20, Section 3: How can I and those I love be blessed by the temple endowment?",
+    "Gospel Topics: Endowment",
+    "Topical Guide: Endowment, Endow",
+    "Gospel Topics: Temples of The Church of Jesus Christ of Latter-day Saints"
+   ],
+   "strict": [
+    3,
+    1
+   ],
+   "full": [
+    4,
+    0
+   ]
+  },
+  "temples-marriage": {
+   "query": "Why is temple marriage important?",
+   "sources": [
+    "topics_and_questions/marriage-study-guide",
+    "topical_guide/temple-marriage",
+    "institute_restoration/lesson-21-class-preparation-material-the-doctrine-of-eternal-marriage-and-family--section-3-why-should-i-stand-up-for-the-lord-s-doctrine-of-m",
+    "topics_and_questions/temples",
+    "institute_restoration/lesson-22-class-preparation-material-plural-marriage--section-2-what-do-we-know-about-the-prophet-joseph-smith-s-e",
+    "topics_and_questions/plural-marriage"
+   ],
+   "labels": [
+    "Gospel Topics: Marriage (Study Guide)",
+    "Topical Guide: Temple Marriage",
+    "Institute Manual (Restoration): Lesson 21, Section 3: Why should I stand up for the Lord’s doctrine of marriage and family?",
+    "Gospel Topics: Temples",
+    "Institute Manual (Restoration): Lesson 22, Section 2: What do we know about the Prophet Joseph Smith’s experience with plural marriage?",
+    "Gospel Topics: Plural Marriage"
+   ],
+   "strict": [
+    3,
+    3
+   ],
+   "full": [
+    4,
+    2
+   ]
+  },
+  "wow-coffee-tea": {
+   "query": "What does the Word of Wisdom say about coffee and tea?",
+   "sources": [
+    "topics_and_questions/word-of-wisdom",
+    "church_history_topics/word-of-wisdom-dc-89--context-for-the-revelation",
+    "church_history_topics/word-of-wisdom-dc-89",
+    "church_history_topics/word-of-wisdom-dc-89--word-of-wisdom-observance",
+    "topics_and_questions/word-of-wisdom-study-guide"
+   ],
+   "labels": [
+    "Gospel Topics: Word of Wisdom",
+    "Church History Topics: Word of Wisdom (D&C 89) — Context for the Revelation",
+    "Church History Topics: Word of Wisdom (D&C 89)",
+    "Church History Topics: Word of Wisdom (D&C 89) — Word of Wisdom Observance",
+    "Gospel Topics: Word of Wisdom (Study Guide)"
+   ],
+   "strict": [
+    5,
+    0
+   ],
+   "full": [
+    5,
+    0
+   ]
+  },
+  "followup-wow-commandment": {
+   "query": "Is the Word of Wisdom a commandment?",
+   "sources": [
+    "topics_and_questions/word-of-wisdom-study-guide",
+    "institute_restoration/lesson-13-class-preparation-material-the-laws-of-god--section-5-law-of-health",
+    "topics_and_questions/word-of-wisdom"
+   ],
+   "labels": [
+    "Gospel Topics: Word of Wisdom (Study Guide)",
+    "Institute Manual (Restoration): Lesson 13, Section 5: Law of Health",
+    "Gospel Topics: Word of Wisdom"
+   ],
+   "strict": [
+    2,
+    1
+   ],
+   "full": [
+    3,
+    0
+   ]
+  },
+  "followup-joseph-smith-saw": {
+   "query": "What did Joseph Smith see?",
+   "sources": [
+    "institute_bom/chapter-7-2-nephi-1-3--2-nephi-3-6-9-a-choice-seer",
+    "institute_restoration/lesson-24-class-preparation-material-the-prophet-joseph-smith-a-choice-seer--section-3-how-should-i-respond-when-i-encounter-negative-inf",
+    "church_history_topics/joseph-smiths-first-vision-accounts",
+    "institute_restoration/lesson-23-class-preparation-material-the-prophetic-mission-and-the-martyrdom-of-joseph-smith--section-3-how-has-the-prophetic-mission-of-joseph-smith-bles",
+    "topics_and_questions/first-vision-accounts",
+    "church_history_topics/joseph-fielding-smith",
+    "topics_and_questions/restoration-of-the-church",
+    "topics_and_questions/joseph-smith-study-guide"
+   ],
+   "labels": [
+    "Institute Manual (Book of Mormon): 2 Nephi 3:6–9. “A Choice Seer”",
+    "Institute Manual (Restoration): Lesson 24, Section 3: How should I respond when I encounter negative information about the Prophet Joseph Smith?",
+    "Church History Topics: Joseph Smith’s First Vision Accounts",
+    "Institute Manual (Restoration): Lesson 23, Section 3: How has the prophetic mission of Joseph Smith blessed my life?",
+    "Gospel Topics: Multiple Accounts of the First Vision",
+    "Church History Topics: Joseph Fielding Smith",
+    "Gospel Topics: Restoration of the Church",
+    "Gospel Topics: Joseph Smith (Study Guide)"
+   ],
+   "strict": [
+    4,
+    4
+   ],
+   "full": [
+    4,
+    4
+   ]
+  },
+  "bom-alma32-faith": {
+   "query": "What does Alma 32 teach about faith?",
+   "sources": [
+    "institute_bom/chapter-30-alma-32-35--alma-32-21-faith-and-hope",
+    "institute_bom/chapter-30-alma-32-35--alma-32-having-faith-in-the-word-of-god",
+    "institute_bom/chapter-30-alma-32-35--suggested-assignments",
+    "institute_bom/chapter-30-alma-32-35--alma-32-17-18-faith-is-not-built-upon-signs"
+   ],
+   "labels": [
+    "Institute Manual (Book of Mormon): Alma 32:21. Faith and Hope",
+    "Institute Manual (Book of Mormon): Alma 32. Having Faith in the Word of God",
+    "Institute Manual (Book of Mormon): Chapter 30: Alma 32–35 — Suggested Assignments",
+    "Institute Manual (Book of Mormon): Alma 32:17–18. Faith Is Not Built upon Signs"
+   ],
+   "strict": [
+    4,
+    0
+   ],
+   "full": [
+    4,
+    0
+   ]
+  },
+  "bom-nephi-laban": {
+   "query": "Why did Nephi kill Laban?",
+   "sources": [
+    "topics_and_questions/religion-vs-violence",
+    "institute_bom/chapter-2-1-nephi-1-5--1-nephi-4-10-nephi-commanded-to-kill-laban"
+   ],
+   "labels": [
+    "Gospel Topics: Religion vs. Violence",
+    "Institute Manual (Book of Mormon): 1 Nephi 4:10. Nephi Commanded to Kill Laban"
+   ],
+   "strict": [
+    1,
+    1
+   ],
+   "full": [
+    1,
+    1
+   ]
+  },
+  "bom-moroni-promise": {
+   "query": "What is Moroni's promise at the end of the Book of Mormon?",
+   "sources": [
+    "institute_bom/chapter-49-mormon-7-9--mormon-8-1-6-moroni",
+    "institute_bom/chapter-1-keystone-of-our-religion--receiving-a-personal-testimony-of-the-book-of-mormon",
+    "institute_bom/chapter-49-mormon-7-9",
+    "institute_bom/chapter-49-mormon-7-9--the-blessings-of-accepting-the-book-of-mormon",
+    "institute_bom/chapter-53-moroni-1-6--moroni-1-1-3-moroni",
+    "institute_bom/chapter-56-moroni-10--moroni-10-4-5-receiving-a-testimony-of-the-book-of-mormon",
+    "topics_and_questions/book-of-mormon-study-guide"
+   ],
+   "labels": [
+    "Institute Manual (Book of Mormon): Mormon 8:1–6. Moroni",
+    "Institute Manual (Book of Mormon): Chapter 1: The Keystone of Our Religion — Receiving a Personal Testimony of the Book of Mormon",
+    "Institute Manual (Book of Mormon): Chapter 49: Mormon 7–9 — Introduction",
+    "Institute Manual (Book of Mormon): Chapter 49: Mormon 7–9 — The Blessings of Accepting the Book of Mormon",
+    "Institute Manual (Book of Mormon): Moroni 1:1–3. Moroni",
+    "Institute Manual (Book of Mormon): Moroni 10:4–5. Receiving a Testimony of the Book of Mormon",
+    "Gospel Topics: Book of Mormon (Study Guide)"
+   ],
+   "strict": [
+    2,
+    5
+   ],
+   "full": [
+    2,
+    5
+   ]
+  },
+  "bom-brother-of-jared": {
+   "query": "What did the brother of Jared see when the Lord touched the stones?",
+   "sources": [
+    "institute_bom/chapter-50-ether-1-5--ether-3-23-24-28-two-stones-of-king-mosiah",
+    "church_history_topics/seer-stones",
+    "institute_bom/chapter-19-mosiah-4-8--mosiah-8-13-interpreters",
+    "institute_bom/chapter-50-ether-1-5--ether-2-19-3-6-obtaining-light-was-a-growing-experience",
+    "topical_guide/urim-and-thummim",
+    "topical_guide/sight",
+    "topical_guide/stone"
+   ],
+   "labels": [
+    "Institute Manual (Book of Mormon): Ether 3:23–24, 28. Two Stones of King Mosiah",
+    "Church History Topics: Seer Stones",
+    "Institute Manual (Book of Mormon): Mosiah 8:13. Interpreters",
+    "Institute Manual (Book of Mormon): Ether 2:19–3:6. Obtaining Light Was a Growing Experience",
+    "Topical Guide: Urim and Thummim",
+    "Topical Guide: Sight",
+    "Topical Guide: Stone"
+   ],
+   "strict": [
+    2,
+    5
+   ],
+   "full": [
+    2,
+    5
+   ]
+  },
+  "cht-liberty-jail": {
+   "query": "What happened at Liberty Jail?",
+   "sources": [
+    "church_history_topics/liberty-jail"
+   ],
+   "labels": [
+    "Church History Topics: Liberty Jail"
+   ],
+   "strict": [
+    1,
+    0
+   ],
+   "full": [
+    1,
+    0
+   ]
+  },
+  "cht-zions-camp": {
+   "query": "What was Zion's Camp?",
+   "sources": [
+    "church_history_topics/zions-camp-camp-of-israel",
+    "topical_guide/camp"
+   ],
+   "labels": [
+    "Church History Topics: Zion’s Camp (Camp of Israel)",
+    "Topical Guide: Camp"
+   ],
+   "strict": [
+    1,
+    1
+   ],
+   "full": [
+    1,
+    1
+   ]
+  },
+  "cht-leave-nauvoo": {
+   "query": "Why did the Saints leave Nauvoo?",
+   "sources": [
+    "church_history_topics/nauvoo-commerce-illinois",
+    "institute_restoration/lesson-25-class-preparation-material-succession-in-the-presidency-and-the-trek-west--section-2-how-might-the-lord-guide-us-when-the-future-looks",
+    "church_history_topics/departure-from-nauvoo",
+    "topical_guide/leave",
+    "church_history_topics/quincy-illinois-settlement"
+   ],
+   "labels": [
+    "Church History Topics: Nauvoo (Commerce), Illinois",
+    "Institute Manual (Restoration): Lesson 25, Section 2: How might the Lord guide us when the future looks uncertain?",
+    "Church History Topics: Departure from Nauvoo",
+    "Topical Guide: Leave, Left [ verb ]",
+    "Church History Topics: Quincy, Illinois, Settlement"
+   ],
+   "strict": [
+    3,
+    2
+   ],
+   "full": [
+    3,
+    2
+   ]
+  },
+  "cht-kirtland-dedication": {
+   "query": "What was the Kirtland Temple dedication like?",
+   "sources": [
+    "church_history_topics/temple-dedications-and-dedicatory-prayers",
+    "institute_restoration/lesson-20-class-preparation-material-temple-ordinances-and-worship--section-1-how-can-worshipping-in-the-temple-bless-my-life",
+    "church_history_topics/kirtland-temple",
+    "institute_restoration/lesson-16-class-preparation-material-the-kirtland-temple-and-priesthood-keys--section-1-what-can-i-learn-from-the-sacrifices-of-the-early"
+   ],
+   "labels": [
+    "Church History Topics: Temple Dedications and Dedicatory Prayers",
+    "Institute Manual (Restoration): Lesson 20, Section 1: How can worshipping in the temple bless my life?",
+    "Church History Topics: Kirtland Temple",
+    "Institute Manual (Restoration): Lesson 16, Section 1: What can I learn from the sacrifices of the early Saints to build the Kirtland Temple?"
+   ],
+   "strict": [
+    3,
+    1
+   ],
+   "full": [
+    3,
+    1
+   ]
+  },
+  "cht-emma-smith": {
+   "query": "Who was Emma Smith?",
+   "sources": [
+    "church_history_topics/emma-hale-smith",
+    "institute_restoration/lesson-24-class-preparation-material-the-prophet-joseph-smith-a-choice-seer--section-3-how-should-i-respond-when-i-encounter-negative-inf",
+    "church_history_topics/emma-hale-smith--later-years",
+    "institute_restoration/lesson-18-class-preparation-material-latter-day-saint-women-and-the-relief-society--section-1-how-do-latter-day-saint-women-build-god-s-kingdom",
+    "church_history_topics/hymns"
+   ],
+   "labels": [
+    "Church History Topics: Emma Hale Smith",
+    "Institute Manual (Restoration): Lesson 24, Section 3: How should I respond when I encounter negative information about the Prophet Joseph Smith?",
+    "Church History Topics: Emma Hale Smith — Later Years",
+    "Institute Manual (Restoration): Lesson 18, Section 1: How do Latter-day Saint women build God’s kingdom?",
+    "Church History Topics: Hymns"
+   ],
+   "strict": [
+    4,
+    1
+   ],
+   "full": [
+    4,
+    1
+   ]
+  },
+  "cht-word-of-wisdom-history": {
+   "query": "What is the Word of Wisdom's history?",
+   "sources": [
+    "topics_and_questions/word-of-wisdom-study-guide",
+    "topics_and_questions/peace-and-violence-among-19th-century-latter-day-saints",
+    "church_history_topics/word-of-wisdom-dc-89--word-of-wisdom-observance",
+    "institute_restoration/lesson-22-class-preparation-material-plural-marriage--section-5-is-plural-marriage-required-for-exaltation",
+    "church_history_topics/church-history-and-record-keeping",
+    "institute_bom/chapter-4-1-nephi-12-15--1-nephi-15-13-16-latter-day-restoration-of-the-gospel"
+   ],
+   "labels": [
+    "Gospel Topics: Word of Wisdom (Study Guide)",
+    "Gospel Topics: Peace and Violence among 19th-Century Latter-day Saints",
+    "Church History Topics: Word of Wisdom (D&C 89) — Word of Wisdom Observance",
+    "Institute Manual (Restoration): Lesson 22, Section 5: Is plural marriage required for exaltation?",
+    "Church History Topics: Church History and Record Keeping",
+    "Institute Manual (Book of Mormon): 1 Nephi 15:13–16. Latter-day Restoration of the Gospel"
+   ],
+   "strict": [
+    2,
+    4
+   ],
+   "full": [
+    2,
+    4
+   ]
+  },
+  "restoration-first-vision-accounts": {
+   "query": "Why are there several accounts of the First Vision?",
+   "sources": [
+    "topics_and_questions/first-vision-accounts",
+    "institute_restoration/lesson-2-class-preparation-material-the-first-vision--section-2-how-do-the-multiple-accounts-of-joseph-smith-s-fir",
+    "topics_and_questions/first-vision-study-guide"
+   ],
+   "labels": [
+    "Gospel Topics: Multiple Accounts of the First Vision",
+    "Institute Manual (Restoration): Lesson 2, Section 2: How do the multiple accounts of Joseph Smith’s First Vision provide greater insight into this sacred event?",
+    "Gospel Topics: First Vision (Study Guide)"
+   ],
+   "strict": [
+    3,
+    0
+   ],
+   "full": [
+    3,
+    0
+   ]
+  },
+  "followup-liberty-jail-lessons": {
+   "query": "What did the Lord teach Joseph Smith while he was at Liberty Jail?",
+   "sources": [
+    "church_history_topics/liberty-jail",
+    "institute_restoration/lesson-17-class-preparation-material-remaining-faithful-amid-opposition-and-affliction--section-3-how-can-adversity-prepare-us-for-some-of-our-most",
+    "church_history_topics/hyrum-smith"
+   ],
+   "labels": [
+    "Church History Topics: Liberty Jail",
+    "Institute Manual (Restoration): Lesson 17, Section 3: How can adversity prepare us for some of our most important learning?",
+    "Church History Topics: Hyrum Smith"
+   ],
+   "strict": [
+    2,
+    1
+   ],
+   "full": [
+    2,
+    1
+   ]
+  },
+  "followup-alma32-seed": {
+   "query": "How does the seed comparison in Alma 32 work?",
+   "sources": [
+    "institute_bom/chapter-30-alma-32-35--alma-32-34-tree-of-life",
+    "institute_bom/chapter-30-alma-32-35--suggested-assignments",
+    "institute_bom/chapter-30-alma-32-35--alma-32-28-30-give-place-that-a-seed-may-be-planted-and-begi",
+    "institute_bom/chapter-30-alma-32-35--alma-32-33-43-nourish-the-word",
+    "institute_bom/chapter-30-alma-32-35--alma-32-37-38-42-43-being-a-disciple-of-christ"
+   ],
+   "labels": [
+    "Institute Manual (Book of Mormon): Alma 32–34. Tree of Life",
+    "Institute Manual (Book of Mormon): Chapter 30: Alma 32–35 — Suggested Assignments",
+    "Institute Manual (Book of Mormon): Alma 32:28–30. “Give Place, That a Seed May Be Planted” and Begin to Grow",
+    "Institute Manual (Book of Mormon): Alma 32:33–43. Nourish the Word",
+    "Institute Manual (Book of Mormon): Alma 32:37–38, 42–43. Being a Disciple of Christ"
+   ],
+   "strict": [
+    5,
+    0
+   ],
+   "full": [
+    5,
+    0
+   ]
+  },
+  "mixed-thanks-zions-camp": {
+   "query": "What was Zion's Camp and why did it matter?",
+   "sources": [
+    "church_history_topics/zions-camp-camp-of-israel",
+    "topical_guide/camp"
+   ],
+   "labels": [
+    "Church History Topics: Zion’s Camp (Camp of Israel)",
+    "Topical Guide: Camp"
+   ],
+   "strict": [
+    1,
+    1
+   ],
+   "full": [
+    1,
+    1
+   ]
+  },
+  "mixed-hello-emma-hymns": {
+   "query": "What did Emma Smith do for the Church's hymns?",
+   "sources": [
+    "church_history_topics/emma-hale-smith--church-service",
+    "church_history_topics/hymns",
+    "institute_restoration/lesson-18-class-preparation-material-latter-day-saint-women-and-the-relief-society--section-1-how-do-latter-day-saint-women-build-god-s-kingdom",
+    "church_history_topics/emma-hale-smith--later-years"
+   ],
+   "labels": [
+    "Church History Topics: Emma Hale Smith — Church Service",
+    "Church History Topics: Hymns",
+    "Institute Manual (Restoration): Lesson 18, Section 1: How do Latter-day Saint women build God’s kingdom?",
+    "Church History Topics: Emma Hale Smith — Later Years"
+   ],
+   "strict": [
+    3,
+    1
+   ],
+   "full": [
+    3,
+    1
+   ]
+  }
+ },
+ "answers": {
+  "doctrine-baptism": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Baptism is a sacred ordinance in the gospel of Jesus Christ, serving as the introductory step for individuals to enter into a covenant relationship with God. It is performed by immersion in water, symbolizing the death of a person's sinful life and their rebirth into a spiritual life dedicated to serving God and His children (Gospel Topics). \n\nThe act of baptism is essential for salvation and is necessary for individuals to become members of The Church of Jesus Christ of Latter-day Saints and to enter the celestial kingdom (Gospel Topics). Jesus Himself was baptized, setting the example for all (Matthew 3:16). The process involves a person being fully immersed in water, as seen in various accounts, such as when Jesus came up out of the water (Mark 1:10) and when Philip baptized the eunuch (Acts 8:38).\n\nBaptism is also closely tied to repentance, as individuals are invited to repent and then be baptized for the remission of their sins (Acts 2:38). Those who are baptized enter into a covenant to take upon themselves the name of Jesus Christ, keep His commandments, and serve Him throughout their lives (Gospel Topics). This covenant is renewed each time members partake of the sacrament (Gospel Topics).\n\nUltimately, baptism is not just a ritual; it is a profound commitment to follow Christ and access the blessings made available through His Atonement. Personal prayer and the guidance of the Holy Spirit can help individuals understand the significance of baptism in their own lives.",
+   "labels": [
+    "Topical Guide: Baptism",
+    "Bible Dictionary: Baptism",
+    "Gospel Topics: Baptism",
+    "Gospel Topics: Baptism (Study Guide)",
+    "Topical Guide: Baptism, Immersion",
+    "Institute Manual (Restoration): Lesson 7, Section 3: How do priesthood ordinances help us access the Savior’s atoning power?"
+   ],
+   "cited_chapters": [
+    "Acts 2",
+    "Acts 8",
+    "Mark 1",
+    "Matthew 3"
+   ],
+   "manual_chapters": [
+    "Lesson 7",
+    "Section 3"
+   ],
+   "cites_manual_ref": false
+  },
+  "doctrine-sacrament-purpose": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "The purpose of the sacrament is deeply rooted in remembrance and renewal. It serves as a priesthood ordinance where Church members partake of bread and water each week to remember Jesus Christ’s atoning sacrifice. The broken bread symbolizes His body and the water represents His blood, shed for us. This ordinance is essential for worship and spiritual development, allowing members to renew the covenants made at baptism (Gospel Topics: Sacrament).\n\nWhen we partake of the sacrament worthily, we not only remember Jesus Christ but also renew our commitment to follow Him. This act is a witness to God that we will remember His Son beyond the time of the ordinance. In return, the Lord promises a remission of our sins and the companionship of the Holy Spirit, which is one of the greatest gifts we can receive during our mortal journey (Gospel Topics: Sacrament).\n\nUltimately, participating in the sacrament helps us draw closer to Jesus Christ and fosters a spirit of gratitude for all He has done for us (Gospel Topics: Sacrament Study Guide).",
+   "labels": [
+    "Gospel Topics: Sacrament (Study Guide)",
+    "Gospel Topics: Sacrament",
+    "Church History Topics: Sacrament Meetings — The Sacrament",
+    "Gospel Topics: Sacrament Meeting"
+   ],
+   "cited_chapters": [],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "doctrine-moroni": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Moroni was the last Nephite prophet in the Book of Mormon, living around A.D. 421. He was entrusted with the historical record known as the plates of Mormon by his father, Mormon, just before Mormon's death (Mormon 1:1). Moroni completed the compilation of these plates, adding chapters 8 and 9, abridging the book of Ether, and writing his own book, the book of Moroni (Mormon 8:1; Ether 1:1–2). \n\nAfter sealing up the plates, Moroni hid them in the hill Cumorah (Mormon 8:14; Moroni 10:2). His role extended beyond his time, as he was sent as a resurrected being to reveal the Book of Mormon to Joseph Smith in 1823 and instructed him until 1827 when he delivered the plates to him (Doctrine and Covenants 27:5; Joseph Smith—History 1:30–42, 45). Moroni holds the keys of the record of the stick of Ephraim, making him a principal figure in the transmission of the record to our dispensation (Doctrine and Covenants 27:5). \n\nHis mission continues today, and he is often depicted in statues atop temples, symbolizing his significant role in the Restoration of the gospel.",
+   "labels": [
+    "Institute Manual (Book of Mormon): Moroni 1:1–3. Moroni",
+    "Institute Manual (Book of Mormon): Moroni 2–5. The Importance of Ordinances in the Church of Jesus Christ",
+    "Institute Manual (Book of Mormon): Mormon 8:1–6. Moroni",
+    "Institute Manual (Book of Mormon): Chapter 54: Moroni 7 — Introduction",
+    "Institute Manual (Book of Mormon): Alma 48:19. “No Less Serviceable”"
+   ],
+   "cited_chapters": [
+    "D&C 27",
+    "Ether 1",
+    "History 1",
+    "Mormon 1",
+    "Mormon 8",
+    "Moroni 10"
+   ],
+   "manual_chapters": [
+    "Alma 43",
+    "Alma 48",
+    "Chapter 33",
+    "Chapter 49",
+    "Chapter 53",
+    "Chapter 54",
+    "D&C 27",
+    "Ether 1",
+    "Ether 4",
+    "History 1",
+    "In 1823",
+    "Mormon 7",
+    "Mormon 8",
+    "Moroni 1",
+    "Moroni 2",
+    "Moroni 3",
+    "Moroni 7"
+   ],
+   "cites_manual_ref": true
+  },
+  "doctrine-after-death": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "What happens after we die is a profound question, and the teachings of the gospel provide clarity on this topic. After our mortal bodies die, our spirits go to the spirit world, where we await resurrection. This spirit world is described as a place of waiting, working, learning, and for the righteous, resting from care and sorrow. It is here that the gospel of Jesus Christ continues to be taught, and those who did not have the opportunity to receive it in life can still find a path to salvation (Gospel Topics: Spirit World).\n\nDuring this time in the spirit world, our spirits remain conscious and can progress in understanding and knowledge. Eventually, at the time of the Resurrection, our spirits will reunite with our bodies, and we will be judged and assigned to a kingdom of glory based on our choices and obedience to God's commandments (Gospel Topics: Postmortality). \n\nThe plan of salvation, as outlined by Heavenly Father, ensures that everyone will have the opportunity to receive the gospel, even after death, emphasizing the preciousness of every soul to God (Gospel Topics: Spirit World). \n\nIt's important to remember that personal prayer and the guidance of the Holy Spirit can provide further understanding and confirmation of these truths. If you have more questions or want to explore specific aspects further, feel free to ask!",
+   "labels": [
+    "Topical Guide: Life after Death",
+    "Gospel Topics: Spirit World (Study Guide)",
+    "Gospel Topics: Postmortality",
+    "Topical Guide: Die",
+    "Institute Manual (Book of Mormon): Chapter 32: Alma 40–42 — Introduction",
+    "Gospel Topics: Grace",
+    "Gospel Topics: Heaven"
+   ],
+   "cited_chapters": [],
+   "manual_chapters": [
+    "Alma 40",
+    "Chapter 32"
+   ],
+   "cites_manual_ref": false
+  },
+  "doctrine-repentance-steps": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "The steps of repentance are beautifully outlined in the teachings about this important principle. Here’s a summary of those steps:\n\n1. **Faith in Heavenly Father and Jesus Christ**: To receive forgiveness, we must first act on our faith in God and rely on the Savior’s power to cleanse us from sin.\n\n2. **Sorrow for Sin**: We need to recognize our sins and feel \"godly sorrow\" for disobeying God. This sincere feeling motivates us to seek forgiveness.\n\n3. **Confession**: We must confess our sins to Heavenly Father through prayer, admitting our mistakes and asking for His help. For serious sins, it may also involve speaking with a bishop or branch president.\n\n4. **Obedience to Commandments**: Full obedience to all commandments is essential, as it brings the power of the gospel into our lives and helps us focus on abandoning specific sins.\n\n5. **Recognition of the Savior**: Understanding that forgiveness comes through Jesus Christ is crucial. We must have a conviction that only through Him can we be forgiven.\n\nThese steps guide us in the process of repentance, helping us turn away from sin and return to God. Remember, personal prayer and the Holy Spirit are vital in this journey, as they provide the ultimate witness of truth and guidance.",
+   "labels": [
+    "Gospel Topics: Repentance (Study Guide)",
+    "Gospel Topics: Repentance",
+    "Institute Manual (Book of Mormon): Helaman 14:11. “That Ye Might Know the Conditions of Repentance”",
+    "Bible Dictionary: Repentance"
+   ],
+   "cited_chapters": [],
+   "manual_chapters": [
+    "Chapter 38",
+    "Helaman 13",
+    "Helaman 14"
+   ],
+   "cites_manual_ref": false
+  },
+  "doctrine-temples": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Temples are built because they are literally the houses of the Lord, serving as holy places of worship where individuals can make sacred covenants with God. This is a significant aspect of Heavenly Father's plan of salvation, as temples are essential for individuals to receive eternal life with God and their families. Modern-day prophets have emphasized that temples are gateways to the greatest blessings God has in store for us, and they play a crucial role in bringing about the “immortality and eternal life of man.”\n\nThe Church dedicates time, effort, and resources to building temples around the world to make these blessings more accessible to members. Each temple is constructed with the best materials and skilled craftsmanship, reflecting our love for God. Temples also bless communities and nations, bringing additional godly power into the world to strengthen individuals and counteract the adversary's efforts.\n\nIn addition to serving the living, temples allow Church members to perform ordinances by proxy for deceased ancestors, giving them the opportunity to accept these ordinances and receive salvation and exaltation. This work for the dead is a vital part of the temple's purpose, further illustrating why temples are emphasized so much in the Church. \n\nAs you reflect on the importance of temples, remember that personal prayer and the guidance of the Holy Spirit can provide you with deeper understanding and confirmation of these truths.",
+   "labels": [
+    "Gospel Topics: Temples",
+    "Gospel Topics: Church Financial Administration",
+    "Gospel Topics: Temples (Study Guide)",
+    "Gospel Topics: Temples of The Church of Jesus Christ of Latter-day Saints"
+   ],
+   "cited_chapters": [],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "followup-faith": {
+   "intent": "RAG_FOLLOWUP",
+   "answer": "Increasing your faith in Jesus Christ is a journey that involves both effort and action. President Russell M. Nelson emphasized that while the Lord does not require perfect faith, He does ask us to believe. This belief motivates us to study the scriptures and the words of latter-day prophets, as well as to pray for divine guidance. As we learn about Jesus Christ and feel His love, our faith can grow.\n\nElder David A. Bednar teaches that acting in faith is essential. This means taking steps to live according to our beliefs, even when we may not see immediate results. The experience of the Apostle Peter walking on water (Matthew 14:25–33) illustrates that even a little faith can lead to miraculous outcomes, and Jesus is always there to help us when we exercise that faith.\n\nAlma taught that if we plant the seed of the gospel in our hearts and nourish it with our faith, we can gradually grow a strong testimony of Jesus Christ (Alma 32:21–43). This nurturing process involves prayer, obedience to commandments, and keeping covenants, which are all ways to strengthen our faith.\n\nRemember, faith is like a muscle; it grows stronger with exercise and can become weak if not actively nurtured. Personal prayer and the guidance of the Holy Spirit are vital in this process, helping us to draw nearer to the Savior and deepen our trust in Him.",
+   "labels": [
+    "Gospel Topics: Faith in Jesus Christ (Study Guide)",
+    "Institute Manual (Book of Mormon): Alma 32:21. Faith and Hope",
+    "Gospel Topics: Faith in Jesus Christ",
+    "Bible Dictionary: Faith"
+   ],
+   "cited_chapters": [
+    "Alma 32",
+    "Matthew 14"
+   ],
+   "manual_chapters": [
+    "Alma 32",
+    "Chapter 30",
+    "Ether 12",
+    "Hebrews 11",
+    "Romans 8"
+   ],
+   "cites_manual_ref": true
+  },
+  "followup-tithing": {
+   "intent": "RAG_FOLLOWUP",
+   "answer": "Tithing is the practice of giving one-tenth of our income to the Lord, which is a commandment that has been followed by God's people throughout history. The Bible indicates that this law was established in ancient times, as seen in passages like Genesis 14:20 and Leviticus 27:30, where tithing is described as holy unto the Lord. \n\nIn modern times, this principle was restored through the Prophet Joseph Smith, and it serves as a way for members of The Church of Jesus Christ of Latter-day Saints to express gratitude for their blessings and to trust in the Lord rather than in material possessions. The funds collected from tithing are used to build up the Church and further the work of the Lord, as noted in Gospel Topics.\n\nThe story of the widow who gave her two mites illustrates that the value of a contribution is not measured by its size but by the sacrifice behind it. Jesus taught that her offering was greater than those who gave much more because she gave all that she had (Mark 12:43-44). This teaches us that tithing can be a matter of faith, regardless of the amount.\n\nUltimately, paying tithing is a privilege that helps members participate in building the kingdom of God on earth. If you have more questions about tithing or its principles, feel free to ask!",
+   "labels": [
+    "Gospel Topics: Tithing (Study Guide)",
+    "Topical Guide: Tithing",
+    "Church History Topics: Nauvoo Temple",
+    "Church History Topics: Tithing",
+    "Gospel Topics: Tithing",
+    "Gospel Topics: Church Financial Administration"
+   ],
+   "cited_chapters": [
+    "Genesis 14",
+    "Leviticus 27",
+    "Mark 12"
+   ],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "followup-sacrament-scriptures": {
+   "intent": "RAG_FOLLOWUP",
+   "answer": "The sacrament is a sacred ordinance that Jesus Christ instituted during the Last Supper with His Apostles, where He took bread and wine, blessed them, and instructed His followers to partake of them in remembrance of Him (Matthew 26:26–28; Mark 14:22–24; Luke 22:19–20). This ordinance was also established among the Nephites after Christ's Resurrection (3 Nephi 18:1–11).\n\nWhen we partake of the sacrament, we consume bread, which symbolizes Christ's body, and water, which represents His blood. This act serves as a reminder of His Atonement and allows us to renew the covenants we made at baptism (Gospel Topics: Sacrament). It is a time for reflection and recommitment to follow Jesus Christ, and when done worthily, it brings a remission of our sins (Moro. 4:3; 3 Ne. 18:7).\n\nThe sacrament is an essential part of our worship and spiritual development, helping us to remember the Savior and His sacrifice for us (Gospel Topics: Sacrament). It is a beautiful opportunity to reflect on our relationship with God and to express our gratitude for His love and mercy.",
+   "labels": [
+    "Gospel Topics: Sacrament",
+    "Topical Guide: Sacrament",
+    "Institute Manual (Book of Mormon): 2 Nephi 4:15–16. “My Soul Delighteth in the Scriptures”",
+    "Gospel Topics: Sacrament (Study Guide)",
+    "Church History Topics: Sacrament Meetings — The Sacrament"
+   ],
+   "cited_chapters": [
+    "3 Nephi 18",
+    "Luke 22",
+    "Mark 14",
+    "Matthew 26"
+   ],
+   "manual_chapters": [
+    "2 Nephi 4",
+    "Chapter 8"
+   ],
+   "cites_manual_ref": false
+  },
+  "chitchat-thanks": {
+   "intent": "CHITCHAT",
+   "answer": "You're very welcome! I'm glad to be here with you. How can I assist you today?",
+   "labels": [],
+   "cited_chapters": [],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "chitchat-hello": {
+   "intent": "CHITCHAT",
+   "answer": "Hello! It's so nice to hear from you! How's your day going?",
+   "labels": [],
+   "cited_chapters": [],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "chitchat-praise": {
+   "intent": "CHITCHAT",
+   "answer": "You're very welcome! I'm glad you liked it. If you have any more questions or thoughts to share, I'm here for you!",
+   "labels": [],
+   "cited_chapters": [],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "mixed-thanks-tithing": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Tithing is a significant principle in the gospel, rooted in both ancient and modern teachings. It involves giving one-tenth of our income to the Lord through His Church. This practice is not just a financial obligation; it is a way for members to express gratitude to God and demonstrate their trust in Him rather than in material possessions. By paying tithing, members contribute to the growth of the Church and help others learn about the gospel (Gospel Topics: Tithing).\n\nHistorically, the law of tithing was observed by God's people, as seen in the Bible and the Book of Mormon. It was restored in our day through the Prophet Joseph Smith, reaffirming its importance for Latter-day Saints (Gospel Topics: Church Financial Administration). The funds collected from tithing are used for various purposes, including building temples, supporting missionary work, and maintaining Church-run educational institutions (Gospel Topics: Tithing Study Guide).\n\nMoreover, the act of paying tithing is a matter of faith. Just as the widow who gave her two mites demonstrated great faith and sacrifice, members today are encouraged to make tithing a priority, regardless of their financial situation (Gospel Topics: Tithing Study Guide). The Lord promises blessings to those who faithfully pay their tithing, as noted in Malachi 3:10, which assures us that He will open the windows of heaven and pour out blessings upon us.\n\nIf you have more questions about tithing or how it can impact your life, feel free to ask! Remember, personal prayer and the guidance of the Holy Spirit are essential in understanding these principles deeply.",
+   "labels": [
+    "Gospel Topics: Tithing",
+    "Gospel Topics: Church Financial Administration",
+    "Topical Guide: Tithing",
+    "Gospel Topics: Tithing (Study Guide)"
+   ],
+   "cited_chapters": [
+    "Malachi 3"
+   ],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "mixed-grace-with-history": {
+   "intent": "RAG_FOLLOWUP",
+   "answer": "The Bible Dictionary explains that grace is a divine means of help or strength given through the bounteous mercy and love of Jesus Christ. It emphasizes that it is through the grace of the Lord Jesus, made possible by His atoning sacrifice, that all mankind will be raised in immortality. This means that everyone will receive their bodies from the grave in a condition of everlasting life.\n\nAdditionally, the Bible Dictionary notes that through grace, individuals can receive strength and assistance to perform good works that they might not be able to achieve on their own. This grace acts as an enabling power, allowing people to strive for eternal life and exaltation after they have done their best efforts. It's a beautiful reminder of how grace is intertwined with our ability to progress and grow spiritually. \n\nIf you have more questions about grace or the Atonement, feel free to ask!",
+   "labels": [
+    "Gospel Topics: Grace (Study Guide)",
+    "Topical Guide: Grace",
+    "Bible Dictionary: Grace",
+    "Topical Guide: Salvation by Grace",
+    "Gospel Topics: Grace"
+   ],
+   "cited_chapters": [],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "long-priesthood-authority": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Latter-day Saints believe that baptism must be performed by someone holding proper priesthood authority because this authority is essential for the ordinance to be valid and recognized by God. The Bible Dictionary explains that God has commanded that baptism be performed by one holding priesthood authority, as seen in passages like 3 Nephi 11:21–28 and Doctrine and Covenants 20:72–74. This authority was restored to Joseph Smith and Oliver Cowdery by John the Baptist in May 1829, who conferred upon them the Aaronic Priesthood, which includes the authority to baptize (Joseph Smith—History 1:68–73).\n\nThe Restoration of the priesthood was necessary because, after the death of Christ’s Apostles, the priesthood authority and the fulness of the gospel were lost due to wickedness and a rejection of the truth (Gospel Topics: Restoration of the Priesthood). This loss meant that the ordinances and covenants essential for salvation, including baptism, could not be performed correctly. The priesthood keys were not simply passed on to others; they were lost entirely, which is why the Restoration was crucial. Heavenly messengers, including John the Baptist, were sent to restore this authority and the keys necessary for the governance of Christ's Church (Gospel Topics: Restoration of the Priesthood).\n\nWhen we are baptized, we make a covenant to take upon ourselves the name of Jesus Christ, always remember Him, and keep His commandments so that we may always have His Spirit with us. This covenant is foundational to our relationship with God and is made valid through the proper priesthood authority. The Book of Mormon and Doctrine and Covenants emphasize the importance of this authority in performing sacred ordinances, ensuring that they are recognized by God and that we can receive the promised blessings associated with them.\n\nIf you have more questions or want to explore specific aspects further, feel free to ask! Remember, personal prayer and the guidance of the Holy Spirit are the ultimate witnesses of truth.",
+   "labels": [
+    "Gospel Topics: Restoration of the Priesthood (Study Guide)",
+    "Gospel Topics: Restoration of the Priesthood",
+    "Gospel Topics: Baptism (Study Guide)",
+    "Church History Topics: Restoration of the Melchizedek Priesthood",
+    "Gospel Topics: Priesthood Keys (Study Guide)",
+    "Gospel Topics: Restoration of the Gospel (Study Guide)",
+    "Institute Manual (Restoration): Lesson 7, Section 1: How did the Lord restore priesthood authority to the earth?"
+   ],
+   "cited_chapters": [
+    "3 Nephi 11",
+    "D&C 20",
+    "History 1",
+    "May 1829"
+   ],
+   "manual_chapters": [
+    "Lesson 7",
+    "Section 1"
+   ],
+   "cites_manual_ref": false
+  },
+  "tithing-hard-times": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Paying tithing, even when money is tight, can be a profound act of faith and trust in the Lord. The Gospel Topics on Tithing emphasizes that while we are only asked to give 10 percent of our income, the act of tithing can be a significant sacrifice, especially during challenging financial times. Just like the widow who gave all she had, our contributions, no matter how small, can be a matter of faith and dedication to the Lord.\n\nMoreover, Malachi 3:8–12 promises great blessings for those who obey the law of tithing. Elder David A. Bednar's message, “The Windows of Heaven,” encourages us to be aware of the blessings that come from paying tithing. These blessings can be both temporal and spiritual, and recognizing them can deepen our desire to pay a full tithe. \n\nAdditionally, the Institute Manual explains that paying tithing is a declaration that material wealth is not our ultimate goal. It reflects our love for a generous and merciful Father in Heaven, who provides for us in various ways. By paying tithing, we align ourselves with God's will and open ourselves to His blessings, which can help us navigate financial difficulties.\n\nUltimately, as you consider your situation, remember that personal prayer and the guidance of the Holy Spirit can provide you with the comfort and direction you need.",
+   "labels": [
+    "Gospel Topics: Tithing (Study Guide)",
+    "Topical Guide: Tight",
+    "Gospel Topics: Church Financial Administration",
+    "Institute Manual (Book of Mormon): 3 Nephi 24:8–12. Tithes and Offerings",
+    "Gospel Topics: Family Finances"
+   ],
+   "cited_chapters": [
+    "Malachi 3"
+   ],
+   "manual_chapters": [
+    "3 Nephi 23",
+    "3 Nephi 24",
+    "Chapter 45"
+   ],
+   "cites_manual_ref": false
+  },
+  "tithing-use": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Tithing money is used for several important purposes within The Church of Jesus Christ of Latter-day Saints. According to the Gospel Topics on Tithing, these funds help build and maintain temples and meetinghouses, support missionary work, and sponsor Church-run educational institutions. Essentially, tithing is a way for members to contribute to the work of the Lord throughout the world, ensuring that the Church can fulfill its divine mission as it grows.\n\nAdditionally, the Church emphasizes that tithing is not just about financial contributions; it reflects a member's gratitude to God and their faith in Him. By paying tithing, members help further the work of the Lord and provide opportunities for others to learn about the gospel (Gospel Topics: Tithing). \n\nIt's a beautiful way to participate in building the kingdom of God on earth! If you have more questions about tithing or its significance, feel free to ask.",
+   "labels": [
+    "Gospel Topics: Tithing (Study Guide)",
+    "Gospel Topics: Tithing",
+    "Gospel Topics: Church Financial Administration"
+   ],
+   "cited_chapters": [],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "sacrament-prayers": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "In 3 Nephi 20:8–9, the Savior promises that those who partake of the sacrament will have the opportunity to always have His Spirit with them. This promise is significant because it emphasizes the importance of the Holy Ghost in our lives. The constant companionship of the Holy Ghost is described as one of the greatest gifts we can receive during our mortal journey. \n\nWhen we partake of the sacrament, we renew our covenants with the Lord, which includes a commitment to remember Him and keep His commandments. In return, the Lord grants us the remission of our sins and the promise of His Spirit being with us. This cycle of making and keeping covenants is foundational to our spiritual growth and connection with God.\n\nThe sacrament serves as a powerful reminder of Jesus Christ's atoning sacrifice and our commitment to follow Him. It helps us reflect on our relationship with Him and encourages us to strive for a deeper connection through the Holy Ghost. Personal prayer and the guidance of the Holy Spirit are essential in understanding and feeling the truth of these promises in our lives.",
+   "labels": [
+    "Institute Manual (Book of Mormon): 3 Nephi 20:8–9. The Sacramental Promise of Being Filled with the Spirit",
+    "Gospel Topics: Sacrament",
+    "Gospel Topics: Sacrament (Study Guide)",
+    "Gospel Topics: Gifts of the Spirit (Study Guide)",
+    "Topical Guide: Promise",
+    "Institute Manual (Book of Mormon): Chapter 43: 3 Nephi 18–19 — Suggested Assignments"
+   ],
+   "cited_chapters": [
+    "In 3",
+    "Nephi 20"
+   ],
+   "manual_chapters": [
+    "3 Nephi 18",
+    "3 Nephi 19",
+    "3 Nephi 20",
+    "Chapter 43",
+    "Chapter 44",
+    "Nephi 20",
+    "Spirit 3"
+   ],
+   "cites_manual_ref": true
+  },
+  "sacrament-weekly": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "We take the sacrament every week as a vital part of our worship and spiritual renewal. Participating in this sacred ordinance allows us to remember Jesus Christ and His atoning sacrifice. The sacrament serves as a reminder of His body and blood, which He freely gave for all of us. By partaking of the bread and water, we renew our covenants with the Lord, retain a remission of our sins, and recommit ourselves to follow Him.\n\nAdditionally, the sacrament is an opportunity for personal reflection and repentance. Church members are encouraged to examine their lives and come with a spirit of humility and a contrite heart, striving to prepare for this sacred ordinance each week. This preparation helps us to deepen our gratitude for all that Jesus has done for us and to strengthen our commitment to remember Him always (Gospel Topics: Sacrament). \n\nUltimately, taking the sacrament weekly helps us maintain a close relationship with the Savior and receive the promised companionship of the Holy Spirit in our lives.",
+   "labels": [
+    "Gospel Topics: Sacrament (Study Guide)",
+    "Gospel Topics: Sacrament",
+    "Church History Topics: Sacrament Meetings — Weekly Meetings"
+   ],
+   "cited_chapters": [],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "bom-nephi": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Nephi is a significant figure in the Book of Mormon, known for his role as a prophet and leader. He was the son of Lehi, who led his family out of Jerusalem around 600 B.C. Nephi is recognized for his faithfulness and obedience to God's commandments, even in challenging circumstances, such as when he was commanded to retrieve the brass plates from Laban (1 Nephi 4:10).\n\nNephi also played a crucial role in preserving and recording the spiritual history of his people. He abridged the record of his father Lehi, which included dreams, visions, and teachings, before composing his own history (Church History Topics). His writings, particularly in 2 Nephi, provide prophetic insights about the Savior's role in salvation, the challenges faced by the righteous in the last days, and the blessings of the Restoration, including the coming forth of the Book of Mormon (Institute Manual, Chapter 12).\n\nMoreover, Nephi's use of Isaiah's prophecies in his writings serves to connect his people to the broader covenant promises of Israel, emphasizing that the Lord's merciful plan extends to all (Institute Manual, Chapter 10). His contributions are foundational to the Book of Mormon, which is described as the keystone of the faith, offering guidance and truth for future generations (Institute Manual, Restoration). \n\nIf you have more questions about Nephi or his teachings, feel free to ask!",
+   "labels": [
+    "Institute Manual (Book of Mormon): Chapter 12: 2 Nephi 25–27 — Introduction",
+    "Church History Topics: Lost Manuscript of the Book of Mormon",
+    "Institute Manual (Book of Mormon): 2 Nephi 12–16. Isaiah in the Book of Mormon",
+    "Institute Manual (Book of Mormon): 2 Nephi 28:2. This “Book Shall Be of Great Worth”",
+    "Institute Manual (Book of Mormon): 1 Nephi 4:10. Nephi Commanded to Kill Laban",
+    "Church History Topics: Critics of the Book of Mormon",
+    "Institute Manual (Book of Mormon): 2 Nephi 3:18. Who Are the Different People Spoken of?",
+    "Institute Manual (Restoration): Lesson 6, Section 1: What are some evidences of the truthfulness and importance of the Book of Mormon?"
+   ],
+   "cited_chapters": [
+    "1 Nephi 4",
+    "Chapter 10",
+    "Chapter 12"
+   ],
+   "manual_chapters": [
+    "1 Nephi 1",
+    "1 Nephi 19",
+    "1 Nephi 4",
+    "2 Nephi 1",
+    "2 Nephi 11",
+    "2 Nephi 12",
+    "2 Nephi 25",
+    "2 Nephi 26",
+    "2 Nephi 28",
+    "2 Nephi 3",
+    "2 Nephi 6",
+    "3 Nephi 23",
+    "Chapter 10",
+    "Chapter 12",
+    "Chapter 13",
+    "Chapter 2",
+    "Chapter 7",
+    "Isaiah 2",
+    "Lesson 6",
+    "Section 1"
+   ],
+   "cites_manual_ref": true
+  },
+  "bom-alma": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Alma the Younger was initially known for his opposition to the Church and its teachings. He was described as someone who came to \"literally hate this Church and its people,\" seeing no good in them (Alma 4:9–12). His journey of change began when he was confronted with the truth of the gospel, which led him to experience a profound transformation.\n\nThis change is often referred to as a \"mighty change\" or a \"new birth.\" President Ezra Taft Benson explained that this transformation occurs through faith in Jesus Christ and the operation of the Spirit, making one feel as though they have become a new person (Alma 36:23–24). Alma the Younger’s repentance was significant; he went from being an antagonist to becoming a devoted follower of Christ. His story illustrates the power of repentance and the ability to change, as he ultimately became a powerful preacher and leader in the Church (Alma 15:6–12).\n\nAlma's experience emphasizes that repentance is not just about feeling remorse but involves a sincere desire to change and follow Christ. This aligns with Elder Jeffrey R. Holland's teachings that we must change what we can and seek forgiveness for what we cannot change (Helaman 14:11). Alma's journey serves as a reminder that no matter how far one strays, the path back to God is always available through sincere repentance and faith. \n\nIf you have more questions about Alma's transformation or related topics, feel free to ask!",
+   "labels": [
+    "Institute Manual (Book of Mormon): Alma 4:9–12. “A Great Stumbling-Block”",
+    "Institute Manual (Book of Mormon): Helaman 14:11. “That Ye Might Know the Conditions of Repentance”",
+    "Institute Manual (Book of Mormon): Chapter 23: Alma 1–4 — Introduction",
+    "Institute Manual (Book of Mormon): Alma 36:23–24. Evidence That a Person Has Been Born Again",
+    "Institute Manual (Book of Mormon): Alma 20:30. “A More Hardened and a More Stiff-Necked People”",
+    "Topical Guide: Young, Younger, Youngest",
+    "Institute Manual (Book of Mormon): Alma 15:2–3. Zeezrom",
+    "Gospel Topics: Repentance (Study Guide)"
+   ],
+   "cited_chapters": [
+    "Alma 15",
+    "Alma 36",
+    "Alma 4",
+    "Helaman 14"
+   ],
+   "manual_chapters": [
+    "Alma 1",
+    "Alma 10",
+    "Alma 12",
+    "Alma 13",
+    "Alma 15",
+    "Alma 17",
+    "Alma 2",
+    "Alma 20",
+    "Alma 22",
+    "Alma 36",
+    "Alma 4",
+    "Chapter 23",
+    "Chapter 26",
+    "Chapter 27",
+    "Chapter 31",
+    "Chapter 38",
+    "Helaman 13",
+    "Helaman 14",
+    "May 2006"
+   ],
+   "cites_manual_ref": true
+  },
+  "bom-king-benjamin": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "King Benjamin taught profound principles about service that emphasize its importance in our lives and our relationship with God. In Mosiah 2:17, he explains that when we are in the service of our fellow beings, we are also in the service of God. This highlights the interconnectedness of serving others and serving the Lord, reminding us that our acts of kindness and support towards others are a reflection of our devotion to Him.\n\nAdditionally, President Howard W. Hunter emphasized that righteousness should be at the heart of all service we give. He encouraged us to seek opportunities for service without being overly concerned about recognition or status. This aligns with King Benjamin's teachings, as he exemplified a life dedicated to serving his people with all his might and soul, as noted in the introduction to Mosiah 1–3.\n\nElder Dallin H. Oaks further elaborated that the motivation behind our service is crucial. He pointed out that the highest reason for serving is out of love for God and His children. This principle resonates with King Benjamin's teachings, as he encouraged his people to take upon themselves the name of Jesus Christ, which includes a commitment to love and serve others.\n\nIn summary, King Benjamin's teachings on service encourage us to serve selflessly, with righteousness at the core, and to do so out of love for God and our fellow beings. This approach not only strengthens our covenant relationship with God but also fosters a spirit of humility and gratitude in our lives.",
+   "labels": [
+    "Institute Manual (Book of Mormon): Chapter 18: Mosiah 1–3 — Introduction",
+    "Topical Guide: Service",
+    "Institute Manual (Book of Mormon): Omni 1:23–25. King Benjamin Received the Small Plates",
+    "Institute Manual (Book of Mormon): Mosiah 2:17. Service",
+    "Gospel Topics: Service"
+   ],
+   "cited_chapters": [
+    "Mosiah 1",
+    "Mosiah 2"
+   ],
+   "manual_chapters": [
+    "1 Corinthians 12",
+    "Chapter 17",
+    "Chapter 18",
+    "Jarom 1",
+    "Mosiah 1",
+    "Mosiah 2",
+    "Omni 1",
+    "Words of Mormon 1"
+   ],
+   "cites_manual_ref": true
+  },
+  "joseph-smith-who": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Joseph Smith Jr. was born in 1805 in Vermont, USA, and he is known as the prophet chosen by God to restore the gospel of Jesus Christ in our day. As a young boy in 1820, he sought to know which church was true and, after reading in the Bible that he should ask of God, he prayed in the woods near his home. This prayer led to a remarkable experience where Heavenly Father and Jesus Christ appeared to him, instructing him not to join any existing churches because they were teaching incorrect doctrines.\n\nThroughout his life, Joseph received sacred visions and revelations, translated the Book of Mormon by the gift and power of God, and organized The Church of Jesus Christ of Latter-day Saints, serving as its first President. Despite facing significant persecution for his testimony, he remained steadfast until his martyrdom in 1844, when he and his brother Hyrum were killed by a mob. His prophetic mission has had a profound impact on the lives of many, as he helped restore the knowledge of God's plan for His children and the priesthood authority necessary for salvation.",
+   "labels": [
+    "Gospel Topics: Joseph Smith",
+    "Institute Manual (Restoration): Lesson 24, Section 3: How should I respond when I encounter negative information about the Prophet Joseph Smith?",
+    "Gospel Topics: Joseph Smith (Study Guide)",
+    "Institute Manual (Restoration): Lesson 23, Section 3: How has the prophetic mission of Joseph Smith blessed my life?",
+    "Topical Guide: Joseph Smith",
+    "Church History Topics: Joseph Fielding Smith"
+   ],
+   "cited_chapters": [],
+   "manual_chapters": [
+    "Lesson 23",
+    "Lesson 24",
+    "Section 3"
+   ],
+   "cites_manual_ref": false
+  },
+  "joseph-smith-first-vision": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "In the spring of 1820, Joseph Smith, a young man living in New York, sought guidance through prayer in a grove of trees. He was inspired by James 1:5, which encourages individuals to ask God for wisdom. As he prayed, God the Father and Jesus Christ appeared to him, marking this event as the First Vision. This sacred experience is foundational to the Restoration of the gospel of Jesus Christ, as it established that God communicates with His children and that the heavens are open once again.\n\nThe First Vision not only confirmed Joseph's role as a prophet but also revealed important truths about the nature of God and the need for a restoration of Christ's Church. Elder Richard J. Maynes emphasized that this event unlocks many truths that had been hidden for centuries, including the reality of good and evil and the eternal nature of our Heavenly Father and His Son (Institute Manual, Lesson 2, Section 1). \n\nThis remarkable event is essential for understanding the Restoration and the truths of the gospel, and it serves as a powerful testimony of God's willingness to guide those who seek Him earnestly. If you have any more questions or thoughts about the First Vision, feel free to share!",
+   "labels": [
+    "Topical Guide: First Vision",
+    "Institute Manual (Restoration): Lesson 2, Section 2: How do the multiple accounts of Joseph Smith’s First Vision provide greater insight into this sacred event?",
+    "Gospel Topics: First Vision",
+    "Institute Manual (Restoration): Lesson 2, Section 1: What truths can we learn from Joseph Smith’s First Vision?",
+    "Gospel Topics: First Vision (Study Guide)"
+   ],
+   "cited_chapters": [
+    "James 1",
+    "Lesson 2",
+    "Section 1"
+   ],
+   "manual_chapters": [
+    "History 1",
+    "Lesson 2",
+    "Section 1",
+    "Section 2"
+   ],
+   "cites_manual_ref": true
+  },
+  "bom-translation": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "The Book of Mormon was translated by Joseph Smith “by the gift and power of God.” He began this remarkable task at the young age of 23, with little formal education and no understanding of ancient languages. Joseph dictated the text to his scribes, primarily Oliver Cowdery, at an impressive rate of about eight pages per day. The majority of the translation occurred during a concentrated three-month period between April and June of 1829.\n\nJoseph Smith's wife, Emma, and Martin Harris were among the early scribes, but it was Oliver Cowdery who assisted him during the bulk of the translation. Joseph explained that he used two transparent stones, resembling glass, set in silver bows, which helped him read the reformed Egyptian characters engraved on the plates. This process was not traditional; it was accomplished through divine revelation, and both Joseph and his scribes firmly believed in the divine nature of the translation.\n\nThe translation was completed in about 85 days, and it was published just before the organization of the Church in 1830. The Book of Mormon serves as a testament of Jesus Christ and contains the fullness of the gospel, alongside the Bible. It stands as evidence of Joseph Smith’s prophetic calling and the Restoration of the gospel.",
+   "labels": [
+    "Church History Topics: Book of Mormon Translation",
+    "Gospel Topics: Book of Mormon (Study Guide)",
+    "Gospel Topics: Book of Mormon Translation",
+    "Gospel Topics: Spaulding Manuscript",
+    "Church History Topics: Critics of the Book of Mormon"
+   ],
+   "cited_chapters": [],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "temples-endowment": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "The temple endowment is a sacred religious ceremony administered in the temples of The Church of Jesus Christ of Latter-day Saints. It is available to adult Church members who are prepared for this important experience. The endowment is described as a gift from God, where He bestows sacred blessings upon individuals through the Atonement of Jesus Christ. \n\nDuring the endowment, participants receive greater knowledge of the Lord’s purposes and teachings, as well as the power to accomplish what God desires for them. The ceremony includes instruction, covenants, and promised blessings that provide power, purpose, and protection in daily life. It teaches about significant aspects of the gospel, such as the Creation, the Fall of Adam and Eve, and the plan of redemption through Jesus Christ, ultimately guiding individuals on their journey back to God's presence.\n\nHonoring the covenants made during the endowment qualifies members to enter the covenant of eternal marriage, which leads to the precious gift of eternal life. The endowment is a vital part of the spiritual journey for members of the Church, helping them to strive for a closer relationship with the Savior and to rely on His merits for salvation.",
+   "labels": [
+    "Institute Manual (Restoration): Lesson 20, Section 3: How can I and those I love be blessed by the temple endowment?",
+    "Gospel Topics: Endowment",
+    "Topical Guide: Endowment, Endow",
+    "Gospel Topics: Temples of The Church of Jesus Christ of Latter-day Saints"
+   ],
+   "cited_chapters": [],
+   "manual_chapters": [
+    "April 2019",
+    "Lesson 20",
+    "May 2019",
+    "Section 3"
+   ],
+   "cites_manual_ref": false
+  },
+  "temples-marriage": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Temple marriage is important for several reasons, as highlighted in various teachings of The Church of Jesus Christ of Latter-day Saints. First and foremost, marriage between a man and a woman is ordained of God, and when spouses are sealed in the temple, they make sacred covenants with both God and each other. This sealing allows their marriage to last for eternity, provided they remain faithful to their covenants. The Gospel Topics on Marriage emphasizes that the effort put into maintaining a healthy and strong marriage is well worth the eternal rewards that come from a celestial marriage.\n\nAdditionally, children born to parents who have been sealed in the temple are considered to be born in the covenant, automatically becoming part of an eternal family. This highlights the significance of temple marriage not just for the couple, but also for their children and future generations.\n\nPresident Russell M. Nelson has taught that celestial marriage brings greater possibilities for happiness than any other relationship, reinforcing the idea that temple marriage is a pathway to profound joy and fulfillment. Overall, temple marriage is seen as a vital aspect of eternal family relationships and spiritual growth within the gospel framework. \n\nAs you reflect on these teachings, remember that personal prayer and the guidance of the Holy Spirit can provide you with further understanding and confirmation of these truths.",
+   "labels": [
+    "Gospel Topics: Marriage (Study Guide)",
+    "Topical Guide: Temple Marriage",
+    "Institute Manual (Restoration): Lesson 21, Section 3: Why should I stand up for the Lord’s doctrine of marriage and family?",
+    "Gospel Topics: Temples",
+    "Institute Manual (Restoration): Lesson 22, Section 2: What do we know about the Prophet Joseph Smith’s experience with plural marriage?",
+    "Gospel Topics: Plural Marriage"
+   ],
+   "cited_chapters": [],
+   "manual_chapters": [
+    "Lesson 21",
+    "Lesson 22",
+    "Section 2",
+    "Section 3"
+   ],
+   "cites_manual_ref": false
+  },
+  "wow-coffee-tea": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "The Word of Wisdom, as revealed to Joseph Smith in 1833 and recorded in Doctrine and Covenants 89, specifically advises against the consumption of coffee and tea. It refers to these beverages as \"hot drinks,\" which early Latter-day Saints understood to mean coffee and tea. The revelation emphasizes that these substances are not for the body and encourages members to abstain from them (Church History Topics: Word of Wisdom). Additionally, the Gospel Topics notes that the Word of Wisdom teaches us to avoid substances that are harmful, illegal, or addictive, which includes coffee and tea. Following these guidelines is seen as important for receiving the blessings of the gospel (Gospel Topics: Word of Wisdom). \n\nIf you have more questions about the Word of Wisdom or its implications, feel free to ask!",
+   "labels": [
+    "Gospel Topics: Word of Wisdom",
+    "Church History Topics: Word of Wisdom (D&C 89) — Context for the Revelation",
+    "Church History Topics: Word of Wisdom (D&C 89)",
+    "Church History Topics: Word of Wisdom (D&C 89) — Word of Wisdom Observance",
+    "Gospel Topics: Word of Wisdom (Study Guide)"
+   ],
+   "cited_chapters": [
+    "D&C 89"
+   ],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "followup-wow-commandment": {
+   "intent": "RAG_FOLLOWUP",
+   "answer": "The Word of Wisdom is indeed considered a commandment for members of The Church of Jesus Christ of Latter-day Saints, although it was initially given “not by commandment or constraint” (Doctrine and Covenants 89:2). Over time, Church leaders have taught that following the principles outlined in the Word of Wisdom is essential for receiving the full blessings of the gospel, including participation in baptism, missionary service, and temple ordinances.\n\nThe revelation emphasizes healthy practices, encouraging the consumption of grains, fruits, and wholesome herbs, while advising against harmful substances like alcohol, tobacco, tea, and coffee. Additionally, it encourages the use of wisdom and prayerful judgment in making health-related choices, as not all harmful substances are specifically listed.\n\nThis law reflects God's love for His children, as it aims to promote both physical and spiritual well-being. If you have more questions about specific aspects of the Word of Wisdom or its application, feel free to ask!",
+   "labels": [
+    "Gospel Topics: Word of Wisdom (Study Guide)",
+    "Institute Manual (Restoration): Lesson 13, Section 5: Law of Health",
+    "Gospel Topics: Word of Wisdom"
+   ],
+   "cited_chapters": [
+    "D&C 89"
+   ],
+   "manual_chapters": [
+    "Lesson 13",
+    "May 1996",
+    "Section 5"
+   ],
+   "cites_manual_ref": false
+  },
+  "followup-joseph-smith-saw": {
+   "intent": "RAG_FOLLOWUP",
+   "answer": "Joseph Smith was a pivotal figure in the Restoration of the Gospel of Jesus Christ. He is best known for his First Vision, which occurred when he was about 14 years old. In this sacred experience, he prayed in a grove of trees near his home in Palmyra, New York, seeking guidance about which church to join. In response to his sincere prayer, God the Father and Jesus Christ appeared to him, instructing him not to join any of the existing churches at that time.\n\nIn addition to the First Vision, Joseph Smith was prophesied about by Joseph of Egypt, who referred to him as a \"choice seer\" in 2 Nephi 3:6–9. This prophecy highlights that Joseph Smith was prepared by God to bring forth important revelations and truths that had been hidden from the world. Elder Neal A. Maxwell noted several significant revelations that Joseph Smith received, including insights about the universe, God's purpose, our identity as His children, and the expansive nature of the Savior's Atonement.\n\nJoseph's prophetic mission has had a profound impact on many lives, as he restored essential doctrines and practices of the Gospel, established The Church of Jesus Christ of Latter-day Saints, and translated the Book of Mormon. His life and mission continue to inspire countless individuals today. If you're interested in learning more about his life and teachings, there are many resources available, including videos and articles that delve deeper into his experiences and contributions. Remember, personal prayer and the guidance of the Holy Spirit are essential in seeking your own understanding of his prophetic role.",
+   "labels": [
+    "Institute Manual (Book of Mormon): 2 Nephi 3:6–9. “A Choice Seer”",
+    "Institute Manual (Restoration): Lesson 24, Section 3: How should I respond when I encounter negative information about the Prophet Joseph Smith?",
+    "Church History Topics: Joseph Smith’s First Vision Accounts",
+    "Institute Manual (Restoration): Lesson 23, Section 3: How has the prophetic mission of Joseph Smith blessed my life?",
+    "Gospel Topics: Multiple Accounts of the First Vision",
+    "Church History Topics: Joseph Fielding Smith",
+    "Gospel Topics: Restoration of the Church",
+    "Gospel Topics: Joseph Smith (Study Guide)"
+   ],
+   "cited_chapters": [
+    "2 Nephi 3"
+   ],
+   "manual_chapters": [
+    "2 Nephi 1",
+    "2 Nephi 3",
+    "Chapter 7",
+    "Lesson 23",
+    "Lesson 24",
+    "Section 3"
+   ],
+   "cites_manual_ref": true
+  },
+  "bom-alma32-faith": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Alma 32 teaches that faith is a crucial principle that involves trusting in the word of God and nurturing that trust through obedience and experience. Alma emphasizes that faith is not merely a passive belief but an active process that requires effort and growth. He illustrates this by comparing faith to a seed that, when planted in the fertile soil of the heart, will grow and produce precious fruit (Alma 32:28). \n\nIn Alma 32:21, we learn that faith is a hope for things that are not seen, which are true. This aligns with the idea that faith must go beyond what is known and requires stepping into the unknown, as President Boyd K. Packer described. He noted that true faith must center around something that is not fully known or understood, which allows it to grow and develop over time.\n\nElder Neal A. Maxwell highlighted the dynamic relationship between faith, hope, and knowledge, explaining that they interact with one another and are not always easily distinguished (Alma 32:21; Ether 12:4; Romans 8:24; Hebrews 11:1). This suggests that as one develops faith, hope is also cultivated, leading to a deeper understanding and knowledge of spiritual truths.\n\nAdditionally, Alma warns against seeking signs as a basis for faith, explaining that true faith should not rely on miraculous signs but should be built upon the word of God and personal experience (Alma 32:17–18). This approach fosters a more profound spiritual development and a stronger testimony.\n\nIn summary, Alma 32 teaches that faith is an active, growing principle that requires nurturing through obedience and personal experience, ultimately leading to a deeper understanding of spiritual truths. Personal prayer and the guidance of the Holy Spirit can also help in this journey of faith.",
+   "labels": [
+    "Institute Manual (Book of Mormon): Alma 32:21. Faith and Hope",
+    "Institute Manual (Book of Mormon): Alma 32. Having Faith in the Word of God",
+    "Institute Manual (Book of Mormon): Chapter 30: Alma 32–35 — Suggested Assignments",
+    "Institute Manual (Book of Mormon): Alma 32:17–18. Faith Is Not Built upon Signs"
+   ],
+   "cited_chapters": [
+    "Alma 32",
+    "Ether 12",
+    "Hebrews 11",
+    "Romans 8"
+   ],
+   "manual_chapters": [
+    "Alma 32",
+    "Alma 33",
+    "Chapter 30",
+    "Deuteronomy 13",
+    "Ether 12",
+    "Hebrews 11",
+    "Mark 13",
+    "Matthew 1",
+    "Matthew 24",
+    "Romans 8"
+   ],
+   "cites_manual_ref": true,
+   "cites_expected": true
+  },
+  "bom-nephi-laban": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Nephi killed Laban because he was following a commandment from God, which he received through revelation. This act was not something Nephi desired to do for personal gain; rather, it was necessary to obtain the brass plates, which contained the scriptures essential for Lehi's descendants and their covenant with God. Elder Dale G. Renlund emphasized that this was a rare exception to the commandment \"Thou shalt not kill,\" which remained the standard for Nephi and all of God's people (Exodus 20:13; Mosiah 13:21).\n\nAdditionally, it's important to note that Laban had already demonstrated his wickedness by lying, robbing, and attempting murder, which could justify the severity of his punishment according to the laws of that time (Exodus 21:14; 22:2; Deuteronomy 24:7). The Lord had given Laban multiple chances to part with the brass plates without requiring his life, but ultimately, Nephi understood that the preservation of the scriptures was vital, even if it meant that \"one man should perish\" (1 Nephi 4:13). This act was pivotal for the future of the Nephite and Mulekite nations and the blessings that would come from the Book of Mormon.",
+   "labels": [
+    "Gospel Topics: Religion vs. Violence",
+    "Institute Manual (Book of Mormon): 1 Nephi 4:10. Nephi Commanded to Kill Laban"
+   ],
+   "cited_chapters": [
+    "1 Nephi 4",
+    "Deuteronomy 24",
+    "Exodus 20",
+    "Exodus 21",
+    "Mosiah 13"
+   ],
+   "manual_chapters": [
+    "1 Nephi 1",
+    "1 Nephi 4",
+    "Chapter 2",
+    "Deuteronomy 24",
+    "Exodus 21",
+    "Exodus 22"
+   ],
+   "cites_manual_ref": true,
+   "cites_expected": true
+  },
+  "bom-moroni-promise": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Moroni's promise at the end of the Book of Mormon is found in Moroni 10:3–5, where he invites readers to ponder the mercies of God and to pray with a sincere heart, with real intent, to know the truth of the Book of Mormon. He assures that if they do so, they will receive a witness from the Holy Ghost that the book is true. This promise emphasizes the importance of personal revelation and the role of the Holy Spirit in confirming truth.\n\nIn the context of Moroni's writings, he expresses a deep desire for future generations to understand the consequences of turning away from God, as noted in the Institute Manual. He writes with the hope that his record will serve as a voice of warning and guidance. This aligns with the encouragement from modern prophets, like President Russell M. Nelson, who emphasizes the blessings that come from daily studying the Book of Mormon and seeking personal revelation through prayer.\n\nAs you study the Book of Mormon, applying Moroni's promise can be transformative. It invites you to approach your reading with an open heart and a willingness to seek understanding through the Spirit. Remember, personal prayer and the Holy Spirit are the ultimate witnesses of truth.",
+   "labels": [
+    "Institute Manual (Book of Mormon): Mormon 8:1–6. Moroni",
+    "Institute Manual (Book of Mormon): Chapter 1: The Keystone of Our Religion — Receiving a Personal Testimony of the Book of Mormon",
+    "Institute Manual (Book of Mormon): Chapter 49: Mormon 7–9 — Introduction",
+    "Institute Manual (Book of Mormon): Chapter 49: Mormon 7–9 — The Blessings of Accepting the Book of Mormon",
+    "Institute Manual (Book of Mormon): Moroni 1:1–3. Moroni",
+    "Institute Manual (Book of Mormon): Moroni 10:4–5. Receiving a Testimony of the Book of Mormon",
+    "Gospel Topics: Book of Mormon (Study Guide)"
+   ],
+   "cited_chapters": [
+    "Moroni 10"
+   ],
+   "manual_chapters": [
+    "Chapter 1",
+    "Chapter 49",
+    "Chapter 53",
+    "Chapter 56",
+    "D&C 20",
+    "D&C 27",
+    "Ether 1",
+    "Ether 4",
+    "History 1",
+    "In 1823",
+    "May 2005",
+    "Mormon 7",
+    "Mormon 8",
+    "Mormon 9",
+    "Moroni 1",
+    "Moroni 10",
+    "Mosiah 4"
+   ],
+   "cites_manual_ref": true,
+   "cites_expected": true
+  },
+  "bom-brother-of-jared": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "When the Lord touched the stones that the brother of Jared had prepared, they became a source of light for the Jaredites during their journey across the ocean. The Book of Mormon describes that the brother of Jared asked the Lord to touch these sixteen small stones, which were \"white and clear, even as transparent glass\" (Ether 3:1). After the Lord's touch, these stones provided the necessary light for their vessels, ensuring that they would not travel in darkness.\n\nAdditionally, the Lord indicated that these stones would \"magnify to the eyes of men these things which ye shall write\" (Ether 3:24), suggesting that they had a sacred purpose beyond just providing light. This experience illustrates the brother of Jared's faith and diligence in seeking divine assistance, as he took the initiative to ask the Lord for help rather than waiting for a command (Ether 2:23). \n\nIt's a beautiful reminder of how our efforts to seek light and understanding can lead to divine guidance and revelation. If you have more questions about this topic or related themes, feel free to ask!",
+   "labels": [
+    "Institute Manual (Book of Mormon): Ether 3:23–24, 28. Two Stones of King Mosiah",
+    "Church History Topics: Seer Stones",
+    "Institute Manual (Book of Mormon): Mosiah 8:13. Interpreters",
+    "Institute Manual (Book of Mormon): Ether 2:19–3:6. Obtaining Light Was a Growing Experience",
+    "Topical Guide: Urim and Thummim",
+    "Topical Guide: Sight",
+    "Topical Guide: Stone"
+   ],
+   "cited_chapters": [
+    "Ether 2",
+    "Ether 3"
+   ],
+   "manual_chapters": [
+    "Chapter 19",
+    "Chapter 50",
+    "D&C 58",
+    "Ether 1",
+    "Ether 2",
+    "Ether 3",
+    "Mosiah 4",
+    "Mosiah 8"
+   ],
+   "cites_manual_ref": true,
+   "cites_expected": true
+  },
+  "cht-liberty-jail": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "At Liberty Jail, Joseph Smith, along with his brother Hyrum, Sidney Rigdon, Lyman Wight, Caleb Baldwin, and Alexander McRae, were imprisoned starting on December 1, 1838. They were held there due to allegations of crimes related to conflicts with other Missourians, following a directive from Missouri governor Lilburn W. Boggs that the Saints be driven from the state or exterminated. After an initial hearing, the court ordered them to remain in the Clay County Jail until their trial in late spring 1839.\n\nThe conditions in the jail were quite harsh. Joseph Smith described the environment as miserable, noting that they were kept under strong guard, had scant and coarse food, and were forced to sleep on the floor with inadequate bedding. They also faced issues with smoke from a fire that was necessary for warmth.\n\nDespite these conditions, the prisoners sought legal means to obtain their freedom and attempted to escape on at least two occasions. Eventually, on April 6, 1839, an armed guard escorted them to a trial in Boone County, during which the guards allowed them to escape, and they made their way to Illinois. \n\nThe jail itself, built in 1833, was a small, two-story structure with thick walls designed to prevent escapes, and it served as the Clay County jail until 1856. After falling into disrepair, the site was later purchased by Church member Wilford C. Wood and transferred to the Church, which established a visitors' center there in 1963.",
+   "labels": [
+    "Church History Topics: Liberty Jail"
+   ],
+   "cited_chapters": [
+    "April 6",
+    "December 1"
+   ],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "cht-zions-camp": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Zion's Camp, initially called the Camp of Israel, was an expedition that took place from May to June 1834, involving approximately 230 men, women, and children who marched to Missouri. This was in response to a revelation received by Joseph Smith in February 1834, which commanded him to gather the strength of the Lord’s house to redeem Zion from its enemies. The camp was formed to assist the Saints who had been expelled from Jackson County, Missouri, the previous year. Joseph Smith aimed to have at least 100, and preferably 500, men join the expedition, and he traveled through New York to recruit volunteers and secure funding for the journey.\n\nAlthough the camp was initially envisioned as a military operation, Church leaders, including Joseph Smith, saw it as a defensive campaign. They believed that the Missouri governor, Daniel Dunklin, would call up the state militia to help restore the Saints to their lands. The plan was for the Camp of Israel to march to Missouri, request the militia's assistance, and then remain to protect the Saints from further expulsion.\n\nHowever, as the camp progressed, opposition arose, and Joseph Smith received a revelation on June 22, 1834, stating that it was no longer required for the camp to redeem Zion. Instead, the elders of the Church needed to receive an endowment of power in the Kirtland house of the Lord, which was still under construction. The camp began to disband at the end of June, and this dispersal was hastened by a cholera epidemic that affected camp members, resulting in several deaths. Many participants returned to Kirtland in July 1834.",
+   "labels": [
+    "Church History Topics: Zion’s Camp (Camp of Israel)",
+    "Topical Guide: Camp"
+   ],
+   "cited_chapters": [
+    "February 1834",
+    "July 1834",
+    "June 1834",
+    "June 22"
+   ],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "cht-leave-nauvoo": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "The Saints left Nauvoo primarily due to rising persecution and hostility from surrounding communities and some disaffected former members. Starting in 1842, there were attempts to bring Joseph Smith back to Missouri, which heightened tensions. By 1846, as persecution intensified, Church leaders, including Brigham Young, finalized plans for the Saints to migrate westward. They organized a large exodus, with thousands departing Nauvoo between February and September of that year. The situation escalated to violence in September 1846, when armed men attacked the Latter-day Saints, forcing them to leave the city quickly. Many of the evacuees made their way to Council Bluffs, Iowa, while others remained scattered in the surrounding area for some time. \n\nThis difficult decision to leave was rooted in the Saints' desire for safety and the hope of establishing new settlements where they could worship freely.",
+   "labels": [
+    "Church History Topics: Nauvoo (Commerce), Illinois",
+    "Institute Manual (Restoration): Lesson 25, Section 2: How might the Lord guide us when the future looks uncertain?",
+    "Church History Topics: Departure from Nauvoo",
+    "Topical Guide: Leave, Left [ verb ]",
+    "Church History Topics: Quincy, Illinois, Settlement"
+   ],
+   "cited_chapters": [
+    "By 1846",
+    "September 1846"
+   ],
+   "manual_chapters": [
+    "D&C 136",
+    "Lesson 25",
+    "Section 2"
+   ],
+   "cites_manual_ref": false
+  },
+  "cht-kirtland-dedication": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "The dedication of the Kirtland Temple on March 27, 1836, was a significant and spiritually uplifting event for the early Saints. The day-long ceremony included various elements such as speeches, music, the administration of the sacrament, and a dedicatory prayer offered by Joseph Smith, which he received by revelation. This prayer is recorded in Doctrine and Covenants 109 and included requests for blessings upon those who would worship in the temple (Institute Manual, Restoration).\n\nDuring the dedication, the Saints experienced remarkable spiritual manifestations, including the sound of a rushing mighty wind, speaking in tongues, visions, and even the visitation of angels (Church History Topics, Temple Dedications and Dedicatory Prayers). The ceremony concluded with the Hosanna Shout and the singing of “The Spirit of God like a Fire Is Burning,” a hymn specifically written for the occasion (Church History Topics, Kirtland Temple).\n\nThe Kirtland Temple served as a center for worship and community gatherings, hosting various meetings and spiritual activities in the weeks following its dedication. It became a place where the Saints could feel the outpouring of the Holy Spirit and connect with the divine (Church History Topics, Kirtland Temple). Overall, the dedication set a pattern for future temple dedications and established the temple as a sacred space for worship and revelation.",
+   "labels": [
+    "Church History Topics: Temple Dedications and Dedicatory Prayers",
+    "Institute Manual (Restoration): Lesson 20, Section 1: How can worshipping in the temple bless my life?",
+    "Church History Topics: Kirtland Temple",
+    "Institute Manual (Restoration): Lesson 16, Section 1: What can I learn from the sacrifices of the early Saints to build the Kirtland Temple?"
+   ],
+   "cited_chapters": [
+    "D&C 109",
+    "March 27"
+   ],
+   "manual_chapters": [
+    "Lesson 16",
+    "Lesson 20",
+    "Section 1"
+   ],
+   "cites_manual_ref": false,
+   "cites_expected": true
+  },
+  "cht-emma-smith": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Emma Smith, born on July 10, 1804, in Willingsborough, Pennsylvania, was the wife of Joseph Smith, the founder of The Church of Jesus Christ of Latter-day Saints. She played a significant role in the restoration of the Church and was described by her mother-in-law, Lucy Mack Smith, as a woman of remarkable courage and endurance, facing numerous hardships with unwavering strength. \n\nEmma was recognized as “an elect lady” in a revelation given to Joseph Smith, which outlined her responsibilities and counsel from the Lord (Doctrine and Covenants 25:3). Notably, she was appointed to compile sacred hymns for the Church, highlighting the importance of music in worship (D&C 25:12). \n\nIn her later years, despite being estranged from Brigham Young and the Latter-day Saints in Utah, Emma maintained her belief in Joseph Smith’s prophetic role and the divine authenticity of the Book of Mormon. She passed away on April 30, 1879, in Nauvoo, where she is buried next to Joseph Smith. Emma's life and contributions have left a lasting impact on Latter-day Saint history, and her character continues to be both revered and misunderstood.",
+   "labels": [
+    "Church History Topics: Emma Hale Smith",
+    "Institute Manual (Restoration): Lesson 24, Section 3: How should I respond when I encounter negative information about the Prophet Joseph Smith?",
+    "Church History Topics: Emma Hale Smith — Later Years",
+    "Institute Manual (Restoration): Lesson 18, Section 1: How do Latter-day Saint women build God’s kingdom?",
+    "Church History Topics: Hymns"
+   ],
+   "cited_chapters": [
+    "April 30",
+    "D&C 25",
+    "July 10"
+   ],
+   "manual_chapters": [
+    "D&C 25",
+    "Lesson 18",
+    "Lesson 24",
+    "Section 1",
+    "Section 3"
+   ],
+   "cites_manual_ref": true
+  },
+  "cht-word-of-wisdom-history": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "The Word of Wisdom is a revelation given by the Lord to the Prophet Joseph Smith in 1833, which is now recorded in Doctrine and Covenants 89. This revelation outlines guidelines for health, encouraging the consumption of grains, fruits, and herbs while advising against the use of tobacco, alcohol, tea, and coffee. It also emphasizes the importance of using wisdom and prayerful judgment in making health-related choices, as Church leaders have taught that we should refrain from harmful, illegal, or addictive substances.\n\nOriginally, the Word of Wisdom was given “not by commandment or constraint,” but over time, it has been emphasized as a requirement for receiving the full blessings of the restored gospel, including baptism, missionary service, and temple ordinances. The historical context of the Word of Wisdom helps us understand its significance, as it was revealed during a time when health practices were becoming increasingly important. Adhering to these principles not only brings physical benefits but also spiritual blessings, such as greater receptivity to personal revelation.\n\nIf you have more questions about the Word of Wisdom or its implications, feel free to ask!",
+   "labels": [
+    "Gospel Topics: Word of Wisdom (Study Guide)",
+    "Gospel Topics: Peace and Violence among 19th-Century Latter-day Saints",
+    "Church History Topics: Word of Wisdom (D&C 89) — Word of Wisdom Observance",
+    "Institute Manual (Restoration): Lesson 22, Section 5: Is plural marriage required for exaltation?",
+    "Church History Topics: Church History and Record Keeping",
+    "Institute Manual (Book of Mormon): 1 Nephi 15:13–16. Latter-day Restoration of the Gospel"
+   ],
+   "cited_chapters": [
+    "D&C 89"
+   ],
+   "manual_chapters": [
+    "1 Nephi 12",
+    "1 Nephi 15",
+    "Chapter 4",
+    "Lesson 22",
+    "Section 5"
+   ],
+   "cites_manual_ref": false,
+   "cites_expected": true
+  },
+  "restoration-first-vision-accounts": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "There are several accounts of the First Vision because Joseph Smith recorded his experience multiple times throughout his life, each time emphasizing different aspects depending on his audience and purpose. The various accounts provide a more complete picture of this sacred event, as they highlight different details and insights. For instance, Joseph left four primary accounts, and in addition, five contemporaries wrote about their experiences after hearing him speak of the vision. \n\nThese differences in emphasis and detail are expected when someone recounts a significant experience in various settings over time. Just as we see in the New Testament with the multiple accounts of Paul’s conversion, the core story remains consistent despite variations in how it is told. This richness in the accounts of the First Vision helps deepen our understanding and appreciation of the event, rather than detracting from its authenticity. \n\nIf you're exploring this topic further, consider how these accounts might resonate with your own experiences of revelation and testimony. Personal prayer and the guidance of the Holy Spirit can also help you discern truth as you study.",
+   "labels": [
+    "Gospel Topics: Multiple Accounts of the First Vision",
+    "Institute Manual (Restoration): Lesson 2, Section 2: How do the multiple accounts of Joseph Smith’s First Vision provide greater insight into this sacred event?",
+    "Gospel Topics: First Vision (Study Guide)"
+   ],
+   "cited_chapters": [],
+   "manual_chapters": [
+    "Lesson 2",
+    "Section 2"
+   ],
+   "cites_manual_ref": false
+  },
+  "followup-liberty-jail-lessons": {
+   "intent": "RAG_FOLLOWUP",
+   "answer": "While Joseph Smith was imprisoned in Liberty Jail, he sought understanding from the Lord regarding the suffering of the Saints. In response to his heartfelt prayer, the Lord reassured him with the message that his adversity and afflictions would be but a small moment, and that if he endured them well, he would be exalted on high. This revelation provided Joseph with comfort and perspective during a time of great trial (Church History Topics: Liberty Jail).\n\nAdditionally, Joseph dictated letters to the Church from the jail, which contained important revelatory instruction and counsel. These letters are now found in sections 121, 122, and 123 of the Doctrine and Covenants. They express profound truths about enduring trials and the nature of suffering, which have led later Latter-day Saints to view Liberty Jail as both a temple and a prison (Church History Topics: Liberty Jail).\n\nThe experience in Liberty Jail was not only a time of physical hardship but also a significant spiritual learning opportunity for Joseph and the early Saints, emphasizing the importance of faith and endurance in the face of adversity (Institute Manual: Lesson 17).",
+   "labels": [
+    "Church History Topics: Liberty Jail",
+    "Institute Manual (Restoration): Lesson 17, Section 3: How can adversity prepare us for some of our most important learning?",
+    "Church History Topics: Hyrum Smith"
+   ],
+   "cited_chapters": [
+    "Lesson 17"
+   ],
+   "manual_chapters": [
+    "Lesson 17",
+    "Section 3"
+   ],
+   "cites_manual_ref": true,
+   "cites_expected": false
+  },
+  "followup-alma32-seed": {
+   "intent": "RAG_FOLLOWUP",
+   "answer": "Alma 32 uses the metaphor of a seed to illustrate the process of developing faith. Alma explains that when we first hear the word of God, it is like planting a seed in our hearts. This seed represents our faith, which begins as a small hope for things not seen. As we nurture this seed through diligence, patience, and long-suffering, it can grow into a fruit-bearing tree, symbolizing a deeper understanding and knowledge of Christ and His love.\n\nIn Alma 32:28–30, Alma encourages us to \"give place, that a seed may be planted\" and to allow it to grow. This involves actively engaging with the word of God and being open to its influence in our lives. As we nourish this seed, we can experience the blessings that come from our faith, which may manifest as feelings of peace and assurance that the seed is good.\n\nAlma also emphasizes that neglecting the tree and failing to nourish it will prevent us from receiving the fullness of its blessings (Alma 32:38). This nurturing process is gradual, and while some blessings may come quickly, the full realization of our faith takes time and effort (Alma 32:43). \n\nOverall, the seed comparison illustrates that faith is not just a one-time event but a continuous journey of growth and development, leading us closer to Christ and His teachings.",
+   "labels": [
+    "Institute Manual (Book of Mormon): Alma 32–34. Tree of Life",
+    "Institute Manual (Book of Mormon): Chapter 30: Alma 32–35 — Suggested Assignments",
+    "Institute Manual (Book of Mormon): Alma 32:28–30. “Give Place, That a Seed May Be Planted” and Begin to Grow",
+    "Institute Manual (Book of Mormon): Alma 32:33–43. Nourish the Word",
+    "Institute Manual (Book of Mormon): Alma 32:37–38, 42–43. Being a Disciple of Christ"
+   ],
+   "cited_chapters": [
+    "Alma 32"
+   ],
+   "manual_chapters": [
+    "3 Nephi 9",
+    "Alma 32",
+    "Alma 33",
+    "Chapter 30",
+    "Mosiah 4"
+   ],
+   "cites_manual_ref": true,
+   "cites_expected": true
+  },
+  "mixed-thanks-zions-camp": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Zion's Camp, initially called the Camp of Israel, was an expedition organized by Joseph Smith from May to June 1834. It consisted of approximately 230 men, women, and children who marched to Missouri to assist the Saints who had been expelled from Jackson County the previous year. Joseph Smith received a revelation in February 1834 that commanded him to gather the strength of the Lord’s house to redeem Zion from its enemies, which led to the formation of this camp.\n\nThe camp was intended as a defensive measure, with the hope that Missouri governor Daniel Dunklin would call up the state militia to help restore the Saints to their lands. Joseph envisioned that after the militia escorted the Saints back to Jackson County, the Camp of Israel would remain to protect them from further expulsion (Church History Topics). \n\nZion's Camp was significant not only for its immediate goal of aiding the Saints but also because it served as a precursor to the endowment of power that the elders of the Church needed to receive in the Kirtland house of the Lord, which was under construction at the time. This endowment was deemed necessary before the redemption of Zion could occur (Church History Topics). \n\nThe camp faced various challenges, including opposition from local citizens and a cholera epidemic that affected its members. Ultimately, the camp began to disband at the end of June 1834, but its legacy continued to influence the Church and its members (Church History Topics).",
+   "labels": [
+    "Church History Topics: Zion’s Camp (Camp of Israel)",
+    "Topical Guide: Camp"
+   ],
+   "cited_chapters": [
+    "February 1834",
+    "June 1834"
+   ],
+   "manual_chapters": [],
+   "cites_manual_ref": null
+  },
+  "mixed-hello-emma-hymns": {
+   "intent": "RAG_NEW_TOPIC",
+   "answer": "Hi there! Emma Smith played a significant role in the development of hymns for the Church. She was instructed by a revelation to compile a selection of sacred hymns for the Church shortly after its organization. This was quite remarkable, as it was uncommon for women to take on such responsibilities at that time. The Lord expressed His delight in the \"song of the heart,\" emphasizing the importance of music in worship (D&C 25:12).\n\nEmma's first hymnal, titled *A Collection of Sacred Hymns, for the Church of the Latter Day Saints*, was published in 1835 and included 90 hymns, many of which were popular Protestant hymns, along with some written by Latter-day Saints. She worked with W. W. Phelps to print hymns in Church newspapers as early as 1832, and her contributions helped establish a foundation for Church music (Church History Topics: Hymns).\n\nEmma's efforts in hymn selection and compilation were not only a service to the Church but also a way for her to express her faith and support for Joseph Smith during challenging times. Her work in this area has had a lasting impact on Latter-day Saint worship and culture. If you have more questions about Emma or hymns, feel free to ask!",
+   "labels": [
+    "Church History Topics: Emma Hale Smith — Church Service",
+    "Church History Topics: Hymns",
+    "Institute Manual (Restoration): Lesson 18, Section 1: How do Latter-day Saint women build God’s kingdom?",
+    "Church History Topics: Emma Hale Smith — Later Years"
+   ],
+   "cited_chapters": [
+    "D&C 25"
+   ],
+   "manual_chapters": [
+    "Lesson 18",
+    "Section 1"
+   ],
+   "cites_manual_ref": false,
+   "cites_expected": true
+  }
+ },
+ "comparison": [
+  {
+   "id": "doctrine-baptism",
+   "after_full": [
+    5,
+    1
+   ],
+   "after_strict": [
+    5,
+    1
+   ],
+   "before_full": [
+    6,
+    0
+   ],
+   "before_strict": [
+    6,
+    0
+   ],
+   "worse": true,
+   "displaced": 1
+  },
+  {
+   "id": "doctrine-sacrament-purpose",
+   "after_full": [
+    4,
+    0
+   ],
+   "after_strict": [
+    4,
+    0
+   ],
+   "before_full": [
+    3,
+    0
+   ],
+   "before_strict": [
+    3,
+    0
+   ],
+   "worse": false,
+   "displaced": -1
+  },
+  {
+   "id": "doctrine-moroni",
+   "after_full": [
+    4,
+    1
+   ],
+   "after_strict": [
+    0,
+    5
+   ],
+   "before_full": [
+    5,
+    2
+   ],
+   "before_strict": [
+    5,
+    2
+   ],
+   "worse": true,
+   "displaced": 5
+  },
+  {
+   "id": "doctrine-after-death",
+   "after_full": [
+    6,
+    1
+   ],
+   "after_strict": [
+    5,
+    2
+   ],
+   "before_full": [
+    5,
+    1
+   ],
+   "before_strict": [
+    5,
+    1
+   ],
+   "worse": false,
+   "displaced": 0
+  },
+  {
+   "id": "doctrine-repentance-steps",
+   "after_full": [
+    4,
+    0
+   ],
+   "after_strict": [
+    3,
+    1
+   ],
+   "before_full": [
+    4,
+    0
+   ],
+   "before_strict": [
+    4,
+    0
+   ],
+   "worse": false,
+   "displaced": 1
+  },
+  {
+   "id": "doctrine-temples",
+   "after_full": [
+    4,
+    0
+   ],
+   "after_strict": [
+    4,
+    0
+   ],
+   "before_full": [
+    4,
+    0
+   ],
+   "before_strict": [
+    4,
+    0
+   ],
+   "worse": false,
+   "displaced": 0
+  },
+  {
+   "id": "followup-faith",
+   "after_full": [
+    4,
+    0
+   ],
+   "after_strict": [
+    3,
+    1
+   ],
+   "before_full": [
+    3,
+    0
+   ],
+   "before_strict": [
+    3,
+    0
+   ],
+   "worse": false,
+   "displaced": 0
+  },
+  {
+   "id": "followup-tithing",
+   "after_full": [
+    5,
+    0
+   ],
+   "after_strict": [
+    5,
+    0
+   ],
+   "before_full": [
+    5,
+    0
+   ],
+   "before_strict": [
+    5,
+    0
+   ],
+   "worse": false,
+   "displaced": 0
+  },
+  {
+   "id": "followup-sacrament-scriptures",
+   "after_full": [
+    4,
+    1
+   ],
+   "after_strict": [
+    4,
+    1
+   ],
+   "before_full": [
+    4,
+    0
+   ],
+   "before_strict": [
+    4,
+    0
+   ],
+   "worse": true,
+   "displaced": 0
+  },
+  {
+   "id": "mixed-thanks-tithing",
+   "after_full": [
+    4,
+    0
+   ],
+   "after_strict": [
+    4,
+    0
+   ],
+   "before_full": [
+    4,
+    0
+   ],
+   "before_strict": [
+    4,
+    0
+   ],
+   "worse": false,
+   "displaced": 0
+  },
+  {
+   "id": "mixed-grace-with-history",
+   "after_full": [
+    5,
+    0
+   ],
+   "after_strict": [
+    5,
+    0
+   ],
+   "before_full": [
+    5,
+    0
+   ],
+   "before_strict": [
+    5,
+    0
+   ],
+   "worse": false,
+   "displaced": 0
+  },
+  {
+   "id": "long-priesthood-authority",
+   "after_full": [
+    7,
+    0
+   ],
+   "after_strict": [
+    7,
+    0
+   ],
+   "before_full": [
+    5,
+    1
+   ],
+   "before_strict": [
+    5,
+    1
+   ],
+   "worse": false,
+   "displaced": -2
+  },
+  {
+   "id": "tithing-hard-times",
+   "after_full": [
+    3,
+    2
+   ],
+   "after_strict": [
+    3,
+    2
+   ],
+   "before_full": [
+    3,
+    1
+   ],
+   "before_strict": [
+    3,
+    1
+   ],
+   "worse": true,
+   "displaced": 0
+  },
+  {
+   "id": "tithing-use",
+   "after_full": [
+    3,
+    0
+   ],
+   "after_strict": [
+    3,
+    0
+   ],
+   "before_full": [
+    3,
+    0
+   ],
+   "before_strict": [
+    3,
+    0
+   ],
+   "worse": false,
+   "displaced": 0
+  },
+  {
+   "id": "sacrament-prayers",
+   "after_full": [
+    3,
+    3
+   ],
+   "after_strict": [
+    2,
+    4
+   ],
+   "before_full": [
+    4,
+    2
+   ],
+   "before_strict": [
+    4,
+    2
+   ],
+   "worse": true,
+   "displaced": 2
+  },
+  {
+   "id": "sacrament-weekly",
+   "after_full": [
+    3,
+    0
+   ],
+   "after_strict": [
+    3,
+    0
+   ],
+   "before_full": [
+    3,
+    0
+   ],
+   "before_strict": [
+    3,
+    0
+   ],
+   "worse": false,
+   "displaced": 0
+  },
+  {
+   "id": "bom-nephi",
+   "after_full": [
+    5,
+    3
+   ],
+   "after_strict": [
+    0,
+    8
+   ],
+   "before_full": [
+    4,
+    1
+   ],
+   "before_strict": [
+    4,
+    1
+   ],
+   "worse": true,
+   "displaced": 4
+  },
+  {
+   "id": "bom-alma",
+   "after_full": [
+    6,
+    2
+   ],
+   "after_strict": [
+    1,
+    7
+   ],
+   "before_full": [
+    2,
+    5
+   ],
+   "before_strict": [
+    2,
+    5
+   ],
+   "worse": false,
+   "displaced": 1
+  },
+  {
+   "id": "bom-king-benjamin",
+   "after_full": [
+    4,
+    1
+   ],
+   "after_strict": [
+    2,
+    3
+   ],
+   "before_full": [
+    2,
+    3
+   ],
+   "before_strict": [
+    2,
+    3
+   ],
+   "worse": false,
+   "displaced": 0
+  },
+  {
+   "id": "joseph-smith-who",
+   "after_full": [
+    5,
+    1
+   ],
+   "after_strict": [
+    3,
+    3
+   ],
+   "before_full": [
+    3,
+    3
+   ],
+   "before_strict": [
+    3,
+    3
+   ],
+   "worse": false,
+   "displaced": 0
+  },
+  {
+   "id": "joseph-smith-first-vision",
+   "after_full": [
+    5,
+    0
+   ],
+   "after_strict": [
+    3,
+    2
+   ],
+   "before_full": [
+    4,
+    0
+   ],
+   "before_strict": [
+    4,
+    0
+   ],
+   "worse": false,
+   "displaced": 1
+  },
+  {
+   "id": "bom-translation",
+   "after_full": [
+    3,
+    2
+   ],
+   "after_strict": [
+    3,
+    2
+   ],
+   "before_full": [
+    2,
+    1
+   ],
+   "before_strict": [
+    2,
+    1
+   ],
+   "worse": true,
+   "displaced": -1
+  },
+  {
+   "id": "temples-endowment",
+   "after_full": [
+    4,
+    0
+   ],
+   "after_strict": [
+    3,
+    1
+   ],
+   "before_full": [
+    4,
+    0
+   ],
+   "before_strict": [
+    4,
+    0
+   ],
+   "worse": false,
+   "displaced": 1
+  },
+  {
+   "id": "temples-marriage",
+   "after_full": [
+    4,
+    2
+   ],
+   "after_strict": [
+    3,
+    3
+   ],
+   "before_full": [
+    4,
+    1
+   ],
+   "before_strict": [
+    4,
+    1
+   ],
+   "worse": true,
+   "displaced": 1
+  },
+  {
+   "id": "wow-coffee-tea",
+   "after_full": [
+    5,
+    0
+   ],
+   "after_strict": [
+    5,
+    0
+   ],
+   "before_full": [
+    2,
+    1
+   ],
+   "before_strict": [
+    2,
+    1
+   ],
+   "worse": false,
+   "displaced": -3
+  },
+  {
+   "id": "followup-wow-commandment",
+   "after_full": [
+    3,
+    0
+   ],
+   "after_strict": [
+    2,
+    1
+   ],
+   "before_full": [
+    2,
+    0
+   ],
+   "before_strict": [
+    2,
+    0
+   ],
+   "worse": false,
+   "displaced": 0
+  },
+  {
+   "id": "followup-joseph-smith-saw",
+   "after_full": [
+    4,
+    4
+   ],
+   "after_strict": [
+    4,
+    4
+   ],
+   "before_full": [
+    4,
+    4
+   ],
+   "before_strict": [
+    4,
+    4
+   ],
+   "worse": false,
+   "displaced": 0
+  },
+  {
+   "id": "bom-alma32-faith",
+   "after_full": [
+    4,
+    0
+   ],
+   "after_strict": [
+    4,
+    0
+   ],
+   "before_full": [
+    4,
+    0
+   ],
+   "before_strict": [
+    4,
+    0
+   ],
+   "worse": false,
+   "displaced": 0
+  },
+  {
+   "id": "bom-nephi-laban",
+   "after_full": [
+    1,
+    1
+   ],
+   "after_strict": [
+    1,
+    1
+   ],
+   "before_full": [
+    0,
+    4
+   ],
+   "before_strict": [
+    0,
+    4
+   ],
+   "worse": false,
+   "displaced": -1
+  },
+  {
+   "id": "bom-moroni-promise",
+   "after_full": [
+    2,
+    5
+   ],
+   "after_strict": [
+    2,
+    5
+   ],
+   "before_full": [
+    2,
+    3
+   ],
+   "before_strict": [
+    2,
+    3
+   ],
+   "worse": true,
+   "displaced": 0
+  },
+  {
+   "id": "bom-brother-of-jared",
+   "after_full": [
+    2,
+    5
+   ],
+   "after_strict": [
+    2,
+    5
+   ],
+   "before_full": [
+    0,
+    7
+   ],
+   "before_strict": [
+    0,
+    7
+   ],
+   "worse": false,
+   "displaced": -2
+  },
+  {
+   "id": "cht-liberty-jail",
+   "after_full": [
+    1,
+    0
+   ],
+   "after_strict": [
+    1,
+    0
+   ],
+   "before_full": [
+    0,
+    3
+   ],
+   "before_strict": [
+    0,
+    3
+   ],
+   "worse": false,
+   "displaced": -1
+  },
+  {
+   "id": "cht-zions-camp",
+   "after_full": [
+    1,
+    1
+   ],
+   "after_strict": [
+    1,
+    1
+   ],
+   "before_full": [
+    2,
+    3
+   ],
+   "before_strict": [
+    2,
+    3
+   ],
+   "worse": true,
+   "displaced": 1
+  },
+  {
+   "id": "cht-leave-nauvoo",
+   "after_full": [
+    3,
+    2
+   ],
+   "after_strict": [
+    3,
+    2
+   ],
+   "before_full": [
+    0,
+    4
+   ],
+   "before_strict": [
+    0,
+    4
+   ],
+   "worse": false,
+   "displaced": -3
+  },
+  {
+   "id": "cht-kirtland-dedication",
+   "after_full": [
+    3,
+    1
+   ],
+   "after_strict": [
+    3,
+    1
+   ],
+   "before_full": [
+    0,
+    6
+   ],
+   "before_strict": [
+    0,
+    6
+   ],
+   "worse": false,
+   "displaced": -3
+  },
+  {
+   "id": "cht-emma-smith",
+   "after_full": [
+    4,
+    1
+   ],
+   "after_strict": [
+    4,
+    1
+   ],
+   "before_full": [
+    1,
+    4
+   ],
+   "before_strict": [
+    1,
+    4
+   ],
+   "worse": false,
+   "displaced": -3
+  },
+  {
+   "id": "cht-word-of-wisdom-history",
+   "after_full": [
+    2,
+    4
+   ],
+   "after_strict": [
+    2,
+    4
+   ],
+   "before_full": [
+    2,
+    4
+   ],
+   "before_strict": [
+    2,
+    4
+   ],
+   "worse": false,
+   "displaced": 0
+  },
+  {
+   "id": "restoration-first-vision-accounts",
+   "after_full": [
+    3,
+    0
+   ],
+   "after_strict": [
+    3,
+    0
+   ],
+   "before_full": [
+    2,
+    0
+   ],
+   "before_strict": [
+    2,
+    0
+   ],
+   "worse": false,
+   "displaced": -1
+  },
+  {
+   "id": "followup-liberty-jail-lessons",
+   "after_full": [
+    2,
+    1
+   ],
+   "after_strict": [
+    2,
+    1
+   ],
+   "before_full": [
+    0,
+    5
+   ],
+   "before_strict": [
+    0,
+    5
+   ],
+   "worse": false,
+   "displaced": -2
+  },
+  {
+   "id": "followup-alma32-seed",
+   "after_full": [
+    5,
+    0
+   ],
+   "after_strict": [
+    5,
+    0
+   ],
+   "before_full": [
+    0,
+    3
+   ],
+   "before_strict": [
+    0,
+    3
+   ],
+   "worse": false,
+   "displaced": -5
+  },
+  {
+   "id": "mixed-thanks-zions-camp",
+   "after_full": [
+    1,
+    1
+   ],
+   "after_strict": [
+    1,
+    1
+   ],
+   "before_full": [
+    2,
+    2
+   ],
+   "before_strict": [
+    2,
+    2
+   ],
+   "worse": true,
+   "displaced": 1
+  },
+  {
+   "id": "mixed-hello-emma-hymns",
+   "after_full": [
+    3,
+    1
+   ],
+   "after_strict": [
+    3,
+    1
+   ],
+   "before_full": [
+    0,
+    6
+   ],
+   "before_strict": [
+    0,
+    6
+   ],
+   "worse": false,
+   "displaced": -3
+  }
+ ]
+}
