@@ -106,7 +106,7 @@ def test_prompt_passages_are_labelled_with_readable_names():
     from src.backend.main import format_context
 
     text = format_context([Document(page_content="Faith is...", metadata={"source": "topical_guide", "topic": "faith"})])
-    assert text.startswith("[Topical Guide: Faith]\n")
+    assert text.startswith("[1] Topical Guide: Faith\n")
     assert "topical_guide/faith" not in text
 
 

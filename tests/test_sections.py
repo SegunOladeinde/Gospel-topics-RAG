@@ -198,4 +198,4 @@ def test_context_labels_use_the_stored_title():
         "source": "institute_bom", "topic": "chapter-30-alma-32-35--alma-32-21-faith-and-hope",
         "title": "Alma 32:21. Faith and Hope", "url": f"{URL}&id=title8#title8",
     })
-    assert format_context([doc]).startswith("[Institute Manual (Book of Mormon): Alma 32:21. Faith and Hope]\n")
+    assert format_context([doc]).startswith("[1] Institute Manual (Book of Mormon): Alma 32:21. Faith and Hope\n")

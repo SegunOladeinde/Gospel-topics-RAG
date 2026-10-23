@@ -79,6 +79,7 @@ from src.backend.retrieval import (
 )
 from src.backend.retrieval.keyword import GENERIC_VERBS, collection_phrases
 from src.backend.retrieval.refresh import KeywordIndexRefresher
+from src.backend.citations import USED_MARKER, Correction, UsedMarkerFilter, check_references, split_used
 from src.backend.source_links import SourceLink, source_link, source_link_for
 from src.backend.usage import Usage, get_usage
 from dataclasses import dataclass, field
@@ -224,7 +225,9 @@ SYSTEM_PROMPT = (
     "under Faith...\", \"Gospel Topics notes...\", \"The Book of Mormon "
     "institute manual explains...\" or \"Church History Topics recounts...\". "
     "When a passage discusses specific verses (e.g. \"Alma 32:21\"), cite "
-    "those references in your answer. "
+    "those references in your answer. Cite a scripture reference ONLY if it "
+    "appears in the passages, exactly as they give it, next to what you say "
+    "about it; never guess or work out verse numbers yourself. "
     "Occasionally (not every message) remind the user that personal "
     "prayer and the Holy Spirit are the ultimate witnesses of truth, "
     "and note that you are not an official resource of "
@@ -921,12 +924,12 @@ async def route_question(question: str, history: list[Message], chat_model: Chat
 def format_context(documents: list[Document]) -> str:
     """Turn retrieved chunks into one text blob to paste into the prompt.
 
-    Each chunk is labeled with its source so the model can (and is asked
-    to) ground its answer in specific documents rather than blending
-    everything together anonymously.
+    Each chunk is numbered and labeled with its source ("[2] Topical Guide:
+    Faith"), so the model can ground its answer in specific documents and
+    say which ones it used (the USED line, see citations.py).
     """
     blocks = []
-    for document in documents:
+    for number, document in enumerate(documents, start=1):
         # The readable label ("Topical Guide: Faith"), so a natural citation
         # names the source the way the UI's chips do, not "topical_guide/faith".
         # The stored title when there is one: a manual section's title
@@ -934,7 +937,7 @@ def format_context(documents: list[Document]) -> str:
         source_label = source_link_for(
             describe_source(document), document.metadata.get("title"), document.metadata.get("url")
         ).label
-        blocks.append(f"[{source_label}]\n{document.page_content}")
+        blocks.append(f"[{number}] {source_label}\n{document.page_content}")
     return "\n\n---\n\n".join(blocks)
 
 
@@ -1300,6 +1303,53 @@ class PreparedAnswer:
     links: list[SourceLink] = field(default_factory=list)
     # Milliseconds spent in each step before answering, for logs and evals.
     timings: dict[str, float] = field(default_factory=dict)
+    # The numbered passages the model was given ([1] is documents[0]).
+    documents: list[Document] = field(default_factory=list)
+
+
+@dataclass
+class FinalAnswer:
+    """The answer as shown and saved: references checked, and only the sources it used."""
+
+    answer: str
+    sources: list[str]
+    links: list[SourceLink]
+    corrections: list[Correction] = field(default_factory=list)
+
+
+# Shown when the model names no passages (no USED line): the first few sources.
+FALLBACK_SOURCES = 3
+
+
+def finalize_answer(raw: str, prepared: PreparedAnswer) -> FinalAnswer:
+    """From the model's full output to the answer users see.
+
+    1. The USED line says which numbered passages the answer drew on.
+    2. Every scripture reference is checked against the passages given
+       (citations.check_references): corrected or removed if they don't
+       support it, each change logged. A passage that supports a reference
+       counts as used even if the model didn't list it.
+    3. Only the used passages' sources are shown (and saved); with none
+       named, the first FALLBACK_SOURCES sources.
+    """
+    text, used = split_used(raw)
+    documents = prepared.documents
+    if not documents:
+        return FinalAnswer(text, prepared.sources, prepared.links)
+    check = check_references(text, [d.page_content for d in documents])
+    for correction in check.corrections:
+        logger.info("Corrected reference %r -> %r: %s", correction.original, correction.replacement or "(removed)",
+                    correction.reason)
+    chosen = {n - 1 for n in used or [] if 1 <= n <= len(documents)} | check.supporting
+    if chosen:
+        shown = [d for i, d in enumerate(documents) if i in chosen]
+        return FinalAnswer(check.answer, collect_unique_sources(shown), collect_unique_links(shown), check.corrections)
+    return FinalAnswer(
+        check.answer,
+        collect_unique_sources(documents)[:FALLBACK_SOURCES],
+        collect_unique_links(documents)[:FALLBACK_SOURCES],
+        check.corrections,
+    )
 
 
 def admit_question(payload: QueryRequest, caller: Caller, db) -> JSONResponse | None:
@@ -1398,7 +1448,10 @@ async def prepare_answer(
     user_prompt = (
         f"Reference passages:\n{format_context(documents)}\n\n"
         f"Question: {question}\n\n"
-        "Answer from these passages only, citing them naturally by name."
+        "Answer from these passages only, citing them naturally by name (not by number). "
+        "Cite scripture references only as these passages give them. Then, on a last line "
+        f"of its own, write {USED_MARKER} and the numbers of the passages you drew on, "
+        f"e.g. {USED_MARKER} [1], [3]"
     )
     return PreparedAnswer(
         intent=route.intent,
@@ -1410,6 +1463,7 @@ async def prepare_answer(
             HumanMessage(content=user_prompt),
         ],
         timings=timings,
+        documents=list(documents),
     )
 
 
@@ -1503,7 +1557,8 @@ async def query(
     except Exception as exc:  # noqa: BLE001
         logger.error("Chat completion failed for question=%r", question, exc_info=exc)
         raise HTTPException(status_code=502, detail=ANSWER_FAILED_DETAIL) from exc
-    return record_answer(db, caller, payload, str(response.content), prepared.sources, prepared.links)
+    final = finalize_answer(str(response.content), prepared)
+    return record_answer(db, caller, payload, final.answer, final.sources, final.links)
 
 
 @app.post("/admin/reindex", status_code=202, dependencies=[Depends(verify_api_key)])
@@ -1574,7 +1629,8 @@ async def query_stream(
     """Same as /api/v1/query, but the answer streams as server-sent events:
 
         event: token  data: {"text": "..."}       one per chunk of the answer
-        event: done   data: <QueryResponse JSON>  sources, conversation_id, usage
+        event: done   data: <QueryResponse JSON>  the final answer (references checked),
+                                                  the sources it used, conversation_id, usage
         event: error  data: {"detail": "..."}     generation failed mid-answer
 
     Refusals (bad key, too long, out of questions) come back as ordinary
@@ -1624,6 +1680,9 @@ async def query_stream(
             return
 
         parts: list[str] = []
+        # The model's last line names the passages it used; it's read from
+        # the full text afterwards and never shown while streaming.
+        visible = UsedMarkerFilter()
         finished = failed = False
         try:
             async for chunk in chat_model.astream(prepared.llm_messages):
@@ -1634,7 +1693,12 @@ async def query_stream(
                             "First token after %.0f ms (%s)", (time.perf_counter() - started) * 1000, prepared.intent
                         )
                     parts.append(text)
-                    yield sse_event("token", {"text": text})
+                    shown = visible.feed(text)
+                    if shown:
+                        yield sse_event("token", {"text": shown})
+            rest = visible.finish()
+            if rest:
+                yield sse_event("token", {"text": rest})
             finished = True
         except Exception:  # noqa: BLE001
             failed = True
@@ -1648,7 +1712,8 @@ async def query_stream(
             if not finished and not failed and parts:
                 log_query(db, caller)
 
-        response = record_answer(db, caller, payload, "".join(parts), prepared.sources, prepared.links)
+        final = finalize_answer("".join(parts), prepared)
+        response = record_answer(db, caller, payload, final.answer, final.sources, final.links)
         yield sse_event("done", response.model_dump(mode="json"))
 
     return StreamingResponse(
