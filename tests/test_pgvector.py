@@ -287,10 +287,13 @@ async def test_pgvector_bm25_retriever_end_to_end():
 
 def test_load_retriever_builds_pgvector_bm25(monkeypatch):
     monkeypatch.setenv("RETRIEVER_BACKEND", "pgvector_bm25")
-    monkeypatch.setattr(SqlTransport, "iter_passages", lambda self: ((r["chunk_id"], r["content"]) for r in PASSAGES))
+    monkeypatch.setattr(SqlTransport, "iter_passages", lambda self, batch=500, collections=None: (
+        (r["chunk_id"], r["content"]) for r in PASSAGES if not collections or r["collection"] in collections))
     monkeypatch.setattr(SqlTransport, "signature", lambda self: (3, 3, None))
+    monkeypatch.setattr(backend, "collection_groups", lambda: (("topical_guide", "topics_and_questions"), ()))
     retriever = load_retriever(MagicMock())
-    assert isinstance(retriever, PgvectorBm25Retriever)
+    assert isinstance(retriever, PgvectorBm25Retriever)  # no study collections: one group
+    assert retriever.collections is None
     assert retriever.min_similarity == backend.PGVECTOR_BM25_MIN_SIMILARITY == 0.30
     assert retriever.chunk_counts()["keyword"] == 3
 

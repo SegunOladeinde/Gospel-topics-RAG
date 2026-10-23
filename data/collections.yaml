@@ -24,6 +24,10 @@
 #                  final URL (Gospel Topics pages get merged and renamed)
 #   sections       true: raw files are cut into sections (src/backend/ingestion/sections.py)
 #                  and each section is ingested as its own document
+#   group          core (default) or study. With pgvector_bm25 each group is searched
+#                  on its own, and a few study passages are added to the core ones
+#                  (GroupedRetriever in src/backend/retrieval/pgvector.py), so new
+#                  collections can't crowd out the core sources
 #   chunk_size / chunk_overlap   characters per passage and overlap between them
 #   embedding_model / tokenizer  for embeddings and the dry-run cost estimate
 
@@ -70,6 +74,7 @@ collections:
     url_source: source_line
     resolve_redirects: false
     sections: true
+    group: study
 
   - name: institute_restoration
     label: Institute Manual (Restoration)
@@ -79,6 +84,7 @@ collections:
     url_source: source_line
     resolve_redirects: false
     sections: true
+    group: study
 
   - name: church_history_topics
     label: Church History Topics
@@ -88,3 +94,4 @@ collections:
     url_source: source_line
     resolve_redirects: false
     sections: true
+    group: study

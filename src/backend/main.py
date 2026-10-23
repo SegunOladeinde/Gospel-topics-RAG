@@ -70,6 +70,7 @@ from src.backend.history import (
     save_turn,
 )
 from src.backend.retrieval import (
+    GroupedRetriever,
     PgvectorBm25Retriever,
     PgvectorRetriever,
     RestTransport,
@@ -359,6 +360,61 @@ def bm25_refresh_seconds() -> float:
         return DEFAULT_BM25_REFRESH_SECONDS
 
 
+# pgvector_bm25 with study collections (data/collections.yaml group: study):
+# at most this many study passages are added to the core ones, and only
+# those at least this similar to the question, or at least as similar as the
+# best core passage. Chosen on the 45-question eval from caps 2-4 x
+# thresholds 0.55/0.60, with and without the core-relative floor
+# (scripts/eval_collections.py --tune, eval/phase_d_tuning.json): the only
+# setting with at most one existing question worse that also beat the
+# others on the new questions.
+STUDY_MAX_PASSAGES = 2
+STUDY_MIN_SIMILARITY = 0.60
+STUDY_RELATIVE_TO_CORE = True
+
+
+def collection_groups() -> tuple[tuple[str, ...], tuple[str, ...]]:
+    """(core, study) collection names from data/collections.yaml; ((), ())
+    if it can't be read, which searches every collection as one group."""
+    from src.backend.ingestion.config import load_config
+
+    try:
+        collections = load_config().collections
+    except Exception:  # noqa: BLE001 - search ungrouped rather than not at all
+        logger.warning("Couldn't read data/collections.yaml; searching all collections together.", exc_info=True)
+        return (), ()
+    return (tuple(c.name for c in collections if c.group == "core"),
+            tuple(c.name for c in collections if c.group == "study"))
+
+
+def build_pgvector_bm25(
+    transport, embeddings, max_added: int = STUDY_MAX_PASSAGES, min_added_similarity: float = STUDY_MIN_SIMILARITY
+) -> PgvectorBm25Retriever | GroupedRetriever:
+    """The pgvector_bm25 retriever: grouped when there are study collections.
+
+    Its BM25 query also drops collection names ("what does the Bible
+    Dictionary say about grace") and generic verbs ("increase"): they say
+    where to look or how, not what about. Checked on the 30-question eval
+    (scripts/eval_retrieval.py): no question worse.
+    """
+    def make(collections):
+        return PgvectorBm25Retriever(
+            transport,
+            embeddings,
+            k=CHUNKS_PER_RETRIEVER,
+            min_similarity=PGVECTOR_BM25_MIN_SIMILARITY,
+            drop_phrases=keyword_drop_phrases(),
+            drop_words=GENERIC_VERBS,
+            collections=collections,
+        )
+
+    core, study = collection_groups()
+    if not core or not study:
+        return make(None)
+    return GroupedRetriever(make(core), make(study), max_added=max_added, min_similarity=min_added_similarity,
+                            relative_to_core=STUDY_RELATIVE_TO_CORE)
+
+
 def keyword_drop_phrases() -> tuple[str, ...]:
     """Collection names left out of pgvector_bm25's BM25 query: the built-in
     ones plus every collection's name and label in data/collections.yaml, so
@@ -409,18 +465,7 @@ def load_retriever(session_factory=None) -> Retriever:
                 f"RETRIEVER_BACKEND={backend} needs DATABASE_URL (or SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY)."
             )
         if backend == "pgvector_bm25":
-            # Its BM25 query also drops collection names ("what does the Bible
-            # Dictionary say about grace") and generic verbs ("increase"):
-            # they say where to look or how, not what about. Checked on the
-            # 30-question eval (scripts/eval_retrieval.py): no question worse.
-            retriever = PgvectorBm25Retriever(
-                transport,
-                embeddings,
-                k=CHUNKS_PER_RETRIEVER,
-                min_similarity=PGVECTOR_BM25_MIN_SIMILARITY,
-                drop_phrases=keyword_drop_phrases(),
-                drop_words=GENERIC_VERBS,
-            )
+            retriever = build_pgvector_bm25(transport, embeddings)
         else:
             retriever = PgvectorRetriever(transport, embeddings, k=CHUNKS_PER_RETRIEVER)
         if not retriever.chunk_counts()["vector"]:
@@ -520,7 +565,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # pgvector_bm25 keeps a BM25 index in memory: rebuild it when the store
     # changes (automatic check, or POST /admin/reindex) instead of restarting.
     app.state.keyword_refresher = None
-    if isinstance(app.state.retriever, PgvectorBm25Retriever):
+    if isinstance(app.state.retriever, (PgvectorBm25Retriever, GroupedRetriever)):
         app.state.keyword_refresher = KeywordIndexRefresher(app.state.retriever, bm25_refresh_seconds())
         app.state.keyword_refresher.start()
     app.state.chat_model = ChatOpenAI(model=CHAT_MODEL, temperature=0)
