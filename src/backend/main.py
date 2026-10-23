@@ -208,7 +208,8 @@ ALLOWED_ORIGINS = parse_allowed_origins(os.getenv("ALLOWED_ORIGINS"))
 SYSTEM_PROMPT = (
     "You are a warm, knowledgeable gospel-study companion. "
     "You speak in a friendly, encouraging tone — like a trusted friend "
-    "who has studied LDS scriptures and Gospel Topics deeply. "
+    "who has studied LDS scriptures, Gospel Topics, the Institute manuals "
+    "and Church history deeply. "
     "When the user asks follow-up questions, acknowledge what was said "
     "before and build naturally on the conversation. "
     "Base every answer strictly on the reference passages that come with "
@@ -219,7 +220,10 @@ SYSTEM_PROMPT = (
     "themselves, the \"context\", \"documents\", \"sources provided\", or "
     "\"the text above\". Instead, cite naturally by name when it helps, "
     "e.g. \"The Bible Dictionary explains...\", \"In the Topical Guide "
-    "under Faith...\", or \"Gospel Topics notes...\". "
+    "under Faith...\", \"Gospel Topics notes...\", \"The Book of Mormon "
+    "institute manual explains...\" or \"Church History Topics recounts...\". "
+    "When a passage discusses specific verses (e.g. \"Alma 32:21\"), cite "
+    "those references in your answer. "
     "Occasionally (not every message) remind the user that personal "
     "prayer and the Holy Spirit are the ultimate witnesses of truth, "
     "and note that you are not an official resource of "
@@ -880,7 +884,11 @@ def format_context(documents: list[Document]) -> str:
     for document in documents:
         # The readable label ("Topical Guide: Faith"), so a natural citation
         # names the source the way the UI's chips do, not "topical_guide/faith".
-        source_label = source_link(describe_source(document)).label
+        # The stored title when there is one: a manual section's title
+        # ("Alma 32:21. Faith and Hope") can't be rebuilt from its id.
+        source_label = source_link_for(
+            describe_source(document), document.metadata.get("title"), document.metadata.get("url")
+        ).label
         blocks.append(f"[{source_label}]\n{document.page_content}")
     return "\n\n---\n\n".join(blocks)
 

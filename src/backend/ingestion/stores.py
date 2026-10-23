@@ -7,12 +7,14 @@ only have SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY. Both write the same
 rag_documents / rag_chunks rows (sql/004_rag_store.sql).
 """
 
+import json
 import struct
 import time
 from collections.abc import Callable, Sequence
 
 import httpx
 import numpy as np
+from psycopg.types.json import Jsonb
 from sqlalchemy import text
 
 from src.backend.ingestion.documents import SourceDocument
@@ -88,7 +90,7 @@ class SqlRagStore:
         return ids
 
     _COPY_CHUNKS = (
-        "COPY rag_chunks (document_id, collection, chunk_index, content, embedding) FROM STDIN (FORMAT BINARY)"
+        "COPY rag_chunks (document_id, collection, chunk_index, content, embedding, metadata) FROM STDIN (FORMAT BINARY)"
     )
 
     def write_batch(
@@ -110,10 +112,10 @@ class SqlRagStore:
             with raw.cursor() as cursor, cursor.copy(self._COPY_CHUNKS) as copy:
                 # Binary COPY hands each value to the column's binary input
                 # function; "bytea" just passes the halfvec bytes through.
-                copy.set_types(["int8", "text", "int4", "text", "bytea"])
+                copy.set_types(["int8", "text", "int4", "text", "bytea", "jsonb"])
                 for row in rows_for(ids):
                     copy.write_row((row["document_id"], row["collection"], row["chunk_index"], row["content"],
-                                    halfvec_binary(row["embedding"])))
+                                    halfvec_binary(row["embedding"]), Jsonb(row.get("metadata") or {})))
             db.commit()
         return ids
 
@@ -123,10 +125,12 @@ class SqlRagStore:
             if rows:
                 db.execute(
                     text(
-                        "INSERT INTO rag_chunks (document_id, collection, chunk_index, content, embedding) "
-                        "VALUES (:document_id, :collection, :chunk_index, :content, CAST(:embedding AS extensions.halfvec))"
+                        "INSERT INTO rag_chunks (document_id, collection, chunk_index, content, embedding, metadata) "
+                        "VALUES (:document_id, :collection, :chunk_index, :content, "
+                        "CAST(:embedding AS extensions.halfvec), CAST(:metadata AS jsonb))"
                     ),
-                    [{**r, "embedding": vector_literal(r["embedding"])} for r in rows],
+                    [{**r, "embedding": vector_literal(r["embedding"]), "metadata": json.dumps(r.get("metadata") or {})}
+                     for r in rows],
                 )
             db.commit()
 
@@ -194,7 +198,8 @@ class RestRagStore:
             ids = ",".join(str(i) for i in document_ids[start : start + 100])
             self._request("DELETE", "rag_chunks", params={"document_id": f"in.({ids})"})
         for start in range(0, len(rows), batch_rows):
-            batch = [{**r, "embedding": vector_literal(r["embedding"])} for r in rows[start : start + batch_rows]]
+            batch = [{**r, "embedding": vector_literal(r["embedding"]), "metadata": r.get("metadata") or {}}
+                     for r in rows[start : start + batch_rows]]
             self._request("POST", "rag_chunks", json=batch, headers={"Prefer": "return=minimal"})
 
     def delete_documents(self, document_ids) -> None:

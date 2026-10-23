@@ -22,6 +22,8 @@
 #   url_source     source_line (the file's "Source:" line) or pattern (url_pattern)
 #   resolve_redirects  follow redirects once per new/changed page and store the
 #                  final URL (Gospel Topics pages get merged and renamed)
+#   sections       true: raw files are cut into sections (src/backend/ingestion/sections.py)
+#                  and each section is ingested as its own document
 #   chunk_size / chunk_overlap   characters per passage and overlap between them
 #   embedding_model / tokenizer  for embeddings and the dry-run cost estimate
 
@@ -56,3 +58,33 @@ collections:
     title_source: first_line
     url_source: source_line
     resolve_redirects: true
+
+  # Sectioned collections (scripts/fetch_manuals.py; sections: true): each
+  # page is cut at its headings, and every section is its own document with
+  # its own title, deep link (#heading) and scripture references.
+  - name: institute_bom
+    label: Institute Manual (Book of Mormon)
+    raw_path: data/raw/institute_bom
+    url_pattern: "https://www.churchofjesuschrist.org/study/manual/book-of-mormon-student-manual-2018/{slug}?lang=eng"
+    title_source: first_line
+    url_source: source_line
+    resolve_redirects: false
+    sections: true
+
+  - name: institute_restoration
+    label: Institute Manual (Restoration)
+    raw_path: data/raw/institute_restoration
+    url_pattern: "https://www.churchofjesuschrist.org/study/manual/foundations-of-the-restoration-class-preparation-material-2019/{slug}?lang=eng"
+    title_source: first_line
+    url_source: source_line
+    resolve_redirects: false
+    sections: true
+
+  - name: church_history_topics
+    label: Church History Topics
+    raw_path: data/raw/church_history_topics
+    url_pattern: "https://www.churchofjesuschrist.org/study/history/topics/{slug}?lang=eng"
+    title_source: first_line
+    url_source: source_line
+    resolve_redirects: false
+    sections: true

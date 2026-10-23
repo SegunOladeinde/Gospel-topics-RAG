@@ -97,12 +97,16 @@ def docs_for(*collections):
 # Config and parsing
 # ---------------------------------------------------------------------------
 
-def test_repo_config_lists_the_three_collections():
+def test_repo_config_lists_the_collections():
     config = load_config(PROJECT_ROOT / "data" / "collections.yaml", PROJECT_ROOT)
-    assert [c.name for c in config.collections] == ["bible_dictionary", "topical_guide", "topics_and_questions"]
+    assert [c.name for c in config.collections] == [
+        "bible_dictionary", "topical_guide", "topics_and_questions",
+        "institute_bom", "institute_restoration", "church_history_topics",
+    ]
     gospel_topics = config.collections[2]
     assert gospel_topics.resolve_redirects is True
     assert gospel_topics.chunk_size == 1000 and gospel_topics.chunk_overlap == 200
+    assert [c.sections for c in config.collections] == [False, False, False, True, True, True]
 
 
 def test_config_rejects_a_pattern_without_slug(tmp_path):

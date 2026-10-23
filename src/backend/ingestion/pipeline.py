@@ -85,16 +85,26 @@ def plan_run(on_disk: Sequence[SourceDocument], stored: dict[DocKey, StoredDocum
 
 
 def chunk_documents(documents: Sequence[SourceDocument], configs: dict[str, CollectionConfig]) -> list[Chunk]:
+    """Cut each document into passages of at most chunk_size characters.
+
+    A document with a chunk_prefix (a section: "Institute Manual (Book of
+    Mormon), Chapter 30: Alma 32–35 — Alma 32:21. Faith and Hope") gets it
+    on every passage, so each passage says where it's from; the text is cut
+    smaller to leave room for it.
+    """
     chunks = []
-    splitters: dict[str, RecursiveCharacterTextSplitter] = {}
+    splitters: dict[tuple[str, int], RecursiveCharacterTextSplitter] = {}
     for doc in documents:
         config = configs[doc.collection]
-        splitter = splitters.setdefault(
-            doc.collection,
-            RecursiveCharacterTextSplitter(chunk_size=config.chunk_size, chunk_overlap=config.chunk_overlap),
-        )
+        prefix = f"{doc.chunk_prefix}\n\n" if doc.chunk_prefix else ""
+        size = max(config.chunk_size - len(prefix), config.chunk_size // 2)
+        splitter = splitters.get((doc.collection, size))
+        if splitter is None:
+            splitter = splitters[(doc.collection, size)] = RecursiveCharacterTextSplitter(
+                chunk_size=size, chunk_overlap=min(config.chunk_overlap, size // 4)
+            )
         for index, text in enumerate(splitter.split_text(doc.text)):
-            chunks.append(Chunk(document=doc, index=index, content=text))
+            chunks.append(Chunk(document=doc, index=index, content=prefix + text))
     return chunks
 
 
@@ -242,6 +252,7 @@ def run_ingestion(
                     "chunk_index": chunk.index,
                     "content": chunk.content,
                     "embedding": vector,
+                    "metadata": chunk.document.metadata,
                 }
                 for chunk, vector in zip(batch_chunks, vectors, strict=True)
             ]

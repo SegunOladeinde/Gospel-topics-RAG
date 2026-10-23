@@ -18,6 +18,7 @@ class CollectionConfig:
     title_source: str = "first_line"  # or "slug"
     url_source: str = "source_line"  # or "pattern"
     resolve_redirects: bool = False
+    sections: bool = False  # raw files are cut into sections (ingestion/sections.py)
     chunk_size: int = 1000
     chunk_overlap: int = 200
 

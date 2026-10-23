@@ -2,10 +2,12 @@
 
 import hashlib
 import json
-from dataclasses import dataclass, replace
+import re
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 from src.backend.ingestion.config import CollectionConfig
+from src.backend.ingestion.sections import BOOKS, parse_raw, section_url
 
 # Bump to force every document to re-ingest when chunking/content rules change.
 # 2: passages are cut from the raw file text unchanged (title and Source line
@@ -22,6 +24,10 @@ class SourceDocument:
     url: str
     text: str  # the raw file text, what gets chunked
     sha256: str  # of the raw file plus the chunking settings
+    # Sectioned collections only: a line put before every passage (where the
+    # passage comes from), and what's stored in each passage's metadata.
+    chunk_prefix: str = ""
+    metadata: dict = field(default_factory=dict, hash=False, compare=False)
 
     @property
     def key(self) -> tuple[str, str]:
@@ -93,18 +99,87 @@ def parse_document(config: CollectionConfig, slug: str, raw: bytes) -> SourceDoc
     )
 
 
+_NOT_SLUG = re.compile(r"[^a-z0-9]+")
+# A heading that is itself a scripture reference: "Alma 32:21. Faith and Hope", "1 Nephi 3–4. ..."
+_STARTS_WITH_REFERENCE = re.compile(
+    r"^(?:%s|D&C) \d" % "|".join(re.escape(book) for book in sorted(set(BOOKS.values()), key=len, reverse=True))
+)
+
+
+def _slugify(text: str, limit: int = 60) -> str:
+    return _NOT_SLUG.sub("-", text.lower()).strip("-")[:limit].strip("-")
+
+
+def section_title(page_title: str, heading: str) -> str:
+    """The section's title in source links.
+
+    "Chapter 30: Alma 32–35" + "Alma 32:21. Faith and Hope" -> "Alma 32:21. Faith and Hope"
+    "Chapter 30: Alma 32–35" + "Introduction"                -> "Chapter 30: Alma 32–35 — Introduction"
+    "Lesson 5 Class Preparation Material: The Coming Forth..." + "Section 1: How did..."
+                                                             -> "Lesson 5, Section 1: How did..."
+    "Liberty Jail" + ""                                      -> "Liberty Jail"
+    """
+    # The Restoration lessons' titles all say "Lesson N Class Preparation Material: ...".
+    short = page_title.replace(" Class Preparation Material", "")
+    if not heading:
+        return short
+    if _STARTS_WITH_REFERENCE.match(heading):
+        return heading
+    if heading.startswith("Section ") and ":" in short:
+        return f"{short.split(':', 1)[0]}, {heading}"
+    return f"{short} — {heading}"
+
+
+def section_documents(config: CollectionConfig, slug: str, raw: bytes) -> list[SourceDocument]:
+    """One document per section of a sectioned page (see sections.py), each
+    with its own title, deep link and scripture references. The first
+    section keeps the page's slug, the others are "<page>--<heading>"."""
+    title, url, sections = parse_raw(raw.decode("utf-8"))
+    title = title or _title_from_slug(slug)
+    url = url or config.url_pattern.format(slug=slug)
+    documents, used = [], set()
+    for index, section in enumerate(sections):
+        section_slug = slug if index == 0 else f"{slug}--{_slugify(section.heading) or section.anchor}"
+        if section_slug in used:
+            section_slug = f"{section_slug}-{section.anchor}"
+        used.add(section_slug)
+        text = section.text
+        if section.scriptures:
+            text = f"Scriptures: {'; '.join(section.scriptures)}\n\n{text}"
+        prefix = f"{config.label}, {title}" + (f" — {section.heading}" if section.heading else "")
+        metadata = {"section": section.heading, "anchor": section.anchor, "scriptures": section.scriptures}
+        hashed = json.dumps({"prefix": prefix, "text": text, "metadata": metadata}, sort_keys=True).encode()
+        documents.append(
+            SourceDocument(
+                collection=config.name,
+                slug=section_slug,
+                title=section_title(title, section.heading),
+                url=section_url(url, section.anchor, first=index == 0),
+                text=text,
+                sha256=document_sha256(config, hashed),
+                chunk_prefix=prefix,
+                metadata=metadata,
+            )
+        )
+    return documents
+
+
 def load_documents(config: CollectionConfig) -> list[SourceDocument]:
     if not config.raw_path.is_dir():
         raise FileNotFoundError(f"{config.name}: raw_path {config.raw_path} doesn't exist")
-    return [
-        parse_document(config, path.stem, path.read_bytes())
-        for path in sorted(config.raw_path.glob("*.txt"))
-    ]
+    paths = sorted(config.raw_path.glob("*.txt"))
+    if config.sections:
+        return [doc for path in paths for doc in section_documents(config, path.stem, path.read_bytes())]
+    return [parse_document(config, path.stem, path.read_bytes()) for path in paths]
 
 
 def scan_documents(config: CollectionConfig) -> list[DocumentRef]:
     """Every page in the collection as a DocumentRef: each file is read once
-    for its hash and not kept (load() reads it again when it's ingested)."""
+    for its hash and not kept (load() reads it again when it's ingested).
+    Sectioned collections are small (hundreds of pages), so their section
+    documents are simply built up front."""
+    if config.sections:
+        return load_documents(config)
     if not config.raw_path.is_dir():
         raise FileNotFoundError(f"{config.name}: raw_path {config.raw_path} doesn't exist")
     return [
