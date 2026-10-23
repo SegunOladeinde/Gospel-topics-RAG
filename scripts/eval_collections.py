@@ -21,7 +21,14 @@ Comparisons re-score both runs with today's patterns. Questions tagged
 "since": "phase-d" are new; the others are the existing ones whose older
 sources must be kept.
 
+Answer accuracy (--accuracy-compare, with --answers): the share of shown
+source chips that are relevant, and of cited scripture references that the
+shown sources' passages support (citations.check_references), against an
+earlier --answers run. A question is worse on relevance when a smaller share
+of its chips is relevant, or none is where one was.
+
 Usage:
+    uv run python scripts/eval_collections.py eval/accuracy_after.json --answers --accuracy-compare eval/accuracy_before.json
     uv run python scripts/eval_collections.py eval/phase_d_before.json
     uv run python scripts/eval_collections.py eval/phase_d_after.json --answers --compare eval/phase_d_before.json
     uv run python scripts/eval_collections.py eval/phase_d_tuning.json --tune --compare eval/phase_d_before.json
@@ -56,6 +63,7 @@ from src.backend.main import (  # noqa: E402
     describe_source,
     format_context,
 )
+from src.backend.citations import check_references, split_used  # noqa: E402
 from src.backend.retrieval.pgvector import GroupedRetriever, SqlTransport  # noqa: E402
 from src.backend.source_links import source_link_for  # noqa: E402
 
@@ -98,20 +106,33 @@ async def answer(item: dict, retriever: Capturing, chat) -> dict:
     retriever.last = []
     history = [Message(**m) for m in item.get("history", [])]
     prepared = await backend.prepare_answer(item["question"], history, retriever, chat)
+    raw, corrections = None, []
+    shown = list(prepared.sources or [])
     if prepared.fixed_answer is not None:
         text = prepared.fixed_answer
     else:
-        text = (await chat.ainvoke(prepared.llm_messages)).content
+        text = raw = (await chat.ainvoke(prepared.llm_messages)).content
+        finalize = getattr(backend, "finalize_answer", None)  # absent before the answer-accuracy change
+        if finalize:
+            final = finalize(raw, prepared)
+            text, shown = final.answer, final.sources
+            corrections = [vars(c) for c in final.corrections]
     manual_refs = set()
     for doc in retriever.last if prepared.sources else []:
         if doc.metadata.get("source", "").startswith("institute_"):
             first = doc.page_content.split("\n\n", 2)
             manual_refs |= chapters(" ".join(first[:2]))  # the section line and its "Scriptures:" line
     cited = chapters(text)
+    passages = [{"source": describe_source(d), "content": d.page_content}
+                for d in (retriever.last if prepared.sources else [])]
     result = {
         "intent": prepared.intent,
         "answer": text,
+        "raw_answer": raw,  # the model's own output, before the USED line and reference checks
+        "corrections": corrections,
         "labels": [link.label for link in prepared.links or []],
+        "shown_sources": shown,  # the source chips under the answer
+        "passages": passages,  # what the model was given, for checking its references
         "cited_chapters": sorted(cited),
         "manual_chapters": sorted(manual_refs),
         "cites_manual_ref": bool(cited & manual_refs) if manual_refs else None,
@@ -119,6 +140,59 @@ async def answer(item: dict, retriever: Capturing, chat) -> dict:
     if item.get("cites"):
         result["cites_expected"] = any(c in text.replace("Doctrine and Covenants", "D&C") for c in item["cites"])
     return result
+
+
+def accuracy(answers: dict, items: list[dict]) -> dict:
+    """Per question: shown sources that are relevant, and cited references
+    that the shown sources' passages support (check_references)."""
+    rows = {}
+    for item in items:
+        a = answers.get(item["id"])
+        if not a or not a["passages"]:
+            continue
+        shown = a["shown_sources"]
+        relevant = score(shown, patterns(item))[0] if item.get("relevant") else None
+        shown_passages = [p["content"] for p in a["passages"] if p["source"] in shown]
+        check = check_references(a["answer"], shown_passages)
+        raw = check_references(split_used(a["raw_answer"])[0], [p["content"] for p in a["passages"]]) \
+            if a.get("raw_answer") else check
+        rows[item["id"]] = {"shown": len(shown), "relevant": relevant, "references": check.total,
+                            "verified": check.verified, "raw_references": raw.total, "raw_verified": raw.verified,
+                            "corrections": a.get("corrections", [])}
+    return rows
+
+
+def accuracy_report(before: dict, after: dict, items: list[dict]) -> dict:
+    b, a = accuracy(before, items), accuracy(after, items)
+    worse = []
+    print(f"\n{'question':<36}{'relevant shown b→a':>20}{'refs verified b→a':>20}  corrections")
+    for qid in a:
+        if qid not in b:
+            continue
+        rb, ra = b[qid], a[qid]
+        if rb["relevant"] is not None:
+            precision_b = rb["relevant"] / rb["shown"] if rb["shown"] else 0
+            precision_a = ra["relevant"] / ra["shown"] if ra["shown"] else 0
+            if precision_a < precision_b or (rb["relevant"] and not ra["relevant"]):
+                worse.append(qid)
+        print(f"{qid:<36}{'%s/%d → %s/%d' % (rb['relevant'], rb['shown'], ra['relevant'], ra['shown']):>20}"
+              f"{'%d/%d → %d/%d' % (rb['verified'], rb['references'], ra['verified'], ra['references']):>20}  "
+              + "; ".join(f"{c['original']} → {c['replacement'] or '(removed)'}" for c in ra["corrections"]))
+
+    def total(rows, key, of):
+        num = sum(r[key] or 0 for r in rows.values() if r["relevant"] is not None or key != "relevant")
+        den = sum(r[of] for r in rows.values() if r["relevant"] is not None or key != "relevant")
+        return {"count": f"{num}/{den}", "percent": round(100 * num / den, 1) if den else None}
+
+    summary = {
+        "relevant_shown_sources": {"before": total(b, "relevant", "shown"), "after": total(a, "relevant", "shown")},
+        "verified_references": {"before": total(b, "verified", "references"), "after": total(a, "verified", "references"),
+                                "after_model_output_before_checks": total(a, "raw_verified", "raw_references")},
+        "corrections": sum(len(r["corrections"]) for r in a.values()),
+        "relevance_worse": worse,
+    }
+    print(json.dumps(summary, indent=1))
+    return summary
 
 
 def patterns(item: dict) -> list[str]:
@@ -183,6 +257,8 @@ async def main() -> None:
     parser.add_argument("output", type=Path)
     parser.add_argument("--answers", action="store_true", help="also generate and check full answers")
     parser.add_argument("--compare", type=Path, help="an earlier run to compare retrieval with")
+    parser.add_argument("--accuracy-compare", type=Path,
+                        help="an earlier --answers run: compare shown-source relevance and verified references")
     parser.add_argument("--tune", action="store_true",
                         help="score study-group caps 2-4 x thresholds 0.55/0.60 against --compare")
     args = parser.parse_args()
@@ -229,6 +305,10 @@ async def main() -> None:
             a = result["answers"][item["id"]]
             print(f"  answered {item['id']:<36} cites expected: {a.get('cites_expected', '-')!s:<5} "
                   f"cites a manual ref: {a['cites_manual_ref']!s}", flush=True)
+
+    if args.accuracy_compare and "answers" in result:
+        earlier = json.loads(args.accuracy_compare.read_text(encoding="utf-8"))["answers"]
+        result["accuracy"] = accuracy_report(earlier, result["answers"], items)
 
     if before is not None:
         rows = compare(before, retrieval, items)

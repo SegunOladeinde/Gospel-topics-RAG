@@ -225,3 +225,49 @@ async def test_stopping_early_counts_the_question_but_saves_nothing(db):
 
     assert db.query(UserQueryLog).filter_by(user_identifier="s7").count() == 1
     assert db.query(ChatMessage).count() == 0
+
+
+# --- only the sources used, references checked -------------------------------
+
+LIBERTY_DOC = Document(
+    page_content="Liberty Jail held Joseph Smith in 1838. The Lord answered: \"thine adversity and thine "
+                 "afflictions shall be but a small moment\" (Doctrine and Covenants 121:7).",
+    metadata={"source": "church_history_topics", "topic": "liberty-jail"},
+)
+LIBERTY_TG = Document(page_content="Liberty: freedom.", metadata={"source": "topical_guide", "topic": "liberty"})
+
+
+def test_stream_hides_the_used_line_and_shows_only_used_sources(client, db):
+    model = _model(chunks=("Joseph was held in Liberty Jail. The Lord said his trials were \"but a small ",
+                           "moment\" (D&C 121:8).\n\nUS", "ED: [", "2]"))
+    r = _stream(client, "What happened at Liberty Jail?", user_id="s9", docs=(LIBERTY_TG, LIBERTY_DOC), model=model)
+    events = _events(r.text)
+    streamed = "".join(data["text"] for name, data in events if name == "token")
+    assert "USED" not in streamed and "[2]" not in streamed
+
+    done = events[-1][1]
+    # The verse is corrected to the one the passage gives next to the quotation.
+    assert done["answer"].endswith('"but a small moment" (Doctrine and Covenants 121:7).')
+    assert done["sources"] == ["church_history_topics/liberty-jail"]  # not "Topical Guide: Liberty"
+    saved = db.query(ChatMessage).filter_by(conversation_id=done["conversation_id"], role="assistant").one()
+    assert saved.content == done["answer"]
+    assert [s["id"] for s in saved.sources] == ["church_history_topics/liberty-jail"]
+
+
+def test_without_a_used_line_the_first_sources_are_shown(client):
+    docs = [Document(page_content=f"Passage {i}.", metadata={"source": "topical_guide", "topic": f"t{i}"})
+            for i in range(5)]
+    done = _events(_stream(client, user_id="s10", docs=docs).text)[-1][1]
+    assert done["sources"] == ["topical_guide/t0", "topical_guide/t1", "topical_guide/t2"]
+
+
+def test_non_streaming_answer_is_finalised_the_same_way(client):
+    model = MagicMock()
+    model.ainvoke = AsyncMock(return_value=AIMessageChunk(content="It was a hard winter.\nUSED: [2]"))
+    with patch.object(backend, "route_question", new=AsyncMock(return_value=backend.RouteDecision("RAG_NEW_TOPIC", "q"))), \
+         patch.object(app.state, "retriever") as retriever, patch.object(app.state, "chat_model", model):
+        retriever.ainvoke = AsyncMock(return_value=[LIBERTY_TG, LIBERTY_DOC])
+        body = client.post("/api/v1/query", json={"messages": [{"role": "user", "content": "Liberty Jail?"}]},
+                           headers={"X-API-Key": VALID_KEY}).json()
+    assert body["answer"] == "It was a hard winter."
+    assert body["sources"] == ["church_history_topics/liberty-jail"]
