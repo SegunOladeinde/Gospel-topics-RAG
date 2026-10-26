@@ -50,6 +50,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Literal
 
+import openai
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -1287,6 +1288,30 @@ async def remove_conversation(
 
 
 ANSWER_FAILED_DETAIL = "Failed to generate an answer. Please try again shortly."
+# When OpenAI itself can't serve us: out of credit (insufficient_quota),
+# rate limited, or down. Sent as a 503 (or a stream error event); the
+# question isn't counted against the user's limit.
+ASSISTANT_UNAVAILABLE_DETAIL = "The assistant is temporarily unavailable, please try again later."
+
+
+def openai_unavailable(exc: BaseException | None) -> openai.APIStatusError | None:
+    """The OpenAI 429 (rate limit or insufficient_quota) or 5xx response that
+    exc is, or was raised from; None for any other failure."""
+    seen = set()
+    while exc is not None and id(exc) not in seen:
+        seen.add(id(exc))
+        if isinstance(exc, openai.APIStatusError) and (exc.status_code == 429 or exc.status_code >= 500):
+            return exc
+        exc = exc.__cause__ or exc.__context__
+    return None
+
+
+def log_openai_unavailable(step: str, error: openai.APIStatusError) -> None:
+    """ERROR level, so Render's failure emails catch it."""
+    logger.error("OpenAI unavailable during %s: %s %s (%s); told the user to try again later.",
+                 step, error.status_code, error.code or "", type(error).__name__, exc_info=error)
+
+
 NO_MATERIAL_ANSWER = (
     "I couldn't find anything in the available LDS source material to answer that question."
 )
@@ -1427,6 +1452,9 @@ async def prepare_answer(
                 speculative.cancel()
             documents = await retriever.ainvoke(route.query)
     except Exception as exc:  # noqa: BLE001
+        if unavailable := openai_unavailable(exc):  # the question's embedding
+            log_openai_unavailable("retrieval", unavailable)
+            raise HTTPException(status_code=503, detail=ASSISTANT_UNAVAILABLE_DETAIL) from exc
         logger.error("Retrieval failed for question=%r", question, exc_info=exc)
         raise HTTPException(
             status_code=502,
@@ -1555,6 +1583,9 @@ async def query(
     try:
         response = await chat_model.ainvoke(prepared.llm_messages)
     except Exception as exc:  # noqa: BLE001
+        if unavailable := openai_unavailable(exc):
+            log_openai_unavailable("chat completion", unavailable)
+            raise HTTPException(status_code=503, detail=ASSISTANT_UNAVAILABLE_DETAIL) from exc
         logger.error("Chat completion failed for question=%r", question, exc_info=exc)
         raise HTTPException(status_code=502, detail=ANSWER_FAILED_DETAIL) from exc
     final = finalize_answer(str(response.content), prepared)
@@ -1700,8 +1731,12 @@ async def query_stream(
             if rest:
                 yield sse_event("token", {"text": rest})
             finished = True
-        except Exception:  # noqa: BLE001
+        except Exception as exc:  # noqa: BLE001
             failed = True
+            if unavailable := openai_unavailable(exc):
+                log_openai_unavailable("streaming chat completion", unavailable)
+                yield sse_event("error", {"detail": ASSISTANT_UNAVAILABLE_DETAIL})
+                return
             logger.exception("Streaming chat completion failed for question=%r", question)
             yield sse_event("error", {"detail": ANSWER_FAILED_DETAIL})
             return
